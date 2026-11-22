@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0b7a44" />
+<title>Masuk • Tulung Iyong</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  [hidden]{display:none !important}
+
+  :root{
+    --green-900:#05472a;
+    --green-800:#075c36;
+    --green-700:#0b7a44;
+    --green-600:#0f9d58;
+    --green-500:#14b86a;
+    --green-50:#e9f8f0;
+    --yellow-600:#e8ad00;
+    --yellow-500:#ffc72c;
+    --yellow-400:#ffd75e;
+    --yellow-50:#fff8e1;
+    --ink:#0f172a;
+    --ink-2:#334155;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --danger:#dc2626;
+    --shadow-card:0 1px 2px rgba(15,23,42,.05), 0 18px 44px -26px rgba(5,71,42,.55);
+  }
+
+  body{
+    font-family:'Plus Jakarta Sans',Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+    color:var(--ink);
+    background:#f6f9f6;
+    min-height:100dvh;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  button,input{font:inherit}
+  button{cursor:pointer;border:0;background:none;color:inherit}
+  a{color:inherit;text-decoration:none}
+
+  /* ==========================================================
+     TOMBOL SUDUT KANAN ATAS — LOGIN ADMIN & DRIVER
+     ========================================================== */
+  .top-actions{
+    position:fixed;
+    top:14px;
+    right:14px;
+    z-index:60;
+    display:flex;
+    gap:8px;
+  }
+  .ta-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:9px 14px;
+    border-radius:99px;
+    font-size:12.5px;
+    font-weight:800;
+    letter-spacing:-.01em;
+    background:#fff;
+    color:var(--green-800);
+    border:1.5px solid #d8ece1;
+    box-shadow:0 8px 20px -12px rgba(5,71,42,.75);
+    transition:transform .16s, border-color .16s, background .16s, color .16s;
+  }
+  .ta-btn:hover{border-color:var(--yellow-500);transform:translateY(-1px)}
+  .ta-btn.active{
+    background:linear-gradient(135deg,var(--yellow-400),var(--yellow-500));
+    border-color:var(--yellow-600);
+    color:#4a3400;
+  }
+  .ta-btn .ta-ico{font-size:13px;line-height:1}
+
+  /* ==========================================================
+     LAYOUT
+     ========================================================== */
+  .shell{
+    min-height:100dvh;
+    display:grid;
+    grid-template-columns:1fr;
+  }
+
+  /* ---------- PANEL BRAND (kiri / atas) ---------- */
+  .brand-panel{
+    position:relative;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    padding:26px 22px 30px;
+    color:#fff;
+    background:linear-gradient(150deg,#05472a 0%,#0b7a44 48%,#12a05a 100%);
+  }
+  .brand-panel::before{
+    content:"";
+    position:absolute;
+    width:440px;height:440px;border-radius:50%;
+    top:-160px;right:-140px;
+    background:radial-gradient(circle,rgba(255,199,44,.40),transparent 68%);
+    pointer-events:none;
+  }
+  .brand-panel::after{
+    content:"";
+    position:absolute;
+    width:540px;height:540px;border-radius:50%;
+    bottom:-250px;left:-180px;
+    background:radial-gradient(circle,rgba(20,184,106,.55),transparent 70%);
+    pointer-events:none;
+  }
+  .brand-panel > *{position:relative;z-index:1}
+
+  .brand-top{display:flex;align-items:center;gap:13px}
+
+  .logo-box{
+    width:58px;height:58px;
+    border-radius:17px;
+    background:#fff;
+    display:grid;place-items:center;
+    overflow:hidden;
+    flex:none;
+    box-shadow:0 12px 26px -14px rgba(0,0,0,.7);
+  }
+  .logo-box img{width:100%;height:100%;object-fit:contain;display:block}
+  .logo-fallback{
+    width:100%;height:100%;
+    display:grid;place-items:center;
+    font-size:29px;
+    background:linear-gradient(140deg,var(--yellow-400),var(--yellow-500));
+  }
+
+  .brand-name strong{
+    display:block;
+    font-size:18px;
+    font-weight:800;
+    letter-spacing:-.02em;
+    line-height:1.15;
+  }
+  .brand-name small{
+    display:block;
+    font-size:11.5px;
+    font-weight:600;
+    color:rgba(255,255,255,.72);
+    margin-top:2px;
+    letter-spacing:.01em;
+  }
+
+  .brand-copy{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:24px 0 18px;
+  }
+  .brand-copy h1{
+    font-size:clamp(26px,3.2vw,40px);
+    line-height:1.12;
+    letter-spacing:-.035em;
+    font-weight:800;
+    margin:0 0 14px;
+  }
+  .brand-copy h1 span{color:var(--yellow-400)}
+  .brand-copy p{
+    margin:0 0 22px;
+    font-size:14.5px;
+    line-height:1.65;
+    color:rgba(255,255,255,.82);
+    max-width:46ch;
+  }
+  .brand-chips{
+    display:flex;flex-wrap:wrap;gap:8px;
+    list-style:none;padding:0;margin:0;
+  }
+  .brand-chips li{
+    font-size:11.8px;
+    font-weight:700;
+    padding:8px 13px;
+    border-radius:99px;
+    background:rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.20);
+    color:rgba(255,255,255,.94);
+    backdrop-filter:blur(4px);
+  }
+
+  .brand-foot{
+    font-size:11px;
+    color:rgba(255,255,255,.55);
+    font-weight:600;
+    letter-spacing:.01em;
+  }
+
+  /* ---------- PANEL FORM (kanan / bawah) ---------- */
+  .form-panel{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:34px 18px 52px;
+    background:
+      radial-gradient(760px 440px at 100% 0%, #fff6d6 0%, transparent 62%),
+      radial-gradient(620px 420px at 0% 100%, #e9f8f0 0%, transparent 60%),
+      #f6f9f6;
+  }
+
+  .login-card{
+    width:100%;
+    max-width:424px;
+    background:#fff;
+    border:1px solid #e8f0ea;
+    border-top:4px solid var(--green-600);
+    border-radius:24px;
+    padding:28px 26px 22px;
+    box-shadow:var(--shadow-card);
+    transition:border-top-color .2s;
+  }
+  body[data-mode="admin"]  .login-card{border-top-color:var(--yellow-500)}
+  body[data-mode="driver"] .login-card{border-top-color:var(--green-800)}
+
+  /* ---------- HEADER KARTU ---------- */
+  .mode-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:14px;
+    padding:7px 9px 7px 13px;
+    border-radius:99px;
+    background:var(--yellow-50);
+    border:1.5px solid #ffe08a;
+    color:#8a6d00;
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:-.01em;
+  }
+  .mode-pill button{
+    width:19px;height:19px;
+    border-radius:50%;
+    display:grid;place-items:center;
+    background:#fff;
+    border:1px solid #ffe08a;
+    color:#8a6d00;
+    font-size:11px;
+    line-height:1;
+    transition:.16s;
+  }
+  .mode-pill button:hover{background:var(--yellow-500);border-color:var(--yellow-600);color:#4a3400}
+
+  .card-head{margin-bottom:19px}
+  .card-head h2{
+    margin:0 0 6px;
+    font-size:23px;
+    letter-spacing:-.03em;
+    font-weight:800;
+    line-height:1.2;
+  }
+  .card-head p{
+    margin:0;
+    font-size:13.4px;
+    line-height:1.55;
+    color:var(--muted);
+  }
+
+  /* ---------- ALERT ---------- */
+  .alert{
+    display:none;
+    font-size:13px;
+    line-height:1.5;
+    padding:11px 13px;
+    border-radius:13px;
+    margin-bottom:15px;
+    font-weight:600;
+  }
+  .alert.show{display:block}
+  .alert.err{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+  .alert.ok{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
+  .alert.info{background:var(--yellow-50);color:#8a6d00;border:1px solid #ffe08a}
+
+  /* ---------- FIELD ---------- */
+  .field{margin-bottom:15px}
+  .field label{
+    display:block;
+    font-size:12.4px;
+    font-weight:700;
+    color:#475569;
+    margin-bottom:7px;
+    letter-spacing:.01em;
+  }
+  .input-wrap{position:relative;display:flex;align-items:center}
+  .input-wrap .lead{
+    position:absolute;
+    left:14px;
+    display:grid;place-items:center;
+    color:#94a3b8;
+    pointer-events:none;
+    transition:color .16s;
+  }
+  .input-wrap input{
+    width:100%;
+    padding:14px 46px 14px 44px;
+    border:1.5px solid var(--line);
+    border-radius:14px;
+    font-size:15px;
+    font-weight:600;
+    color:var(--ink);
+    background:#fbfcfd;
+    outline:none;
+    transition:border-color .16s, background .16s, box-shadow .16s;
+  }
+  .input-wrap input::placeholder{font-weight:500;color:#a8b4c2}
+  .input-wrap input:focus{
+    border-color:var(--green-600);
+    background:#fff;
+    box-shadow:0 0 0 4px rgba(15,157,88,.13);
+  }
+  .input-wrap:focus-within .lead{color:var(--green-600)}
+
+  .eye{
+    position:absolute;
+    right:8px;
+    width:34px;height:34px;
+    border-radius:10px;
+    display:grid;place-items:center;
+    color:#94a3b8;
+    transition:.16s;
+  }
+  .eye:hover{background:#f1f5f9;color:var(--green-700)}
+
+  /* ---------- TOMBOL UTAMA ---------- */
+  .btn-primary{
+    width:100%;
+    margin-top:6px;
+    padding:15px;
+    border-radius:14px;
+    font-size:15px;
+    font-weight:800;
+    letter-spacing:-.01em;
+    color:#0b3d22;
+    background:linear-gradient(135deg,var(--yellow-400),var(--yellow-500));
+    box-shadow:0 14px 26px -14px rgba(255,199,44,1);
+    transition:transform .16s, filter .16s, box-shadow .16s;
+  }
+  .btn-primary:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.04)}
+  .btn-primary:active:not(:disabled){transform:translateY(0) scale(.995)}
+  .btn-primary:disabled{opacity:.62;cursor:not-allowed;box-shadow:none;transform:none}
+
+  .spinner{
+    display:inline-block;
+    width:15px;height:15px;
+    margin-right:8px;
+    vertical-align:-2px;
+    border-radius:50%;
+    border:2.5px solid rgba(11,61,34,.22);
+    border-top-color:#0b3d22;
+    animation:spin .7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ---------- FOOTER KARTU ---------- */
+  .card-foot{
+    margin-top:18px;
+    padding-top:15px;
+    border-top:1px solid var(--line);
+    text-align:center;
+  }
+  .card-foot p{
+    margin:0;
+    font-size:12.8px;
+    color:var(--muted);
+    line-height:1.5;
+  }
+  .card-foot a{
+    color:var(--green-700);
+    font-weight:800;
+    border-bottom:2px solid var(--yellow-400);
+    padding-bottom:1px;
+  }
+  .card-foot a:hover{color:var(--green-800)}
+
+  .session-note{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:11px 13px;
+    border-radius:13px;
+    background:var(--yellow-50);
+    border:1px solid #ffe08a;
+    margin-bottom:16px;
+  }
+  .session-note .sn-txt{
+    flex:1;
+    min-width:0;
+    font-size:12.4px;
+    line-height:1.4;
+    color:#8a6d00;
+    font-weight:700;
+  }
+  .session-note .sn-txt span{
+    display:block;
+    font-weight:600;
+    color:#a37f00;
+    font-size:11.4px;
+  }
+  .session-note .sn-btn{
+    flex:none;
+    padding:8px 13px;
+    border-radius:10px;
+    background:var(--green-700);
+    color:#fff;
+    font-size:12px;
+    font-weight:800;
+    transition:.16s;
+  }
+  .session-note .sn-btn:hover{background:var(--green-800)}
+
+  .version{
+    margin-top:14px;
+    text-align:center;
+    font-size:10.5px;
+    font-weight:700;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:#a8b4c2;
+  }
+
+  /* ==========================================================
+     RESPONSIVE
+     ========================================================== */
+  @media (max-width:979px){
+    .brand-panel{
+      padding:74px 20px 26px;
+      min-height:0;
+    }
+    .brand-copy,
+    .brand-foot{display:none}
+    .ta-btn{padding:8px 12px;font-size:11.8px}
+  }
+
+  @media (min-width:980px){
+    .shell{grid-template-columns:minmax(0,1.06fr) minmax(0,.94fr)}
+    .brand-panel{
+      padding:44px 48px 40px;
+      min-height:100dvh;
+    }
+    .form-panel{padding:56px 40px}
+    .logo-box{width:64px;height:64px;border-radius:19px}
+    .brand-name strong{font-size:20px}
+    .brand-name small{font-size:12px}
+  }
+
+  @media (min-width:1280px){
+    .brand-panel{padding:56px 72px 48px}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+  }
+</style>
+</head>
+<body data-mode="user">
+
+<!-- ============================================================
+     SUDUT KANAN ATAS — pintu masuk Admin & Driver
+     ============================================================ -->
+<div class="top-actions">
+  <button class="ta-btn" data-mode-btn="admin" title="Login sebagai Admin">
+    <span class="ta-ico">🛡️</span> Admin
+  </button>
+  <button class="ta-btn" data-mode-btn="driver" title="Login sebagai Driver">
+    <span class="ta-ico">🛵</span> Driver
+  </button>
+</div>
+
+<main class="shell">
+
+  <!-- ========================= PANEL BRAND ========================= -->
+  <section class="brand-panel">
+    <div class="brand-top">
+      <div class="logo-box">
+        <!-- Logo dimuat otomatis dari folder yang sama.
+             Kandidat file: logo1.html → logo1.png → logo1.svg → logo1.jpg ...
+             Ubah urutannya di LOGO_CANDIDATES bila perlu. -->
+        <img id="brandLogo" alt="Logo Tulung Iyong" hidden />
+        <div id="logoFallback" class="logo-fallback">🛵</div>
+      </div>
+      <div class="brand-name">
+        <strong>Tulung Iyong</strong>
+        <small>Aplikasi layanan harian</small>
+      </div>
+    </div>
+
+    <div class="brand-copy">
+      <h1>Satu aplikasi,<br /><span>semua kebutuhan</span> harianmu.</h1>
+      <p>
+        Pesan ojek, makanan, mobil, jasa tulung, sampai tambal ban —
+        semua dari satu tempat, dengan mitra terpercaya di sekitarmu.
+      </p>
+      <ul class="brand-chips">
+        <li>🛵 Ojek Online</li>
+        <li>🍜 Food Online</li>
+        <li>🚗 Mobil Online</li>
+        <li>🤝 Tulung Apa Bae</li>
+        <li>🔧 Tambal Ban Online</li>
+      </ul>
+    </div>
+
+    <div class="brand-foot">© 2025 Tulung Iyong · Dibuat untuk UMKM lokal</div>
+  </section>
+
+  <!-- ========================= PANEL FORM ========================= -->
+  <section class="form-panel">
+    <div class="login-card">
+
+      <!-- Notifikasi sesi tersimpan -->
+      <div class="session-note" id="sessionNote" hidden>
+        <div class="sn-txt" id="sessionText">Kamu masih tercatat masuk.</div>
+        <button class="sn-btn" id="sessionContinue">Lanjutkan</button>
+      </div>
+
+      <div class="card-head">
+        <div class="mode-pill" id="modePill" hidden>
+          <span id="modePillText">Mode Admin</span>
+          <button id="modeReset" title="Kembali ke login pengguna" aria-label="Kembali ke login pengguna">✕</button>
+        </div>
+        <h2 id="cardTitle">Masuk ke akun kamu</h2>
+        <p id="cardSub">Gunakan nomor WhatsApp dan password yang sudah terdaftar.</p>
+      </div>
+
+      <div class="alert" id="alertBox" role="status" aria-live="polite"></div>
+
+      <form id="loginForm" novalidate>
+        <div class="field">
+          <label for="wa">Nomor WhatsApp</label>
+          <div class="input-wrap">
+            <span class="lead">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+            </span>
+            <input id="wa" name="wa" type="tel" inputmode="numeric" autocomplete="tel"
+                   placeholder="08xxxxxxxxxx" maxlength="20" required />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <span class="lead">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="11" width="18" height="11" rx="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </span>
+            <input id="password" name="password" type="password" autocomplete="current-password"
+                   placeholder="••••••••" required />
+            <button type="button" class="eye" id="eyeBtn" aria-label="Tampilkan password"></button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" id="submitBtn" disabled>Memuat…</button>
+      </form>
+
+      <div class="card-foot">
+        <p>Belum punya akun? <a href="#" id="waHelp">Hubungi admin</a></p>
+      </div>
+
+      <div class="version">Tulung Iyong · v1.0</div>
+    </div>
+  </section>
+
+</main>
+
+<noscript>
+  <div style="padding:24px;text-align:center;font-family:sans-serif">
+    Aplikasi ini membutuhkan JavaScript. Aktifkan JavaScript di browser kamu.
+  </div>
+</noscript>
+
+<!-- ============================================================
+     LOGO LOADER — coba beberapa nama file, lalu fallback
+     ============================================================ -->
+<script>
+(function loadLogo(){
+  const CANDIDATES = [
+    'logo1.html',   // sesuai permintaan
+    'logo1.png',
+    'logo1.svg',
+    'logo1.jpg',
+    'logo1.jpeg',
+    'logo1.webp',
+    'logo1.gif'
+  ];
+  const img = document.getElementById('brandLogo');
+  const fallback = document.getElementById('logoFallback');
+  if (!img || !fallback) return;
+
+  let i = 0;
+  function tryNext(){
+    if (i >= CANDIDATES.length){
+      img.hidden = true;
+      fallback.hidden = false;
+      return;
+    }
+    const src = CANDIDATES[i++];
+    img.onload  = () => { img.hidden = false; fallback.hidden = true; };
+    img.onerror = tryNext;
+    img.src = src;
+  }
+  tryNext();
+})();
+</script>
+
+<!-- ============================================================
+     FIREBASE AUTH (sementara: koleksi "password" di Firestore)
+     ============================================================ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  getDocs,
+  limit
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* ------------------------------------------------------------------
+   KONFIGURASI
+   ------------------------------------------------------------------ */
+const firebaseConfig = {
+  apiKey: "AIzaSyAXWxcWYhvEKlXC414ECmv0vG0jZAr_Ecc",
+  authDomain: "tulungiiyong.firebaseapp.com",
+  projectId: "tulungiiyong",
+  storageBucket: "tulungiiyong.firebasestorage.app",
+  messagingSenderId: "892623147541",
+  appId: "1:892623147541:web:47812250f6498efad7b41c"
+};
+
+const CONFIG = {
+  brand: 'Tulung Iyong',
+  collection: 'password',          // koleksi penyimpanan akun sementara
+  sessionKey: 'tulungiyong.session',
+  // Halaman tujuan setelah login berhasil (buat file-nya nanti)
+  routes: {
+    user:   'user.html',
+    admin:  'admin.html',
+    driver: 'driver.html'
+  },
+  // Nama field yang dicoba berurutan saat mencari nomor WA
+  waFields: ['wa', 'nomor', 'phone', 'whatsapp'],
+  passwordFields: ['password', 'pass', 'sandi'],
+  roleFields: ['role', 'tipe', 'level']
+};
+
+const ROLE_LABEL = { user:'Pengguna', admin:'Admin', driver:'Driver' };
+
+const ROLE_ALLOWED = {
+  user:   ['user', 'pengguna', 'customer', 'pelanggan', ''],
+  admin:  ['admin', 'administrator', 'owner'],
+  driver: ['driver', 'mitra', 'kurir', 'ojek']
+};
+
+/* ------------------------------------------------------------------
+   INISIALISASI FIREBASE
+   ------------------------------------------------------------------ */
+let db = null;
+try {
+  const app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+} catch (err) {
+  console.error('[Firebase init]', err);
+}
+
+/* ------------------------------------------------------------------
+   REFERENSI DOM
+   ------------------------------------------------------------------ */
+const el = {
+  body:       document.body,
+  form:       document.getElementById('loginForm'),
+  wa:         document.getElementById('wa'),
+  password:   document.getElementById('password'),
+  eyeBtn:     document.getElementById('eyeBtn'),
+  submitBtn:  document.getElementById('submitBtn'),
+  alertBox:   document.getElementById('alertBox'),
+  cardTitle:  document.getElementById('cardTitle'),
+  cardSub:    document.getElementById('cardSub'),
+  modePill:   document.getElementById('modePill'),
+  modePillTx: document.getElementById('modePillText'),
+  modeReset:  document.getElementById('modeReset'),
+  topBtns:    Array.from(document.querySelectorAll('[data-mode-btn]')),
+  sessionNote:document.getElementById('sessionNote'),
+  sessionText:document.getElementById('sessionText'),
+  sessionBtn: document.getElementById('sessionContinue'),
+  waHelp:     document.getElementById('waHelp')
+};
+
+/* ------------------------------------------------------------------
+   STATE
+   ------------------------------------------------------------------ */
+let mode = 'user';     // 'user' | 'admin' | 'driver'
+let busy = false;
+
+/* ------------------------------------------------------------------
+   UTILITAS
+   ------------------------------------------------------------------ */
+const EYE_ON = `
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/>
+    <circle cx="12" cy="12" r="3"/>
+  </svg>`;
+const EYE_OFF = `
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+    <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/>
+    <line x1="1" y1="1" x2="23" y2="23"/>
+  </svg>`;
+
+/** 08xx / 628xx / +628xx → 08xx */
+function normalizeWa(input){
+  let d = String(input || '').replace(/\D/g, '');
+  if (!d) return '';
+  if (d.startsWith('62')) d = '0' + d.slice(2);
+  else if (d.startsWith('8')) d = '0' + d;
+  return d;
+}
+
+/** Variasi format nomor untuk query Firestore */
+function waVariants(digits){
+  const out = new Set([digits]);
+  if (digits.startsWith('0')) {
+    const rest = digits.slice(1);
+    out.add('62' + rest);
+    out.add('+62' + rest);
+    out.add(rest);
+  }
+  return Array.from(out).filter(Boolean).slice(0, 10);
+}
+
+function showAlert(type, text){
+  el.alertBox.className = 'alert show ' + type;
+  el.alertBox.textContent = text;
+}
+function hideAlert(){
+  el.alertBox.className = 'alert';
+  el.alertBox.textContent = '';
+}
+
+function setBusy(state){
+  busy = state;
+  el.submitBtn.disabled = state || !db;
+  if (state) {
+    el.submitBtn.innerHTML = '<span class="spinner"></span>Memeriksa…';
+  } else {
+    el.submitBtn.textContent = buttonLabel();
+  }
+  el.wa.disabled = state;
+  el.password.disabled = state;
+}
+
+function buttonLabel(){
+  if (mode === 'admin')  return 'Masuk sebagai Admin';
+  if (mode === 'driver') return 'Masuk sebagai Driver';
+  return 'Masuk';
+}
+
+function sessionGet(){
+  try {
+    const raw = localStorage.getItem(CONFIG.sessionKey);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+function sessionSet(obj){
+  try { localStorage.setItem(CONFIG.sessionKey, JSON.stringify(obj)); } catch {}
+}
+function sessionClear(){
+  try { localStorage.removeItem(CONFIG.sessionKey); } catch {}
+}
+
+/* ------------------------------------------------------------------
+   MODE LOGIN (user / admin / driver)
+   ------------------------------------------------------------------ */
+function setMode(next){
+  mode = next;
+  el.body.dataset.mode = next;
+
+  el.topBtns.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.modeBtn === next);
+  });
+
+  if (next === 'user') {
+    el.modePill.hidden = true;
+    el.cardTitle.textContent = 'Masuk ke akun kamu';
+    el.cardSub.textContent = 'Gunakan nomor WhatsApp dan password yang sudah terdaftar.';
+  } else {
+    el.modePill.hidden = false;
+    el.modePillTx.textContent = 'Mode login: ' + ROLE_LABEL[next];
+    el.cardTitle.textContent = 'Masuk sebagai ' + ROLE_LABEL[next];
+    el.cardSub.textContent = 'Gunakan akun ' + ROLE_LABEL[next].toLowerCase() +
+                             ' yang sudah didaftarkan oleh admin.';
+  }
+
+  if (!busy) el.submitBtn.textContent = buttonLabel();
+  hideAlert();
+}
+
+el.topBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const next = btn.dataset.modeBtn;
+    setMode(mode === next ? 'user' : next);
+    el.wa.focus({ preventScroll: true });
+  });
+});
+
+el.modeReset.addEventListener('click', () => {
+  setMode('user');
+  hideAlert();
+});
+
+/* ------------------------------------------------------------------
+   TOGGLE PASSWORD
+   ------------------------------------------------------------------ */
+el.eyeBtn.innerHTML = EYE_ON;
+el.eyeBtn.addEventListener('click', () => {
+  const isHidden = el.password.type === 'password';
+  el.password.type = isHidden ? 'text' : 'password';
+  el.eyeBtn.innerHTML = isHidden ? EYE_OFF : EYE_ON;
+  el.eyeBtn.setAttribute('aria-label', isHidden ? 'Sembunyikan password' : 'Tampilkan password');
+  el.password.focus({ preventScroll: true });
+});
+
+/* ------------------------------------------------------------------
+   INPUT NOMOR WA — hanya angka & tanda + di awal
+   ------------------------------------------------------------------ */
+el.wa.addEventListener('input', () => {
+  const v = el.wa.value;
+  const cleaned = v.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '');
+  if (cleaned !== v) el.wa.value = cleaned;
+});
+
+/* ------------------------------------------------------------------
+   PENCARIAN AKUN DI FIRESTORE
+   ------------------------------------------------------------------ */
+async function findAccount(waDigits){
+  const variants = waVariants(waDigits);
+
+  for (const field of CONFIG.waFields) {
+    const q = query(
+      collection(db, CONFIG.collection),
+      where(field, 'in', variants),
+      limit(5)
+    );
+    const snap = await getDocs(q);
+    if (!snap.empty) {
+      const doc = snap.docs[0];
+      return { id: doc.id, ...doc.data() };
+    }
+  }
+  return null;
+}
+
+function readField(data, fields){
+  for (const f of fields) {
+    if (data[f] !== undefined && data[f] !== null) return data[f];
+  }
+  return '';
+}
+
+function readRole(data){
+  const raw = String(readField(data, CONFIG.roleFields) || '').toLowerCase().trim();
+  if (ROLE_ALLOWED.admin.includes(raw))  return 'admin';
+  if (ROLE_ALLOWED.driver.includes(raw)) return 'driver';
+  return 'user';
+}
+
+function roleMatches(accountRole, targetMode){
+  return ROLE_ALLOWED[targetMode].includes(accountRole) ||
+         (targetMode === 'user' && accountRole === '');
+}
+
+function firebaseError(err){
+  const code = String(err?.code || '');
+  if (code.includes('permission-denied')) {
+    return 'Akses database ditolak. Pastikan Firestore Rules mengizinkan pembacaan koleksi "password".';
+  }
+  if (code.includes('unavailable') || code.includes('network') || code.includes('deadline')) {
+    return 'Tidak dapat terhubung ke server. Periksa koneksi internet kamu, lalu coba lagi.';
+  }
+  if (code.includes('invalid-argument')) {
+    return 'Pencarian akun gagal. Pastikan koleksi "password" memiliki field nomor WA.';
+  }
+  if (code.includes('failed-precondition')) {
+    return 'Database belum siap. Pastikan Firestore sudah dibuat di Firebase Console.';
+  }
+  return 'Terjadi kesalahan: ' + (err?.message || 'tidak diketahui');
+}
+
+/* ------------------------------------------------------------------
+   PROSES LOGIN
+   ------------------------------------------------------------------ */
+el.form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (busy) return;
+
+  hideAlert();
+
+  if (!db) {
+    showAlert('err', 'Koneksi ke Firebase gagal dimuat. Muat ulang halaman lalu coba lagi.');
+    return;
+  }
+
+  const waDigits = normalizeWa(el.wa.value);
+  const pass = el.password.value;
+
+  if (!/^0\d{8,14}$/.test(waDigits)) {
+    showAlert('err', 'Nomor WhatsApp tidak valid. Contoh: 081234567890');
+    el.wa.focus();
+    return;
+  }
+  if (pass.length < 4) {
+    showAlert('err', 'Password minimal 4 karakter.');
+    el.password.focus();
+    return;
+  }
+
+  setBusy(true);
+
+  try {
+    const account = await findAccount(waDigits);
+
+    if (!account) {
+      setBusy(false);
+      showAlert('err', 'Nomor WhatsApp belum terdaftar. Hubungi admin untuk pendaftaran akun.');
+      return;
+    }
+
+    const storedPass = String(readField(account, CONFIG.passwordFields) ?? '');
+
+    if (storedPass !== pass) {
+      setBusy(false);
+      showAlert('err', 'Password salah. Silakan periksa kembali.');
+      el.password.select();
+      return;
+    }
+
+    const accountRole = readRole(account);
+
+    if (!roleMatches(accountRole, mode)) {
+      setBusy(false);
+      showAlert('err',
+        'Akun ini terdaftar sebagai ' + ROLE_LABEL[accountRole] +
+        ', bukan ' + ROLE_LABEL[mode] + '. Silakan masuk lewat tombol yang sesuai.'
+      );
+      return;
+    }
+
+    // ---- BERHASIL ----
+    const name = String(readField(account, ['name', 'nama', 'username']) || 'Pengguna');
+    const session = {
+      id: account.id,
+      name,
+      wa: waDigits,
+      role: accountRole,
+      loginAt: new Date().toISOString()
+    };
+    sessionSet(session);
+
+    showAlert('ok', 'Berhasil masuk. Mengalihkan ke halaman ' + ROLE_LABEL[accountRole] + '…');
+
+    const target = CONFIG.routes[accountRole] || CONFIG.routes.user;
+    setTimeout(() => { window.location.href = target; }, 900);
+
+  } catch (err) {
+    console.error('[Login]', err);
+    setBusy(false);
+    showAlert('err', firebaseError(err));
+  }
+});
+
+/* ------------------------------------------------------------------
+   NOTIFIKASI SESI TERSIMPAN
+   ------------------------------------------------------------------ */
+(function checkSession(){
+  const s = sessionGet();
+  if (!s || !s.name) return;
+
+  const role = ROLE_LABEL[s.role] || 'Pengguna';
+  el.sessionText.innerHTML = 'Masih tercatat masuk sebagai <strong>' +
+    String(s.name).replace(/[<>&]/g, '') + '</strong>' +
+    '<span>' + role + ' · ' + String(s.wa || '') + '</span>';
+  el.sessionNote.hidden = false;
+
+  el.sessionBtn.addEventListener('click', () => {
+    window.location.href = CONFIG.routes[s.role] || CONFIG.routes.user;
+  });
+})();
+
+/* ------------------------------------------------------------------
+   LINK BANTUAN
+   ------------------------------------------------------------------ */
+el.waHelp.addEventListener('click', (e) => {
+  e.preventDefault();
+  showAlert('info', 'Pendaftaran akun dilakukan oleh admin. Hubungi admin Tulung Iyong via WhatsApp untuk mendapatkan nomor & password.');
+});
+
+/* ------------------------------------------------------------------
+   AKTIFKAN FORM SETELAH FIREBASE SIAP
+   ------------------------------------------------------------------ */
+setMode('user');
+
+if (db) {
+  el.submitBtn.disabled = false;
+  el.submitBtn.textContent = buttonLabel();
+} else {
+  el.submitBtn.disabled = true;
+  el.submitBtn.textContent = 'Firebase gagal dimuat';
+  showAlert('err', 'Gagal memuat Firebase. Periksa koneksi internet lalu muat ulang halaman.');
+}
+
+/* Fokus otomatis ke field pertama */
+window.addEventListener('load', () => {
+  if (window.innerWidth >= 980) el.wa.focus({ preventScroll: true });
+});
+</script>
+
+</body>
+</html>
