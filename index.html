@@ -95,7 +95,7 @@
     overflow:hidden;
     display:flex;
     flex-direction:column;
-    padding:26px 22px 30px;
+    padding:24px 20px 28px;
     color:#fff;
     background:linear-gradient(150deg,#05472a 0%,#0b7a44 48%,#12a05a 100%);
   }
@@ -117,39 +117,40 @@
   }
   .brand-panel > *{position:relative;z-index:1}
 
-  .brand-top{display:flex;align-items:center;gap:13px}
-
-  .logo-box{
-    width:58px;height:58px;
-    border-radius:17px;
-    background:#fff;
-    display:grid;place-items:center;
-    overflow:hidden;
-    flex:none;
-    box-shadow:0 12px 26px -14px rgba(0,0,0,.7);
-  }
-  .logo-box img{width:100%;height:100%;object-fit:contain;display:block}
-  .logo-fallback{
-    width:100%;height:100%;
-    display:grid;place-items:center;
-    font-size:29px;
-    background:linear-gradient(140deg,var(--yellow-400),var(--yellow-500));
+  /* ---------- BRAND TOP ----------
+     Logo langsung di atas panel, tanpa frame/kotak.
+     Rasio asli logo dipertahankan (tidak dikunci persegi). */
+  .brand-top{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:10px;
   }
 
-  .brand-name strong{
+  .brand-logo{
     display:block;
-    font-size:18px;
+    max-height:64px;
+    max-width:100%;
+    width:auto;
+    height:auto;
+    object-fit:contain;
+    filter:drop-shadow(0 6px 14px rgba(0,0,0,.35));
+  }
+
+  .brand-fallback{
+    font-size:22px;
     font-weight:800;
     letter-spacing:-.02em;
-    line-height:1.15;
+    color:var(--yellow-400);
+    line-height:1.1;
   }
-  .brand-name small{
-    display:block;
-    font-size:11.5px;
+
+  .brand-tagline{
+    font-size:11.8px;
     font-weight:600;
-    color:rgba(255,255,255,.72);
-    margin-top:2px;
-    letter-spacing:.01em;
+    color:rgba(255,255,255,.78);
+    letter-spacing:.02em;
+    line-height:1.3;
   }
 
   .brand-copy{
@@ -157,7 +158,7 @@
     display:flex;
     flex-direction:column;
     justify-content:center;
-    padding:24px 0 18px;
+    padding:26px 0 18px;
   }
   .brand-copy h1{
     font-size:clamp(26px,3.2vw,40px);
@@ -432,12 +433,17 @@
      ========================================================== */
   @media (max-width:979px){
     .brand-panel{
-      padding:74px 20px 26px;
+      padding:72px 20px 24px;
       min-height:0;
     }
     .brand-copy,
     .brand-foot{display:none}
     .ta-btn{padding:8px 12px;font-size:11.8px}
+
+    /* Logo sedikit lebih kecil di mobile agar layout tetap ringkas */
+    .brand-logo{max-height:52px}
+    .brand-fallback{font-size:19px}
+    .brand-tagline{font-size:11px}
   }
 
   @media (min-width:980px){
@@ -447,13 +453,17 @@
       min-height:100dvh;
     }
     .form-panel{padding:56px 40px}
-    .logo-box{width:64px;height:64px;border-radius:19px}
-    .brand-name strong{font-size:20px}
-    .brand-name small{font-size:12px}
+
+    /* Logo lebih besar di desktop — tetap proporsional, tanpa frame */
+    .brand-logo{max-height:76px}
+    .brand-fallback{font-size:26px}
+    .brand-tagline{font-size:12.5px}
+    .brand-top{gap:12px}
   }
 
   @media (min-width:1280px){
     .brand-panel{padding:56px 72px 48px}
+    .brand-logo{max-height:84px}
   }
 
   @media (prefers-reduced-motion:reduce){
@@ -480,17 +490,11 @@
   <!-- ========================= PANEL BRAND ========================= -->
   <section class="brand-panel">
     <div class="brand-top">
-      <div class="logo-box">
-        <!-- Logo dimuat otomatis dari folder yang sama.
-             Kandidat file: logo1.html → logo1.png → logo1.svg → logo1.jpg ...
-             Ubah urutannya di LOGO_CANDIDATES bila perlu. -->
-        <img id="brandLogo" alt="Logo Tulung Iyong" hidden />
-        <div id="logoFallback" class="logo-fallback">🛵</div>
-      </div>
-      <div class="brand-name">
-        <strong>Tulung Iyong</strong>
-        <small>Aplikasi layanan harian</small>
-      </div>
+      <!-- Logo langsung di atas panel, tanpa frame/kotak.
+           Rasio asli dipertahankan (tidak dikunci persegi). -->
+      <img id="brandLogo" src="logo1.png" alt="Tulung Iyong" class="brand-logo" />
+      <div id="logoFallback" class="brand-fallback" hidden>Tulung Iyong</div>
+      <small class="brand-tagline">Aplikasi layanan harian</small>
     </div>
 
     <div class="brand-copy">
@@ -583,36 +587,16 @@
 </noscript>
 
 <!-- ============================================================
-     LOGO LOADER — coba beberapa nama file, lalu fallback
+     LOGO LOADER — logo1.png; bila gagal, tampilkan fallback teks
      ============================================================ -->
 <script>
 (function loadLogo(){
-  const CANDIDATES = [
-    'logo1.html',   // sesuai permintaan
-    'logo1.png',
-    'logo1.svg',
-    'logo1.jpg',
-    'logo1.jpeg',
-    'logo1.webp',
-    'logo1.gif'
-  ];
   const img = document.getElementById('brandLogo');
   const fallback = document.getElementById('logoFallback');
   if (!img || !fallback) return;
 
-  let i = 0;
-  function tryNext(){
-    if (i >= CANDIDATES.length){
-      img.hidden = true;
-      fallback.hidden = false;
-      return;
-    }
-    const src = CANDIDATES[i++];
-    img.onload  = () => { img.hidden = false; fallback.hidden = true; };
-    img.onerror = tryNext;
-    img.src = src;
-  }
-  tryNext();
+  img.onload  = () => { img.hidden = false; fallback.hidden = true; };
+  img.onerror = () => { img.hidden = true;  fallback.hidden = false; };
 })();
 </script>
 
