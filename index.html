@@ -115,13 +115,18 @@
     background:radial-gradient(circle,rgba(20,184,106,.55),transparent 70%);
     pointer-events:none;
   }
-  .brand-panel > *{position:relative;z-index:1}
+
+  /* CATATAN PENTING:
+     .brand-top TIDAK diberi position/z-index (statis) supaya
+     gambar logo di dalamnya bisa "blend" dengan gradien panel.
+     Kalau .brand-top punya z-index, ia membentuk stacking context
+     dan mix-blend-mode logo tidak tembus ke gradien di belakang. */
+  .brand-panel > .brand-copy,
+  .brand-panel > .brand-foot{position:relative;z-index:1}
 
   /* ---------- BRAND TOP ----------
      Logo langsung di atas panel, tanpa frame/kotak.
-     Rasio asli logo dipertahankan (tidak dikunci persegi).
-     Transparansi PNG dibiarkan murni: tidak ada background,
-     tidak ada drop-shadow yang bisa meninggalkan kesan gelap. */
+     Rasio asli dipertahankan (tidak dikunci persegi). */
   .brand-top{
     display:flex;
     flex-direction:column;
@@ -129,6 +134,11 @@
     gap:10px;
   }
 
+  /* Logo dengan mix-blend-mode: screen.
+     Efeknya: area hitam (#000) pada PNG menjadi transparan
+     terhadap gradien hijau panel di belakangnya — seolah PNG
+     benar-benar transparan. Warna logo (hijau/kuning/putih)
+     tetap terlihat, hanya sedikit lebih terang. */
   .brand-logo{
     display:block;
     max-height:64px;
@@ -137,6 +147,7 @@
     height:auto;
     object-fit:contain;
     background:transparent;
+    mix-blend-mode:screen;
   }
 
   .brand-fallback{
@@ -446,6 +457,11 @@
     .brand-logo{max-height:52px}
     .brand-fallback{font-size:19px}
     .brand-tagline{font-size:11px}
+
+    /* Di mobile panel pendek, glow ::after bisa menutupi area logo
+       dan menimbulkan tint hijau di atas logo. Sembunyikan saja
+       agar logo tetap bersih. */
+    .brand-panel::after{display:none}
   }
 
   @media (min-width:980px){
@@ -492,10 +508,9 @@
   <!-- ========================= PANEL BRAND ========================= -->
   <section class="brand-panel">
     <div class="brand-top">
-      <!-- Logo langsung di atas panel, tanpa frame/kotak.
-           Transparansi PNG murni — tidak ada background,
-           tidak ada drop-shadow. Area transparan menampilkan
-           gradien hijau panel di belakangnya. -->
+      <!-- Logo1.png. mix-blend-mode: screen membuat area hitam
+           pada PNG menyatu dengan gradien hijau panel — efeknya
+           seperti transparan tanpa mengubah file gambar. -->
       <img id="brandLogo" src="logo1.png" alt="Tulung Iyong" class="brand-logo" />
       <div id="logoFallback" class="brand-fallback" hidden>Tulung Iyong</div>
       <small class="brand-tagline">Aplikasi layanan harian</small>
