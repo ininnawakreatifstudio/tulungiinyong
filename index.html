@@ -119,7 +119,9 @@
 
   /* ---------- BRAND TOP ----------
      Logo langsung di atas panel, tanpa frame/kotak.
-     Rasio asli logo dipertahankan (tidak dikunci persegi). */
+     Rasio asli logo dipertahankan (tidak dikunci persegi).
+     Transparansi PNG dibiarkan murni: tidak ada background,
+     tidak ada drop-shadow yang bisa meninggalkan kesan gelap. */
   .brand-top{
     display:flex;
     flex-direction:column;
@@ -134,7 +136,7 @@
     width:auto;
     height:auto;
     object-fit:contain;
-    filter:drop-shadow(0 6px 14px rgba(0,0,0,.35));
+    background:transparent;
   }
 
   .brand-fallback{
@@ -491,7 +493,9 @@
   <section class="brand-panel">
     <div class="brand-top">
       <!-- Logo langsung di atas panel, tanpa frame/kotak.
-           Rasio asli dipertahankan (tidak dikunci persegi). -->
+           Transparansi PNG murni — tidak ada background,
+           tidak ada drop-shadow. Area transparan menampilkan
+           gradien hijau panel di belakangnya. -->
       <img id="brandLogo" src="logo1.png" alt="Tulung Iyong" class="brand-logo" />
       <div id="logoFallback" class="brand-fallback" hidden>Tulung Iyong</div>
       <small class="brand-tagline">Aplikasi layanan harian</small>
