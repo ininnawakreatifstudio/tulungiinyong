@@ -95,7 +95,7 @@
     overflow:hidden;
     display:flex;
     flex-direction:column;
-    padding:26px 22px 30px;
+    padding:24px 20px 28px;
     color:#fff;
     background:linear-gradient(150deg,#05472a 0%,#0b7a44 48%,#12a05a 100%);
   }
@@ -117,28 +117,46 @@
   }
   .brand-panel > *{position:relative;z-index:1}
 
-  .brand-top{display:flex;align-items:center;gap:13px}
-
-  .logo-box{
-    width:58px;height:58px;
-    border-radius:17px;
-    background:#fff;
-    display:grid;place-items:center;
-    overflow:hidden;
-    flex:none;
-    box-shadow:0 12px 26px -14px rgba(0,0,0,.7);
+  /* ---------- BRAND TOP (logo + nama aplikasi) ---------- */
+  .brand-top{
+    display:flex;
+    align-items:center;
+    gap:13px;
   }
-  .logo-box img{width:100%;height:100%;object-fit:contain;display:block}
+
+  /* Wadah logo — gelap agar menyatu dengan background hitam pada logo.
+     Tidak ada background putih, tidak ada filter, tidak ada cropping. */
+  .logo-box{
+    width:54px;height:54px;
+    flex:none;
+    border-radius:15px;
+    display:grid;
+    place-items:center;
+    overflow:hidden;
+    background:#111111;
+    border:1px solid rgba(255,255,255,.10);
+    box-shadow:
+      0 10px 22px -14px rgba(0,0,0,.85),
+      inset 0 1px 0 rgba(255,255,255,.05);
+  }
+  .logo-box img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+    /* jangan diberi filter / transform — logo harus tampil aslinya */
+  }
   .logo-fallback{
     width:100%;height:100%;
     display:grid;place-items:center;
-    font-size:29px;
-    background:linear-gradient(140deg,var(--yellow-400),var(--yellow-500));
+    font-size:26px;
+    background:#151515;
+    color:var(--yellow-400);
   }
 
   .brand-name strong{
     display:block;
-    font-size:18px;
+    font-size:17.5px;
     font-weight:800;
     letter-spacing:-.02em;
     line-height:1.15;
@@ -148,7 +166,7 @@
     font-size:11.5px;
     font-weight:600;
     color:rgba(255,255,255,.72);
-    margin-top:2px;
+    margin-top:3px;
     letter-spacing:.01em;
   }
 
@@ -157,7 +175,7 @@
     display:flex;
     flex-direction:column;
     justify-content:center;
-    padding:24px 0 18px;
+    padding:26px 0 18px;
   }
   .brand-copy h1{
     font-size:clamp(26px,3.2vw,40px);
@@ -432,12 +450,16 @@
      ========================================================== */
   @media (max-width:979px){
     .brand-panel{
-      padding:74px 20px 26px;
+      padding:72px 20px 24px;
       min-height:0;
     }
     .brand-copy,
     .brand-foot{display:none}
     .ta-btn{padding:8px 12px;font-size:11.8px}
+    .logo-box{width:52px;height:52px;border-radius:14px}
+    .logo-fallback{font-size:24px}
+    .brand-name strong{font-size:16.5px}
+    .brand-name small{font-size:11px}
   }
 
   @media (min-width:980px){
@@ -447,8 +469,12 @@
       min-height:100dvh;
     }
     .form-panel{padding:56px 40px}
-    .logo-box{width:64px;height:64px;border-radius:19px}
-    .brand-name strong{font-size:20px}
+
+    /* Desktop: logo sedikit lebih besar, proporsional dengan header branding */
+    .logo-box{width:66px;height:66px;border-radius:18px}
+    .logo-fallback{font-size:30px}
+    .brand-top{gap:15px}
+    .brand-name strong{font-size:19px}
     .brand-name small{font-size:12px}
   }
 
@@ -481,11 +507,9 @@
   <section class="brand-panel">
     <div class="brand-top">
       <div class="logo-box">
-        <!-- Logo dimuat otomatis dari folder yang sama.
-             Kandidat file: logo1.html → logo1.png → logo1.svg → logo1.jpg ...
-             Ubah urutannya di LOGO_CANDIDATES bila perlu. -->
-        <img id="brandLogo" alt="Logo Tulung Iyong" hidden />
-        <div id="logoFallback" class="logo-fallback">🛵</div>
+        <!-- Logo asli: logo1.png (path relatif, sesuai struktur repo). -->
+        <img id="brandLogo" src="logo1.png" alt="Logo Tulung Iyong" hidden />
+        <div id="logoFallback" class="logo-fallback" hidden>🛵</div>
       </div>
       <div class="brand-name">
         <strong>Tulung Iyong</strong>
@@ -583,36 +607,16 @@
 </noscript>
 
 <!-- ============================================================
-     LOGO LOADER — coba beberapa nama file, lalu fallback
+     LOGO LOADER — logo1.png dengan fallback emoji bila gagal
      ============================================================ -->
 <script>
 (function loadLogo(){
-  const CANDIDATES = [
-    'logo1.html',   // sesuai permintaan
-    'logo1.png',
-    'logo1.svg',
-    'logo1.jpg',
-    'logo1.jpeg',
-    'logo1.webp',
-    'logo1.gif'
-  ];
   const img = document.getElementById('brandLogo');
   const fallback = document.getElementById('logoFallback');
   if (!img || !fallback) return;
 
-  let i = 0;
-  function tryNext(){
-    if (i >= CANDIDATES.length){
-      img.hidden = true;
-      fallback.hidden = false;
-      return;
-    }
-    const src = CANDIDATES[i++];
-    img.onload  = () => { img.hidden = false; fallback.hidden = true; };
-    img.onerror = tryNext;
-    img.src = src;
-  }
-  tryNext();
+  img.onload  = () => { img.hidden = false; fallback.hidden = true; };
+  img.onerror = () => { img.hidden = true;  fallback.hidden = false; };
 })();
 </script>
 
