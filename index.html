@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#0b7a44" />
-<title>Masuk • Tulung Inyong</title>
+<title>Driver Panel • Tulung Inyong</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,1143 +16,239 @@
   [hidden]{display:none !important}
 
   :root{
-    --green-900:#05472a;
-    --green-800:#075c36;
-    --green-700:#0b7a44;
-    --green-600:#0f9d58;
-    --green-500:#14b86a;
-    --green-50:#e9f8f0;
-    --yellow-600:#e8ad00;
-    --yellow-500:#ffc72c;
-    --yellow-400:#ffd75e;
-    --yellow-50:#fff8e1;
-    --ink:#0f172a;
-    --ink-2:#334155;
-    --muted:#64748b;
-    --line:#e2e8f0;
-    --danger:#dc2626;
-    --shadow-card:0 1px 2px rgba(15,23,42,.05), 0 18px 44px -26px rgba(5,71,42,.55);
+    --green-900:#05472a; --green-800:#075c36; --green-700:#0b7a44;
+    --green-600:#0f9d58; --green-500:#14b86a; --green-50:#e9f8f0;
+    --yellow-600:#e8ad00; --yellow-500:#ffc72c; --yellow-400:#ffd75e; --yellow-50:#fff8e1;
+    --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --bg:#f6f9f6;
+    --danger:#dc2626; --radius:16px; --shadow:0 1px 2px rgba(15,23,42,.05), 0 10px 30px -18px rgba(5,71,42,.4);
   }
 
   body{
-    font-family:'Plus Jakarta Sans',Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
-    color:var(--ink);
-    background:#f6f9f6;
-    min-height:100dvh;
-    -webkit-font-smoothing:antialiased;
-    text-rendering:optimizeLegibility;
+    font-family:'Plus Jakarta Sans',Inter,-apple-system,sans-serif;
+    color:var(--ink); background:var(--bg); min-height:100dvh;
+    -webkit-font-smoothing:antialiased; padding-bottom:80px;
   }
-  button,input,select{font:inherit}
+  @media(min-width:768px){ body{padding-bottom:0} }
+  button,input,select,textarea{font:inherit}
   button{cursor:pointer;border:0;background:none;color:inherit}
   a{color:inherit;text-decoration:none}
+  small{font-size:11px;color:var(--muted);display:block;line-height:1.4}
 
-  /* ==========================================================
-     TOMBOL SUDUT KANAN ATAS — LOGIN ADMIN & DRIVER
-     ========================================================== */
-  .top-actions{
-    position:fixed;
-    top:14px;
-    right:14px;
-    z-index:60;
-    display:flex;
-    gap:8px;
-  }
-  .ta-btn{
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    padding:9px 14px;
-    border-radius:99px;
-    font-size:12.5px;
-    font-weight:800;
-    letter-spacing:-.01em;
-    background:#fff;
-    color:var(--green-800);
-    border:1.5px solid #d8ece1;
-    box-shadow:0 8px 20px -12px rgba(5,71,42,.75);
-    transition:transform .16s, border-color .16s, background .16s, color .16s;
-  }
-  .ta-btn:hover{border-color:var(--yellow-500);transform:translateY(-1px)}
-  .ta-btn.active{
-    background:linear-gradient(135deg,var(--yellow-400),var(--yellow-500));
-    border-color:var(--yellow-600);
-    color:#4a3400;
-  }
-  .ta-btn .ta-ico{font-size:13px;line-height:1}
-
-  /* ==========================================================
-     LAYOUT AUTH
-     ========================================================== */
-  .shell{
-    min-height:100dvh;
-    display:grid;
-    grid-template-columns:1fr;
-  }
-
-  .brand-panel{
-    position:relative;
-    display:flex;
-    flex-direction:column;
-    color:#fff;
-    background:linear-gradient(150deg,#05472a 0%,#0b7a44 48%,#12a05a 100%);
-    overflow:hidden;
-  }
-
-  .brand-hero{
-    position:relative;
-    display:flex;
-    flex-direction:column;
-    justify-content:flex-end;
-    overflow:hidden;
-    padding:72px 20px 24px;
-    min-height:220px;
-    background:
-      url('logolatar.png') center / cover no-repeat,
-      linear-gradient(150deg,#05472a 0%,#0b7a44 48%,#12a05a 100%);
-  }
-  .brand-hero::after{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:linear-gradient(
-      180deg,
-      rgba(5,71,42,.05) 0%,
-      rgba(5,71,42,.35) 45%,
-      rgba(5,71,42,.85) 100%
-    );
-    pointer-events:none;
-    z-index:1;
-  }
-
-  /* Logo kiri, judul + tagline kanan (horizontal row). */
-  .brand-hero-content{
-    position:relative;
-    z-index:2;
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    gap:14px;
-    mix-blend-mode:lighten;
-  }
-
-  .brand-logo{
-    display:block;
-    max-height:52px;
-    max-width:180px;
-    width:auto;
-    height:auto;
-    object-fit:contain;
-    background:transparent;
-    flex:none;
-  }
-
-  .brand-fallback{
-    font-size:28px;
-    line-height:1;
-    color:var(--yellow-400);
-    flex:none;
-  }
-
-  .brand-text{
-    display:flex;
-    flex-direction:column;
-    gap:3px;
-    min-width:0;
-  }
-
-  .brand-title{
-    display:block;
-    font-size:20px;
-    font-weight:800;
-    letter-spacing:-.02em;
-    line-height:1.15;
-    color:#fff;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-
-  .brand-tagline{
-    display:block;
-    font-size:11.5px;
-    font-weight:600;
-    color:#eef4f0;
-    letter-spacing:.02em;
-    line-height:1.3;
-  }
-
-  .brand-copy{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    padding:28px 20px 22px;
-    position:relative;
-    z-index:1;
-  }
-  .brand-copy h1{
-    font-size:clamp(24px,3vw,36px);
-    line-height:1.14;
-    letter-spacing:-.03em;
-    font-weight:800;
-    margin:0 0 12px;
-  }
-  .brand-copy h1 span{color:var(--yellow-400)}
-  .brand-copy p{
-    margin:0 0 20px;
-    font-size:14px;
-    line-height:1.65;
-    color:rgba(255,255,255,.82);
-    max-width:46ch;
-  }
-  .brand-chips{
-    display:flex;flex-wrap:wrap;gap:8px;
-    list-style:none;padding:0;margin:0;
-  }
-  .brand-chips li{
-    font-size:11.8px;
-    font-weight:700;
-    padding:8px 13px;
-    border-radius:99px;
-    background:rgba(255,255,255,.10);
-    border:1px solid rgba(255,255,255,.20);
-    color:rgba(255,255,255,.94);
-    backdrop-filter:blur(4px);
-  }
-
-  .brand-foot{
-    padding:0 20px 26px;
-    position:relative;
-    z-index:1;
-    font-size:11px;
-    color:rgba(255,255,255,.55);
-    font-weight:600;
-    letter-spacing:.01em;
-  }
-
-  .form-panel{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:34px 18px 52px;
-    background:
-      radial-gradient(760px 440px at 100% 0%, #fff6d6 0%, transparent 62%),
-      radial-gradient(620px 420px at 0% 100%, #e9f8f0 0%, transparent 60%),
-      #f6f9f6;
-  }
-
-  .login-card{
-    width:100%;
-    max-width:424px;
-    background:#fff;
-    border:1px solid #e8f0ea;
-    border-top:4px solid var(--green-600);
-    border-radius:24px;
-    padding:28px 26px 22px;
-    box-shadow:var(--shadow-card);
-    transition:border-top-color .2s;
-  }
-  body[data-mode="admin"]  .login-card{border-top-color:var(--yellow-500)}
-  body[data-mode="driver"] .login-card{border-top-color:var(--green-800)}
-
-  .mode-pill{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    margin-bottom:14px;
-    padding:7px 9px 7px 13px;
-    border-radius:99px;
-    background:var(--yellow-50);
-    border:1.5px solid #ffe08a;
-    color:#8a6d00;
-    font-size:12px;
-    font-weight:800;
-    letter-spacing:-.01em;
-  }
-  .mode-pill button{
-    width:19px;height:19px;
-    border-radius:50%;
-    display:grid;place-items:center;
-    background:#fff;
-    border:1px solid #ffe08a;
-    color:#8a6d00;
-    font-size:11px;
-    line-height:1;
-    transition:.16s;
-  }
-  .mode-pill button:hover{background:var(--yellow-500);border-color:var(--yellow-600);color:#4a3400}
-
-  .card-head{margin-bottom:19px}
-  .card-head h2{
-    margin:0 0 6px;
-    font-size:23px;
-    letter-spacing:-.03em;
-    font-weight:800;
-    line-height:1.2;
-  }
-  .card-head p{
-    margin:0;
-    font-size:13.4px;
-    line-height:1.55;
-    color:var(--muted);
-  }
-
-  .alert{
-    display:none;
-    font-size:13px;
-    line-height:1.5;
-    padding:11px 13px;
-    border-radius:13px;
-    margin-bottom:15px;
-    font-weight:600;
-  }
-  .alert.show{display:block}
-  .alert.err{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
-  .alert.ok{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
-  .alert.info{background:var(--yellow-50);color:#8a6d00;border:1px solid #ffe08a}
-
-  .field{margin-bottom:15px}
-  .field label{
-    display:block;
-    font-size:12.4px;
-    font-weight:700;
-    color:#475569;
-    margin-bottom:7px;
-    letter-spacing:.01em;
-  }
-  .input-wrap{position:relative;display:flex;align-items:center}
-  .input-wrap .lead{
-    position:absolute;
-    left:14px;
-    display:grid;place-items:center;
-    color:#94a3b8;
-    pointer-events:none;
-    transition:color .16s;
-  }
-  .input-wrap input{
-    width:100%;
-    padding:14px 46px 14px 44px;
-    border:1.5px solid var(--line);
-    border-radius:14px;
-    font-size:15px;
-    font-weight:600;
-    color:var(--ink);
-    background:#fbfcfd;
-    outline:none;
-    transition:border-color .16s, background .16s, box-shadow .16s;
-  }
-  .input-wrap input::placeholder{font-weight:500;color:#a8b4c2}
-  .input-wrap input:focus{
-    border-color:var(--green-600);
-    background:#fff;
-    box-shadow:0 0 0 4px rgba(15,157,88,.13);
-  }
-  .input-wrap:focus-within .lead{color:var(--green-600)}
-
-  .eye{
-    position:absolute;
-    right:8px;
-    width:34px;height:34px;
-    border-radius:10px;
-    display:grid;place-items:center;
-    color:#94a3b8;
-    transition:.16s;
-  }
-  .eye:hover{background:#f1f5f9;color:var(--green-700)}
-
-  .btn-primary{
-    width:100%;
-    margin-top:6px;
-    padding:15px;
-    border-radius:14px;
-    font-size:15px;
-    font-weight:800;
-    letter-spacing:-.01em;
-    color:#0b3d22;
-    background:linear-gradient(135deg,var(--yellow-400),var(--yellow-500));
-    box-shadow:0 14px 26px -14px rgba(255,199,44,1);
-    transition:transform .16s, filter .16s, box-shadow .16s;
-  }
-  .btn-primary:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.04)}
-  .btn-primary:active:not(:disabled){transform:translateY(0) scale(.995)}
-  .btn-primary:disabled{opacity:.62;cursor:not-allowed;box-shadow:none;transform:none}
-
-  .spinner{
-    display:inline-block;
-    width:15px;height:15px;
-    margin-right:8px;
-    vertical-align:-2px;
-    border-radius:50%;
-    border:2.5px solid rgba(11,61,34,.22);
-    border-top-color:#0b3d22;
-    animation:spin .7s linear infinite;
-  }
-  @keyframes spin{to{transform:rotate(360deg)}}
-
-  .card-foot{
-    margin-top:18px;
-    padding-top:15px;
-    border-top:1px solid var(--line);
-    text-align:center;
-  }
-  .card-foot p{
-    margin:0;
-    font-size:12.8px;
-    color:var(--muted);
-    line-height:1.5;
-  }
-  .card-foot a{
-    color:var(--green-700);
-    font-weight:800;
-    border-bottom:2px solid var(--yellow-400);
-    padding-bottom:1px;
-  }
-  .card-foot a:hover{color:var(--green-800)}
-
-  .session-note{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:11px 13px;
-    border-radius:13px;
-    background:var(--yellow-50);
-    border:1px solid #ffe08a;
-    margin-bottom:16px;
-  }
-  .session-note .sn-txt{
-    flex:1;
-    min-width:0;
-    font-size:12.4px;
-    line-height:1.4;
-    color:#8a6d00;
-    font-weight:700;
-  }
-  .session-note .sn-txt span{
-    display:block;
-    font-weight:600;
-    color:#a37f00;
-    font-size:11.4px;
-  }
-  .session-note .sn-btn{
-    flex:none;
-    padding:8px 13px;
-    border-radius:10px;
-    background:var(--green-700);
-    color:#fff;
-    font-size:12px;
-    font-weight:800;
-    transition:.16s;
-  }
-  .session-note .sn-btn:hover{background:var(--green-800)}
-
-  .version{
-    margin-top:14px;
-    text-align:center;
-    font-size:10.5px;
-    font-weight:700;
-    letter-spacing:.06em;
-    text-transform:uppercase;
-    color:#a8b4c2;
-  }
-
-  /* ---------- RADIO GROUP (register) ---------- */
-  .radio-group{
-    display:flex;
-    gap:8px;
-    flex-wrap:wrap;
-  }
-  .radio-group label{
-    flex:1;
-    min-width:120px;
-    padding:12px 14px;
-    border:1.5px solid var(--line);
-    border-radius:12px;
-    background:#fbfcfd;
-    cursor:pointer;
-    font-size:13.5px;
-    font-weight:700;
-    color:#475569;
-    display:flex;
-    align-items:center;
-    gap:8px;
-    transition:.16s;
-    margin:0;
-  }
-  .radio-group label:has(input:checked){
-    border-color:var(--green-600);
-    background:var(--green-50);
-    color:var(--green-800);
-  }
-  .radio-group input{accent-color:var(--green-600);width:16px;height:16px}
-  @media (max-width:400px){
-    .radio-group{flex-direction:column}
-    .radio-group label{min-width:0}
-  }
-
-  /* ==========================================================
-     ADMIN DASHBOARD
-     ========================================================== */
-  .admin-app{
-    min-height:100dvh;
-    background:#f6f9f6;
-    display:flex;
-    flex-direction:column;
-  }
-
-  .admin-header{
-    background:linear-gradient(135deg,#05472a 0%,#0b7a44 100%);
-    color:#fff;
-    box-shadow:0 4px 12px -8px rgba(0,0,0,.5);
-    position:sticky;
-    top:0;
-    z-index:50;
-  }
-
-  .admin-header-inner{
-    max-width:1120px;
-    margin:0 auto;
-    padding:14px 20px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:14px;
-  }
-
-  .admin-brand{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    min-width:0;
-  }
-
-  .admin-logo{
-    width:42px;
-    height:42px;
-    object-fit:contain;
-    mix-blend-mode:lighten;
-    flex:none;
-  }
-
-  .admin-brand-text{
-    display:flex;
-    flex-direction:column;
-    gap:1px;
-    min-width:0;
-  }
-  .admin-brand-text strong{
-    font-size:16px;
-    font-weight:800;
-    letter-spacing:-.02em;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-  .admin-brand-text small{
-    font-size:11px;
-    font-weight:600;
-    color:rgba(255,255,255,.7);
-    letter-spacing:.01em;
-  }
-
-  .admin-logout{
-    padding:9px 16px;
-    border-radius:10px;
-    background:rgba(255,255,255,.15);
-    color:#fff;
-    font-size:12.5px;
-    font-weight:800;
-    border:1px solid rgba(255,255,255,.25);
-    transition:.16s;
-    flex:none;
-  }
-  .admin-logout:hover{background:rgba(255,255,255,.28)}
-
-  .admin-main{
-    max-width:1120px;
-    margin:0 auto;
-    padding:24px 20px 48px;
-    width:100%;
-    flex:1;
-  }
-
-  .admin-tabs{
-    display:flex;
-    gap:6px;
-    margin-bottom:22px;
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
-    scrollbar-width:none;
-    padding-bottom:2px;
-  }
-  .admin-tabs::-webkit-scrollbar{display:none}
-
-  .admin-tab{
-    padding:11px 18px;
-    border-radius:12px;
-    font-size:13.5px;
-    font-weight:700;
-    background:#fff;
-    color:var(--muted);
-    border:1.5px solid var(--line);
-    white-space:nowrap;
-    transition:.16s;
-    display:flex;
-    align-items:center;
-    gap:6px;
-  }
-  .admin-tab:hover{border-color:var(--green-500);color:var(--ink)}
-  .admin-tab.active{
-    background:var(--green-700);
-    color:#fff;
-    border-color:var(--green-700);
-  }
-
-  .tab-badge{
-    background:#fff;
-    color:var(--green-700);
-    padding:2px 8px;
-    border-radius:99px;
-    font-size:11px;
-    font-weight:800;
-    min-width:20px;
-    text-align:center;
-  }
-
-  .panel-head{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    margin-bottom:16px;
-    flex-wrap:wrap;
-  }
-  .panel-head h2{
-    margin:0;
-    font-size:18px;
-    letter-spacing:-.02em;
-  }
-
-  .btn-refresh{
-    padding:8px 14px;
-    border-radius:10px;
-    background:#fff;
-    border:1.5px solid var(--line);
-    font-size:12.5px;
-    font-weight:700;
-    color:var(--muted);
-    transition:.16s;
-  }
-  .btn-refresh:hover{border-color:var(--green-500);color:var(--ink)}
-
-  .pending-item{
-    background:#fff;
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:16px;
-    margin-bottom:12px;
-    display:flex;
-    align-items:center;
-    gap:14px;
-    box-shadow:0 1px 2px rgba(15,23,42,.04);
-    animation:fadeUp .2s ease;
-  }
-  @keyframes fadeUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-
-  .pending-avatar{
-    width:44px;
-    height:44px;
-    border-radius:50%;
-    display:grid;
-    place-items:center;
-    font-weight:800;
-    font-size:16px;
-    color:#fff;
-    flex-shrink:0;
-  }
-  .pending-avatar.driver{background:linear-gradient(135deg,#0b7a44,#14b86a)}
-  .pending-avatar.user{background:linear-gradient(135deg,#e8ad00,#ffd75e);color:#4a3400}
-
-  .pending-info{flex:1;min-width:0}
-  .pending-info strong{display:block;font-size:14.5px;margin-bottom:2px}
-  .pending-info small{color:var(--muted);font-size:12px;display:block}
-
-  .pending-role{
-    display:inline-block;
-    padding:2px 8px;
-    border-radius:6px;
-    font-size:10px;
-    font-weight:800;
-    letter-spacing:.04em;
-    text-transform:uppercase;
-    margin-left:6px;
-    vertical-align:middle;
-  }
-  .pending-role.driver{background:var(--green-50);color:var(--green-800)}
-  .pending-role.user{background:var(--yellow-50);color:#8a6d00}
-
-  .pending-actions{display:flex;gap:8px;flex-shrink:0}
-
-  .btn-approve,.btn-reject{
-    padding:8px 14px;
-    border-radius:10px;
-    font-size:12.5px;
-    font-weight:800;
-    transition:.16s;
-  }
-  .btn-approve{background:var(--green-600);color:#fff}
-  .btn-approve:hover{background:var(--green-700)}
-  .btn-reject{background:#fef2f2;color:#b91c1c}
-  .btn-reject:hover{background:#fee2e2}
-
-  @media (max-width:600px){
-    .pending-item{flex-wrap:wrap}
-    .pending-actions{
-      width:100%;
-      justify-content:flex-end;
-      padding-top:10px;
-      border-top:1px solid var(--line);
+  /* ---------- TOPBAR (Desktop) ---------- */
+  .topbar{
+    display:none; position:sticky; top:0; z-index:50;
+    background:rgba(255,255,255,.95); backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+  }
+  @media(min-width:768px){
+    .topbar{display:block}
+    .topbar-inner{
+      max-width:1000px; margin:0 auto; height:64px; padding:0 24px;
+      display:flex; align-items:center; gap:20px;
     }
+    .brand{display:flex; align-items:center; gap:10px; font-weight:800; font-size:18px; color:var(--green-800)}
+    .brand img{height:32px; mix-blend-mode:multiply}
+    .nav-menu{display:flex; gap:4px; margin-left:20px}
+    .nav-menu a{padding:8px 16px; border-radius:10px; font-size:14px; font-weight:700; color:var(--muted); transition:.2s}
+    .nav-menu a.active{background:var(--green-50); color:var(--green-700)}
+    .topbar-user{margin-left:auto; display:flex; align-items:center; gap:12px}
+    .avatar{width:40px; height:40px; border-radius:50%; background:var(--green-600); color:#fff; display:grid; place-items:center; font-weight:800; font-size:16px;}
+    .btn-logout{padding:8px 12px; border-radius:8px; font-size:12px; font-weight:700; background:#fef2f2; color:#b91c1c}
   }
+
+  /* ---------- MAIN CONTENT ---------- */
+  .main{max-width:1000px; margin:0 auto; padding:20px 16px; animation:fadeUp .3s ease}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)}}
+  
+  .page-header{margin-bottom:24px}
+  .page-header h1{font-size:24px; margin:0 0 6px; letter-spacing:-.03em}
+  .page-header p{margin:0; font-size:14px; color:var(--muted)}
+
+  /* ---------- ORDER CARDS ---------- */
+  .order-card{
+    background:#fff; border:1px solid var(--line); border-radius:var(--radius);
+    padding:20px; margin-bottom:16px; box-shadow:var(--shadow);
+    border-left:4px solid var(--yellow-500);
+  }
+  .order-card.active-order { border-left-color: var(--green-600); }
+
+  .order-head{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px}
+  .order-service{display:flex; align-items:center; gap:8px; font-weight:800; font-size:15px}
+  .order-price{font-size:18px; font-weight:800; color:var(--green-700)}
+
+  .route-box{background:#f8fafc; border-radius:12px; padding:14px; margin-bottom:16px}
+  .route-item{display:flex; gap:10px; position:relative; padding-bottom:12px}
+  .route-item:last-child{padding-bottom:0}
+  .route-item::before{
+    content:""; position:absolute; left:5px; top:16px; bottom:-8px; width:2px;
+    background:repeating-linear-gradient(to bottom,#cbd5e1 0 4px,transparent 4px 8px);
+  }
+  .route-item:last-child::before{display:none}
+  .dot{width:12px; height:12px; border-radius:50%; flex-shrink:0; margin-top:3px; z-index:1}
+  .dot.pickup{background:var(--green-600)}
+  .dot.dest{background:var(--danger)}
+  .route-text strong{display:block; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em}
+  .route-text span{font-size:14px; font-weight:600; color:var(--ink)}
+
+  .order-notes{font-size:13px; background:#fffbeb; padding:10px 14px; border-radius:10px; color:#92400e; margin-bottom:16px}
+
+  .order-actions{display:flex; gap:10px}
+  .btn-accept, .btn-complete {
+    flex:1; padding:12px; border-radius:12px; font-size:14px; font-weight:800; transition:.2s;
+    display: flex; justify-content: center; align-items: center; gap: 8px;
+  }
+  .btn-accept { background:var(--yellow-500); color:#4a3400; box-shadow:0 4px 12px -6px rgba(255,199,44,1) }
+  .btn-accept:hover { background:var(--yellow-400); transform:translateY(-2px) }
+  .btn-complete { background:var(--green-600); color:#fff; box-shadow:0 4px 12px -6px rgba(15,157,88,1) }
+  .btn-complete:hover { background:var(--green-700); transform:translateY(-2px) }
+
+  /* ---------- PROFILE / DASHBOARD ---------- */
+  .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+  .stat-box { background:#fff; padding:20px; border-radius:var(--radius); border:1px solid var(--line); text-align:center; }
+  .stat-box h4 { margin:0 0 6px; font-size:12px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.05em; }
+  .stat-box .value { font-size:24px; font-weight:800; color:var(--green-700); }
 
   .admin-empty{
-    text-align:center;
-    padding:48px 24px;
-    background:#fff;
-    border:2px dashed var(--line);
-    border-radius:16px;
-    color:var(--muted);
+    text-align:center; padding:48px 24px; background:#fff;
+    border:2px dashed var(--line); border-radius:16px; color:var(--muted);
   }
   .admin-empty .ico{font-size:40px;margin-bottom:10px;display:block}
   .admin-empty h3{margin:0 0 6px;color:var(--ink);font-size:16px}
   .admin-empty p{margin:0;font-size:13px}
 
-  .admin-card{
-    background:#fff;
-    border:1px solid var(--line);
-    border-radius:16px;
-    padding:22px;
-    box-shadow:var(--shadow-card);
-    max-width:520px;
+  /* ---------- BOTTOM NAV (Mobile) ---------- */
+  .bottom-nav{
+    display:flex; position:fixed; left:0; right:0; bottom:0; z-index:50;
+    background:rgba(255,255,255,.95); backdrop-filter:blur(12px);
+    border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom);
   }
-
-  .admin-card label{
-    display:block;
-    font-size:13px;
-    font-weight:700;
-    color:#475569;
-    margin-bottom:8px;
-    margin-top:18px;
+  @media(min-width:768px){ .bottom-nav{display:none} }
+  .bottom-nav a{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
+    padding:10px 0 8px; font-size:10px; font-weight:700; color:var(--muted); transition:.2s;
   }
-  .admin-card label:first-of-type{margin-top:0}
+  .bottom-nav a.active{color:var(--green-700)}
+  .bottom-nav a .ico{font-size:20px; filter:grayscale(1); opacity:.6; transition:.2s}
+  .bottom-nav a.active .ico{filter:none; opacity:1; transform:translateY(-2px)}
 
-  .input-row{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    padding:4px 4px 4px 16px;
-    border:1.5px solid var(--line);
-    border-radius:14px;
-    background:#fbfcfd;
-    margin-bottom:4px;
-    transition:.16s;
+  /* Notification Toast */
+  .toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: #fff; padding: 12px 24px; border-radius: 30px;
+    font-size: 13px; font-weight: 600; box-shadow: 0 10px 25px -5px rgba(0,0,0,.5);
+    opacity: 0; pointer-events: none; transition: .3s; z-index: 100;
   }
-  .input-row:focus-within{
-    border-color:var(--green-600);
-    background:#fff;
-    box-shadow:0 0 0 4px rgba(15,157,88,.13);
-  }
-  .input-row span{
-    font-weight:700;
-    color:var(--muted);
-    font-size:14px;
-    flex-shrink:0;
-  }
-  .input-row input{
-    flex:1;
-    border:0;
-    background:transparent;
-    padding:10px 12px;
-    font-size:15px;
-    font-weight:600;
-    outline:none;
-    color:var(--ink);
-    min-width:0;
-  }
-  .input-row input::-webkit-outer-spin-button,
-  .input-row input::-webkit-inner-spin-button{
-    -webkit-appearance:none;
-    margin:0;
-  }
-  .input-row input[type="number"]{-moz-appearance:textfield}
-
-  .admin-card .btn-primary{margin-top:22px}
-
-  .admin-info{
-    font-size:12px;
-    color:var(--muted);
-    line-height:1.5;
-    margin-top:12px;
-    padding:10px 12px;
-    background:#f8fafc;
-    border-radius:10px;
-    border-left:3px solid var(--green-500);
-  }
-
-  /* ==========================================================
-     RESPONSIVE
-     ========================================================== */
-  @media (max-width:979px){
-    .brand-copy,
-    .brand-foot{display:none}
-
-    .brand-hero{
-      min-height:180px;
-      padding:68px 20px 22px;
-    }
-    .brand-logo{max-height:44px;max-width:140px}
-    .brand-title{font-size:18px}
-    .brand-tagline{font-size:11px}
-
-    .ta-btn{padding:8px 12px;font-size:11.8px}
-  }
-
-  @media (min-width:980px){
-    .shell{grid-template-columns:minmax(0,1.06fr) minmax(0,.94fr)}
-
-    .brand-hero{
-      min-height:280px;
-      padding:80px 48px 34px;
-    }
-    .brand-logo{max-height:64px;max-width:200px}
-    .brand-title{font-size:24px}
-    .brand-tagline{font-size:12.5px}
-    .brand-hero-content{gap:16px}
-
-    .brand-copy{padding:40px 48px 32px}
-    .brand-foot{padding:0 48px 40px}
-
-    .form-panel{padding:56px 40px}
-  }
-
-  @media (min-width:1280px){
-    .brand-hero{
-      min-height:320px;
-      padding:88px 72px 40px;
-    }
-    .brand-logo{max-height:72px;max-width:240px}
-    .brand-title{font-size:26px}
-
-    .brand-copy{padding:48px 72px 40px}
-    .brand-foot{padding:0 72px 48px}
-  }
-
-  @media (prefers-reduced-motion:reduce){
-    *{animation-duration:.01ms !important;transition-duration:.01ms !important}
-  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
 </style>
 </head>
-<body data-mode="user">
+<body>
 
-<!-- ============================================================
-     SUDUT KANAN ATAS — pintu masuk Admin & Driver
-     ============================================================ -->
-<div class="top-actions" id="topActions">
-  <button class="ta-btn" data-mode-btn="admin" title="Login sebagai Admin">
-    <span class="ta-ico">🛡️</span> Admin
-  </button>
-  <button class="ta-btn" data-mode-btn="driver" title="Login sebagai Driver">
-    <span class="ta-ico">🛵</span> Driver
-  </button>
-</div>
+<!-- ================= DESKTOP TOPBAR ================= -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <img src="logo1.png" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+      <span style="display:none; font-size:24px;">🛵</span>
+      Tulung Inyong <span style="font-size:12px; background:var(--yellow-500); color:#000; padding:2px 8px; border-radius:6px; margin-left:8px;">DRIVER</span>
+    </div>
+    <nav class="nav-menu">
+      <a href="#" class="active" data-nav="home">Pesanan Masuk</a>
+      <a href="#" data-nav="active">Tugas Aktif</a>
+      <a href="#" data-nav="profile">Pendapatan</a>
+    </nav>
+    <div class="topbar-user">
+      <div class="avatar" id="topAvatar">?</div>
+      <button class="btn-logout" onclick="logout()">Keluar</button>
+    </div>
+  </div>
+</header>
 
-<!-- ============================================================
-     AUTH SCREEN
-     ============================================================ -->
-<main class="shell" id="authScreen">
+<!-- ================= MAIN CONTENT ================= -->
+<main class="main">
 
-  <section class="brand-panel">
+  <!-- VIEW 1: PESANAN MASUK -->
+  <div id="viewHome">
+    <div class="page-header">
+      <h1>Halo, <span style="color:var(--green-700)" id="driverName">Driver</span> 👋</h1>
+      <p>Berikut adalah pesanan baru di sekitarmu.</p>
+    </div>
+    <div id="incomingList">
+      <div class="admin-empty">
+        <span class="ico">⏳</span>
+        <h3>Mencari pesanan...</h3>
+        <p>Menunggu pengguna membuat pesanan.</p>
+      </div>
+    </div>
+  </div>
 
-    <div class="brand-hero">
-      <!-- Logo KIRI, judul + tagline KANAN (horizontal row) -->
-      <div class="brand-hero-content">
-        <img id="brandLogo" src="logo1.png" alt="Tulung Inyong" class="brand-logo"
-             onerror="this.hidden=true;document.getElementById('logoFallback').hidden=false;" />
-        <div id="logoFallback" class="brand-fallback" hidden>🛵</div>
+  <!-- VIEW 2: TUGAS AKTIF -->
+  <div id="viewActive" hidden>
+    <div class="page-header">
+      <h1>Tugas Aktif</h1>
+      <p>Pesanan yang sedang kamu kerjakan.</p>
+    </div>
+    <div id="activeList">
+      <div class="admin-empty">
+        <span class="ico">🛵</span>
+        <h3>Tidak ada tugas aktif</h3>
+        <p>Ambil pesanan dari tab Pesanan Masuk.</p>
+      </div>
+    </div>
+  </div>
 
-        <div class="brand-text">
-          <strong class="brand-title">Tulung Inyong</strong>
-          <small class="brand-tagline">Aplikasi layanan harian</small>
-        </div>
+  <!-- VIEW 3: PROFIL / PENDAPATAN -->
+  <div id="viewProfile" hidden>
+    <div class="page-header">
+      <h1>Pendapatan & Bonus</h1>
+      <p>Informasi insentif dari Admin.</p>
+    </div>
+    
+    <div class="stats-grid">
+      <div class="stat-box">
+        <h4>Total Selesai</h4>
+        <div class="value" id="statTrips">0</div>
+      </div>
+      <div class="stat-box">
+        <h4>Bonus per Trip</h4>
+        <div class="value" id="statBonus">Rp 0</div>
       </div>
     </div>
 
-    <div class="brand-copy">
-      <h1>Satu aplikasi,<br /><span>semua kebutuhan</span> harianmu.</h1>
-      <p>
-        Pesan ojek, makanan, mobil, jasa tulung, sampai tambal ban —
-        semua dari satu tempat, dengan mitra terpercaya di sekitarmu.
+    <div class="order-card" style="border-left-color:var(--green-700); background:var(--green-50);">
+      <h3 style="margin:0 0 8px; font-size:15px; color:var(--green-900);">💡 Informasi Driver</h3>
+      <p style="margin:0; font-size:13px; color:var(--green-800); line-height:1.5;">
+        Pastikan kamu selalu mengecek detail lokasi jemput dan tujuan sebelum berangkat. Bonus akan dihitung otomatis oleh sistem untuk setiap pesanan yang selesai.
       </p>
-      <ul class="brand-chips">
-        <li>🛵 Ojek Online</li>
-        <li>🍜 Food Online</li>
-        <li>🚗 Mobil Online</li>
-        <li>🤝 Tulung Apa Bae</li>
-        <li>🔧 Tambal Ban Online</li>
-      </ul>
     </div>
+  </div>
 
-    <div class="brand-foot">© 2025 Tulung Inyong · Dibuat untuk UMKM lokal</div>
-  </section>
-
-  <section class="form-panel">
-    <div class="login-card">
-
-      <div class="session-note" id="sessionNote" hidden>
-        <div class="sn-txt" id="sessionText">Kamu masih tercatat masuk.</div>
-        <button class="sn-btn" id="sessionContinue">Lanjutkan</button>
-      </div>
-
-      <!-- ============ LOGIN VIEW ============ -->
-      <div id="viewLogin">
-        <div class="card-head">
-          <div class="mode-pill" id="modePill" hidden>
-            <span id="modePillText">Mode Admin</span>
-            <button id="modeReset" title="Kembali ke login pengguna" aria-label="Kembali ke login pengguna">✕</button>
-          </div>
-          <h2 id="cardTitle">Masuk ke akun kamu</h2>
-          <p id="cardSub">Gunakan nomor WhatsApp dan password yang sudah terdaftar.</p>
-        </div>
-
-        <div class="alert" id="alertBox" role="status" aria-live="polite"></div>
-
-        <form id="loginForm" novalidate>
-          <div class="field">
-            <label for="wa">Nomor WhatsApp</label>
-            <div class="input-wrap">
-              <span class="lead">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>
-                </svg>
-              </span>
-              <input id="wa" name="wa" type="tel" inputmode="numeric" autocomplete="tel"
-                     placeholder="08xxxxxxxxxx" maxlength="20" required />
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="password">Password</label>
-            <div class="input-wrap">
-              <span class="lead">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <rect x="3" y="11" width="18" height="11" rx="2"/>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                </svg>
-              </span>
-              <input id="password" name="password" type="password" autocomplete="current-password"
-                     placeholder="••••••••" required />
-              <button type="button" class="eye" id="eyeBtn" aria-label="Tampilkan password"></button>
-            </div>
-          </div>
-
-          <button type="submit" class="btn-primary" id="submitBtn" disabled>Memuat…</button>
-        </form>
-
-        <div class="card-foot">
-          <p>Belum punya akun? <a href="#" id="showRegister">Daftar di sini</a></p>
-        </div>
-      </div>
-
-      <!-- ============ REGISTER VIEW ============ -->
-      <div id="viewRegister" hidden>
-        <div class="card-head">
-          <h2>Daftar Akun Baru</h2>
-          <p>Isi data diri kamu. Admin akan mengkonfirmasi pendaftaran sebelum akun bisa digunakan.</p>
-        </div>
-
-        <div class="alert" id="regAlert" role="status" aria-live="polite"></div>
-
-        <form id="registerForm" novalidate>
-          <div class="field">
-            <label for="regName">Nama lengkap</label>
-            <div class="input-wrap">
-              <input id="regName" name="regName" type="text" placeholder="Nama kamu" required style="padding-left:14px" />
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="regWa">Nomor WhatsApp</label>
-            <div class="input-wrap">
-              <input id="regWa" name="regWa" type="tel" inputmode="numeric" maxlength="20"
-                     placeholder="08xxxxxxxxxx" required style="padding-left:14px" />
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="regPassword">Password</label>
-            <div class="input-wrap">
-              <input id="regPassword" name="regPassword" type="password" minlength="4"
-                     placeholder="Minimal 4 karakter" required style="padding-left:14px" />
-            </div>
-          </div>
-
-          <div class="field">
-            <label>Jenis akun</label>
-            <div class="radio-group">
-              <label><input type="radio" name="regRole" value="user" checked /> 👤 Pengguna</label>
-              <label><input type="radio" name="regRole" value="driver" /> 🛵 Driver</label>
-            </div>
-          </div>
-
-          <button type="submit" class="btn-primary" id="regBtn" disabled>Memuat…</button>
-        </form>
-
-        <div class="card-foot">
-          <p>Sudah punya akun? <a href="#" id="showLogin">Masuk di sini</a></p>
-        </div>
-      </div>
-
-      <div class="version">Tulung Inyong · v1.0</div>
-    </div>
-  </section>
 </main>
 
-<!-- ============================================================
-     ADMIN DASHBOARD
-     ============================================================ -->
-<div class="admin-app" id="adminScreen" hidden>
+<!-- ================= MOBILE BOTTOM NAV ================= -->
+<nav class="bottom-nav">
+  <a href="#" class="active" data-nav="home">
+    <span class="ico">📥</span> Masuk
+  </a>
+  <a href="#" data-nav="active">
+    <span class="ico">🛵</span> Aktif
+  </a>
+  <a href="#" data-nav="profile">
+    <span class="ico">💰</span> Pendapatan
+  </a>
+  <a href="#" onclick="logout()">
+    <span class="ico">🚪</span> Keluar
+  </a>
+</nav>
 
-  <header class="admin-header">
-    <div class="admin-header-inner">
-      <div class="admin-brand">
-        <img src="logo1.png" alt="Tulung Inyong" class="admin-logo"
-             onerror="this.style.display='none'" />
-        <div class="admin-brand-text">
-          <strong>Tulung Inyong</strong>
-          <small>Admin Panel</small>
-        </div>
-      </div>
-      <button class="admin-logout" id="adminLogout">Keluar</button>
-    </div>
-  </header>
+<div class="toast" id="toast">Notifikasi</div>
 
-  <main class="admin-main">
-    <nav class="admin-tabs">
-      <button class="admin-tab active" data-admin-tab="pendaftaran">
-        👥 Pendaftaran
-        <span class="tab-badge" id="pendingBadge" hidden>0</span>
-      </button>
-      <button class="admin-tab" data-admin-tab="harga">💰 Harga</button>
-      <button class="admin-tab" data-admin-tab="bonus">🎁 Bonus</button>
-    </nav>
-
-    <!-- Panel Pendaftaran -->
-    <div class="admin-panel" data-panel="pendaftaran">
-      <div class="panel-head">
-        <h2>Pendaftaran Menunggu Konfirmasi</h2>
-        <button class="btn-refresh" id="refreshPending">🔄 Muat Ulang</button>
-      </div>
-      <div id="pendingList">
-        <div class="admin-empty">
-          <span class="ico">⏳</span>
-          <h3>Memuat data…</h3>
-          <p>Sebentar ya.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Panel Harga -->
-    <div class="admin-panel" data-panel="harga" hidden>
-      <div class="panel-head">
-        <h2>Pengaturan Harga</h2>
-      </div>
-      <div class="admin-card">
-        <label for="inputPricePerKm">Harga per kilometer (Rp)</label>
-        <div class="input-row">
-          <span>Rp</span>
-          <input type="number" id="inputPricePerKm" min="0" step="100" placeholder="2500" />
-        </div>
-        <div class="admin-info">
-          Harga ini akan dipakai sebagai tarif per km untuk layanan ojek, food, mobil, dan tulung di aplikasi.
-        </div>
-        <button class="btn-primary" id="savePrice">Simpan Harga</button>
-      </div>
-    </div>
-
-    <!-- Panel Bonus -->
-    <div class="admin-panel" data-panel="bonus" hidden>
-      <div class="panel-head">
-        <h2>Pengaturan Bonus</h2>
-      </div>
-      <div class="admin-card">
-        <label for="inputDriverBonus">Bonus driver per trip (Rp)</label>
-        <div class="input-row">
-          <span>Rp</span>
-          <input type="number" id="inputDriverBonus" min="0" step="500" placeholder="5000" />
-        </div>
-
-        <label for="inputUserBonus">Bonus pengguna per trip (Rp)</label>
-        <div class="input-row">
-          <span>Rp</span>
-          <input type="number" id="inputUserBonus" min="0" step="500" placeholder="2000" />
-        </div>
-
-        <div class="admin-info">
-          Bonus driver = insentif tambahan untuk driver tiap menyelesaikan trip.<br>
-          Bonus pengguna = potongan/credit yang diterima pengguna tiap trip.
-        </div>
-        <button class="btn-primary" id="saveBonus">Simpan Bonus</button>
-      </div>
-    </div>
-
-  </main>
-</div>
-
-<noscript>
-  <div style="padding:24px;text-align:center;font-family:sans-serif">
-    Aplikasi ini membutuhkan JavaScript. Aktifkan JavaScript di browser kamu.
-  </div>
-</noscript>
-
-<!-- ============================================================
-     LOGO LOADER — logo1.png; bila gagal, tampilkan fallback ikon
-     ============================================================ -->
-<script>
-(function loadLogo(){
-  const img = document.getElementById('brandLogo');
-  const fallback = document.getElementById('logoFallback');
-  if (!img || !fallback) return;
-
-  img.onload  = () => { img.hidden = false; fallback.hidden = true; };
-  img.onerror = () => { img.hidden = true;  fallback.hidden = false; };
-})();
-</script>
-
-<!-- ============================================================
-     FIREBASE + LOGIN + REGISTER + ADMIN DASHBOARD
-     ============================================================ -->
+<!-- ================= FIREBASE LOGIC ================= -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  setDoc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  query,
-  where,
-  limit,
-  serverTimestamp
+import { 
+  getFirestore, doc, getDoc, collection, query, where, onSnapshot, updateDoc, serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* ==================================================================
-   KONFIGURASI
-   ================================================================== */
 const firebaseConfig = {
   apiKey: "AIzaSyAXWxcWYhvEKlXC414ECmv0vG0jZAr_Ecc",
   authDomain: "tulungiiyong.firebaseapp.com",
@@ -1162,826 +258,266 @@ const firebaseConfig = {
   appId: "1:892623147541:web:47812250f6498efad7b41c"
 };
 
-const CONFIG = {
-  brand: 'Tulung Inyong',
-  collection: 'password',
-  settingsDoc: { collection: 'settings', doc: 'app' },
-  sessionKey: 'tulungiyong.session',
-  routes: {
-    user:   'user.html',
-    admin:  'admin.html',   // tidak dipakai — admin tetap di index.html
-    driver: 'driver.html'
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// State
+let session = null;
+let appSettings = { driverBonus: 5000 };
+let unsubIncoming = null;
+let unsubActive = null;
+let completedTripsCount = 0;
+
+// Cek Sesi Login
+const rawSession = localStorage.getItem('tulungiyong.session');
+if (!rawSession) {
+  window.location.href = 'index.html';
+} else {
+  session = JSON.parse(rawSession);
+  if (session.role !== 'driver') {
+    window.location.href = session.role === 'admin' ? 'index.html' : 'user.html';
+  }
+}
+
+document.getElementById('driverName').textContent = session.name.split(' ')[0];
+document.getElementById('topAvatar').textContent = session.name.charAt(0).toUpperCase();
+
+// Fetch Settings
+async function fetchSettings() {
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'app'));
+    if (snap.exists()) {
+      appSettings = { ...appSettings, ...snap.data() };
+      document.getElementById('statBonus').textContent = formatRp(appSettings.driverBonus);
+    }
+  } catch (err) { console.warn(err); }
+}
+fetchSettings();
+
+// Navigasi
+function switchView(view) {
+  document.getElementById('viewHome').hidden = view !== 'home';
+  document.getElementById('viewActive').hidden = view !== 'active';
+  document.getElementById('viewProfile').hidden = view !== 'profile';
+  
+  document.querySelectorAll('[data-nav]').forEach(el => {
+    el.classList.toggle('active', el.dataset.nav === view);
+  });
+}
+document.querySelectorAll('[data-nav]').forEach(el => {
+  el.addEventListener('click', (e) => {
+    e.preventDefault();
+    switchView(el.dataset.nav);
+  });
+});
+
+// ============= LISTENERS =============
+
+// 1. Listen Pesanan Baru (Pending)
+unsubIncoming = onSnapshot(
+  query(collection(db, 'orders'), where('status', '==', 'pending')),
+  (snapshot) => {
+    const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    // Urutkan berdasarkan waktu terbaru
+    list.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+    renderIncoming(list);
   },
-  waFields: ['wa', 'nomor', 'phone', 'whatsapp'],
-  passwordFields: ['password', 'pass', 'sandi'],
-  roleFields: ['role', 'tipe', 'level']
-};
+  (error) => console.error("Error listen incoming:", error)
+);
 
-const DEFAULT_SETTINGS = {
-  pricePerKm: 2500,
-  driverBonus: 5000,
-  userBonus: 2000
-};
+// 2. Listen Tugas Aktif (Accepted by this driver)
+unsubActive = onSnapshot(
+  query(
+    collection(db, 'orders'), 
+    where('driverId', '==', session.id), 
+    where('status', '==', 'accepted')
+  ),
+  (snapshot) => {
+    const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    renderActive(list);
+  },
+  (error) => console.error("Error listen active:", error)
+);
 
-const ROLE_LABEL = { user:'Pengguna', admin:'Admin', driver:'Driver' };
-
-const ROLE_ALLOWED = {
-  user:   ['user', 'pengguna', 'customer', 'pelanggan', ''],
-  admin:  ['admin', 'administrator', 'owner'],
-  driver: ['driver', 'mitra', 'kurir', 'ojek']
-};
-
-/* ==================================================================
-   INISIALISASI FIREBASE
-   ================================================================== */
-let db = null;
-try {
-  const app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
-} catch (err) {
-  console.error('[Firebase init]', err);
+// 3. Hitung Total Selesai
+async function loadStats() {
+  // (Opsional) Bisa dihitung manual lewat query jika perlu, 
+  // untuk sementara kita biarkan 0 atau update nanti.
 }
 
-/* ==================================================================
-   REFERENSI DOM
-   ================================================================== */
-const $ = (s, r = document) => r.querySelector(s);
-const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-
-const el = {
-  body:        document.body,
-  topActions:  $('#topActions'),
-  authScreen:  $('#authScreen'),
-  adminScreen: $('#adminScreen'),
-
-  // Login
-  viewLogin:   $('#viewLogin'),
-  viewRegister:$('#viewRegister'),
-  loginForm:   $('#loginForm'),
-  wa:          $('#wa'),
-  password:    $('#password'),
-  eyeBtn:      $('#eyeBtn'),
-  submitBtn:   $('#submitBtn'),
-  alertBox:    $('#alertBox'),
-  cardTitle:   $('#cardTitle'),
-  cardSub:     $('#cardSub'),
-  modePill:    $('#modePill'),
-  modePillTx:  $('#modePillText'),
-  modeReset:   $('#modeReset'),
-  topBtns:     $$('[data-mode-btn]'),
-  sessionNote: $('#sessionNote'),
-  sessionText: $('#sessionText'),
-  sessionBtn:  $('#sessionContinue'),
-  showRegister:$('#showRegister'),
-  showLogin:   $('#showLogin'),
-
-  // Register
-  registerForm:$('#registerForm'),
-  regName:     $('#regName'),
-  regWa:       $('#regWa'),
-  regPassword: $('#regPassword'),
-  regBtn:      $('#regBtn'),
-  regAlert:    $('#regAlert'),
-
-  // Admin
-  adminLogout: $('#adminLogout'),
-  adminTabs:   $$('[data-admin-tab]'),
-  adminPanels: $$('[data-panel]'),
-  pendingList: $('#pendingList'),
-  pendingBadge:$('#pendingBadge'),
-  refreshPending: $('#refreshPending'),
-  inputPricePerKm: $('#inputPricePerKm'),
-  inputDriverBonus: $('#inputDriverBonus'),
-  inputUserBonus: $('#inputUserBonus'),
-  savePrice:   $('#savePrice'),
-  saveBonus:   $('#saveBonus')
-};
-
-/* ==================================================================
-   STATE
-   ================================================================== */
-let mode = 'user';
-let busy = false;
-let regBusy = false;
-
-/* ==================================================================
-   UTILITAS UMUM
-   ================================================================== */
-const EYE_ON = `
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-       stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/>
-    <circle cx="12" cy="12" r="3"/>
-  </svg>`;
-const EYE_OFF = `
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-       stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-    <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/>
-    <line x1="1" y1="1" x2="23" y2="23"/>
-  </svg>`;
-
-function normalizeWa(input){
-  let d = String(input || '').replace(/\D/g, '');
-  if (!d) return '';
-  if (d.startsWith('62')) d = '0' + d.slice(2);
-  else if (d.startsWith('8')) d = '0' + d;
-  return d;
-}
-
-function waVariants(digits){
-  const out = new Set([digits]);
-  if (digits.startsWith('0')) {
-    const rest = digits.slice(1);
-    out.add('62' + rest);
-    out.add('+62' + rest);
-    out.add(rest);
-  }
-  return Array.from(out).filter(Boolean).slice(0, 10);
-}
-
-function showAlert(type, text){
-  el.alertBox.className = 'alert show ' + type;
-  el.alertBox.textContent = text;
-}
-function hideAlert(){
-  el.alertBox.className = 'alert';
-  el.alertBox.textContent = '';
-}
-function showRegAlert(type, text){
-  el.regAlert.className = 'alert show ' + type;
-  el.regAlert.textContent = text;
-}
-function hideRegAlert(){
-  el.regAlert.className = 'alert';
-  el.regAlert.textContent = '';
-}
-
-function sessionGet(){
-  try {
-    const raw = localStorage.getItem(CONFIG.sessionKey);
-    return raw ? JSON.parse(raw) : null;
-  } catch { return null; }
-}
-function sessionSet(obj){
-  try { localStorage.setItem(CONFIG.sessionKey, JSON.stringify(obj)); } catch {}
-}
-function sessionClear(){
-  try { localStorage.removeItem(CONFIG.sessionKey); } catch {}
-}
-
-function firebaseError(err){
-  const code = String(err?.code || '');
-  if (code.includes('permission-denied')) {
-    return 'Akses database ditolak. Pastikan Firestore Rules mengizinkan koleksi "password" dan "settings".';
-  }
-  if (code.includes('unavailable') || code.includes('network') || code.includes('deadline')) {
-    return 'Tidak dapat terhubung ke server. Periksa koneksi internet lalu coba lagi.';
-  }
-  if (code.includes('invalid-argument')) {
-    return 'Format pencarian tidak valid. Pastikan field nomor WA ada di koleksi.';
-  }
-  if (code.includes('failed-precondition')) {
-    return 'Database belum siap. Pastikan Firestore sudah dibuat di Firebase Console.';
-  }
-  return 'Terjadi kesalahan: ' + (err?.message || 'tidak diketahui');
-}
-
-/* ==================================================================
-   MODE LOGIN (user / admin / driver)
-   ================================================================== */
-function setMode(next){
-  mode = next;
-  el.body.dataset.mode = next;
-
-  el.topBtns.forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.modeBtn === next);
-  });
-
-  if (next === 'user') {
-    el.modePill.hidden = true;
-    el.cardTitle.textContent = 'Masuk ke akun kamu';
-    el.cardSub.textContent = 'Gunakan nomor WhatsApp dan password yang sudah terdaftar.';
-  } else {
-    el.modePill.hidden = false;
-    el.modePillTx.textContent = 'Mode login: ' + ROLE_LABEL[next];
-    el.cardTitle.textContent = 'Masuk sebagai ' + ROLE_LABEL[next];
-    el.cardSub.textContent = 'Gunakan akun ' + ROLE_LABEL[next].toLowerCase() +
-                             ' yang sudah didaftarkan oleh admin.';
-  }
-
-  if (!busy) el.submitBtn.textContent = buttonLabel();
-  hideAlert();
-}
-
-function buttonLabel(){
-  if (mode === 'admin')  return 'Masuk sebagai Admin';
-  if (mode === 'driver') return 'Masuk sebagai Driver';
-  return 'Masuk';
-}
-
-el.topBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const next = btn.dataset.modeBtn;
-    setMode(mode === next ? 'user' : next);
-    el.wa.focus({ preventScroll: true });
-  });
-});
-
-el.modeReset.addEventListener('click', () => {
-  setMode('user');
-  hideAlert();
-});
-
-/* ==================================================================
-   TOGGLE PASSWORD (login)
-   ================================================================== */
-el.eyeBtn.innerHTML = EYE_ON;
-el.eyeBtn.addEventListener('click', () => {
-  const isHidden = el.password.type === 'password';
-  el.password.type = isHidden ? 'text' : 'password';
-  el.eyeBtn.innerHTML = isHidden ? EYE_OFF : EYE_ON;
-  el.eyeBtn.setAttribute('aria-label', isHidden ? 'Sembunyikan password' : 'Tampilkan password');
-  el.password.focus({ preventScroll: true });
-});
-
-el.wa.addEventListener('input', () => {
-  const v = el.wa.value;
-  const cleaned = v.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '');
-  if (cleaned !== v) el.wa.value = cleaned;
-});
-
-el.regWa.addEventListener('input', () => {
-  const v = el.regWa.value;
-  const cleaned = v.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '');
-  if (cleaned !== v) el.regWa.value = cleaned;
-});
-
-/* ==================================================================
-   TOGGLE LOGIN / REGISTER VIEWS
-   ================================================================== */
-el.showRegister.addEventListener('click', (e) => {
-  e.preventDefault();
-  hideAlert();
-  hideRegAlert();
-  el.viewLogin.hidden = true;
-  el.viewRegister.hidden = false;
-  setTimeout(() => el.regName.focus(), 50);
-});
-
-el.showLogin.addEventListener('click', (e) => {
-  e.preventDefault();
-  hideRegAlert();
-  hideAlert();
-  el.viewRegister.hidden = true;
-  el.viewLogin.hidden = false;
-});
-
-/* ==================================================================
-   PENCARIAN AKUN
-   ================================================================== */
-async function findAccount(waDigits){
-  const variants = waVariants(waDigits);
-
-  for (const field of CONFIG.waFields) {
-    const q = query(
-      collection(db, CONFIG.collection),
-      where(field, 'in', variants),
-      limit(5)
-    );
-    const snap = await getDocs(q);
-    if (!snap.empty) {
-      const d = snap.docs[0];
-      return { id: d.id, ...d.data() };
-    }
-  }
-  return null;
-}
-
-async function waExists(waDigits){
-  return (await findAccount(waDigits)) !== null;
-}
-
-function readField(data, fields){
-  for (const f of fields) {
-    if (data[f] !== undefined && data[f] !== null) return data[f];
-  }
-  return '';
-}
-
-function readRole(data){
-  const raw = String(readField(data, CONFIG.roleFields) || '').toLowerCase().trim();
-  if (ROLE_ALLOWED.admin.includes(raw))  return 'admin';
-  if (ROLE_ALLOWED.driver.includes(raw)) return 'driver';
-  return 'user';
-}
-
-function roleMatches(accountRole, targetMode){
-  return ROLE_ALLOWED[targetMode].includes(accountRole) ||
-         (targetMode === 'user' && accountRole === '');
-}
-
-function accountStatus(account){
-  return String(account?.status || '').toLowerCase().trim();
-}
-
-function isAccountActive(account){
-  const s = accountStatus(account);
-  return s === '' || s === 'active' || s === 'approved';
-}
-
-/* ==================================================================
-   SET BUSY (login / register)
-   ================================================================== */
-function setBusy(state){
-  busy = state;
-  el.submitBtn.disabled = state || !db;
-  if (state) {
-    el.submitBtn.innerHTML = '<span class="spinner"></span>Memeriksa…';
-  } else {
-    el.submitBtn.textContent = buttonLabel();
-  }
-  el.wa.disabled = state;
-  el.password.disabled = state;
-}
-
-function setRegBusy(state){
-  regBusy = state;
-  el.regBtn.disabled = state || !db;
-  if (state) {
-    el.regBtn.innerHTML = '<span class="spinner"></span>Mendaftar…';
-  } else {
-    el.regBtn.textContent = 'Daftar';
-  }
-  el.regName.disabled = state;
-  el.regWa.disabled = state;
-  el.regPassword.disabled = state;
-  $$('input[name="regRole"]').forEach(r => r.disabled = state);
-}
-
-/* ==================================================================
-   PROSES LOGIN
-   ================================================================== */
-el.loginForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  if (busy) return;
-
-  hideAlert();
-
-  if (!db) {
-    showAlert('err', 'Koneksi ke Firebase gagal dimuat. Muat ulang halaman lalu coba lagi.');
-    return;
-  }
-
-  const waDigits = normalizeWa(el.wa.value);
-  const pass = el.password.value;
-
-  if (!/^0\d{8,14}$/.test(waDigits)) {
-    showAlert('err', 'Nomor WhatsApp tidak valid. Contoh: 081234567890');
-    el.wa.focus();
-    return;
-  }
-  if (pass.length < 4) {
-    showAlert('err', 'Password minimal 4 karakter.');
-    el.password.focus();
-    return;
-  }
-
-  setBusy(true);
-
-  try {
-    const account = await findAccount(waDigits);
-
-    if (!account) {
-      setBusy(false);
-      showAlert('err', 'Nomor WhatsApp belum terdaftar. Silakan daftar terlebih dahulu.');
-      return;
-    }
-
-    const status = accountStatus(account);
-    if (status === 'pending') {
-      setBusy(false);
-      showAlert('err', 'Pendaftaran kamu masih menunggu konfirmasi admin. Silakan coba lagi nanti.');
-      return;
-    }
-    if (status === 'rejected') {
-      setBusy(false);
-      showAlert('err', 'Pendaftaran kamu ditolak. Silakan hubungi admin untuk informasi lebih lanjut.');
-      return;
-    }
-
-    const storedPass = String(readField(account, CONFIG.passwordFields) ?? '');
-
-    if (storedPass !== pass) {
-      setBusy(false);
-      showAlert('err', 'Password salah. Silakan periksa kembali.');
-      el.password.select();
-      return;
-    }
-
-    const accountRole = readRole(account);
-
-    if (!roleMatches(accountRole, mode)) {
-      setBusy(false);
-      showAlert('err',
-        'Akun ini terdaftar sebagai ' + ROLE_LABEL[accountRole] +
-        ', bukan ' + ROLE_LABEL[mode] + '. Silakan masuk lewat tombol yang sesuai.'
-      );
-      return;
-    }
-
-    // ---- BERHASIL ----
-    const name = String(readField(account, ['name', 'nama', 'username']) || 'Pengguna');
-    sessionSet({
-      id: account.id,
-      name,
-      wa: waDigits,
-      role: accountRole,
-      loginAt: new Date().toISOString()
-    });
-
-    if (accountRole === 'admin') {
-      showAlert('ok', 'Berhasil masuk. Membuka dashboard admin…');
-      setTimeout(() => showAdminDashboard(), 400);
-    } else {
-      showAlert('ok', 'Berhasil masuk. Mengalihkan ke halaman ' + ROLE_LABEL[accountRole] + '…');
-      const target = CONFIG.routes[accountRole] || CONFIG.routes.user;
-      setTimeout(() => { window.location.href = target; }, 900);
-    }
-
-  } catch (err) {
-    console.error('[Login]', err);
-    setBusy(false);
-    showAlert('err', firebaseError(err));
-  }
-});
-
-/* ==================================================================
-   PROSES REGISTER
-   ================================================================== */
-el.registerForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  if (regBusy) return;
-
-  hideRegAlert();
-
-  if (!db) {
-    showRegAlert('err', 'Koneksi ke Firebase gagal dimuat. Muat ulang halaman lalu coba lagi.');
-    return;
-  }
-
-  const name = el.regName.value.trim();
-  const waDigits = normalizeWa(el.regWa.value);
-  const pass = el.regPassword.value;
-  const role = $('input[name="regRole"]:checked')?.value || 'user';
-
-  if (name.length < 3) {
-    showRegAlert('err', 'Nama minimal 3 karakter.');
-    el.regName.focus();
-    return;
-  }
-  if (!/^0\d{8,14}$/.test(waDigits)) {
-    showRegAlert('err', 'Nomor WhatsApp tidak valid. Contoh: 081234567890');
-    el.regWa.focus();
-    return;
-  }
-  if (pass.length < 4) {
-    showRegAlert('err', 'Password minimal 4 karakter.');
-    el.regPassword.focus();
-    return;
-  }
-
-  setRegBusy(true);
-
-  try {
-    const exists = await waExists(waDigits);
-    if (exists) {
-      setRegBusy(false);
-      showRegAlert('err', 'Nomor WhatsApp sudah terdaftar. Silakan masuk atau hubungi admin.');
-      return;
-    }
-
-    await addDoc(collection(db, CONFIG.collection), {
-      name,
-      wa: waDigits,
-      password: pass,
-      role,
-      status: 'pending',
-      createdAt: serverTimestamp()
-    });
-
-    setRegBusy(false);
-    showRegAlert('ok', 'Pendaftaran berhasil! Akun kamu akan aktif setelah dikonfirmasi admin.');
-
-    // Reset & kembali ke login
-    el.registerForm.reset();
-    setTimeout(() => {
-      el.viewRegister.hidden = true;
-      el.viewLogin.hidden = false;
-      showAlert('info', 'Menunggu konfirmasi admin. Coba masuk lagi setelah akun disetujui.');
-    }, 1600);
-
-  } catch (err) {
-    console.error('[Register]', err);
-    setRegBusy(false);
-    showRegAlert('err', firebaseError(err));
-  }
-});
-
-/* ==================================================================
-   ADMIN DASHBOARD
-   ================================================================== */
-function showAdminDashboard(){
-  el.topActions.hidden = true;
-  el.authScreen.hidden = true;
-  el.adminScreen.hidden = false;
-
-  el.adminTabs.forEach(t => t.classList.toggle('active', t.dataset.adminTab === 'pendaftaran'));
-  el.adminPanels.forEach(p => { p.hidden = p.dataset.panel !== 'pendaftaran'; });
-
-  loadSettings();
-  loadPendingAccounts();
-}
-
-function showLoginView(){
-  el.topActions.hidden = false;
-  el.adminScreen.hidden = true;
-  el.authScreen.hidden = false;
-
-  el.viewRegister.hidden = true;
-  el.viewLogin.hidden = false;
-  el.loginForm.reset();
-  el.registerForm.reset();
-  hideAlert();
-  hideRegAlert();
-  setMode('user');
-}
-
-el.adminLogout.addEventListener('click', () => {
-  if (!confirm('Keluar dari dashboard admin?')) return;
-  sessionClear();
-  showLoginView();
-});
-
-el.adminTabs.forEach(tab => {
-  tab.addEventListener('click', () => {
-    const target = tab.dataset.adminTab;
-    el.adminTabs.forEach(t => t.classList.toggle('active', t === tab));
-    el.adminPanels.forEach(p => { p.hidden = p.dataset.panel !== target; });
-
-    if (target === 'pendaftaran') loadPendingAccounts();
-    if (target === 'harga' || target === 'bonus') loadSettings();
-  });
-});
-
-el.refreshPending.addEventListener('click', () => loadPendingAccounts());
-
-/* ---------- LOAD PENDING ACCOUNTS ---------- */
-async function loadPendingAccounts(){
-  if (!db) return;
-  el.pendingList.innerHTML = `
-    <div class="admin-empty">
-      <span class="ico">⏳</span>
-      <h3>Memuat data…</h3>
-      <p>Sebentar ya.</p>
-    </div>`;
-
-  try {
-    const q = query(
-      collection(db, CONFIG.collection),
-      where('status', '==', 'pending')
-    );
-    const snap = await getDocs(q);
-    const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-    updatePendingBadge(list.length);
-    renderPendingList(list);
-  } catch (err) {
-    console.error('[Load pending]', err);
-    el.pendingList.innerHTML = `
+// ============= RENDER FUNCTIONS =============
+
+function renderIncoming(list) {
+  const container = document.getElementById('incomingList');
+  if (list.length === 0) {
+    container.innerHTML = `
       <div class="admin-empty">
-        <span class="ico">⚠️</span>
-        <h3>Gagal memuat data</h3>
-        <p>${escapeHtml(firebaseError(err))}</p>
-      </div>`;
-  }
-}
-
-function updatePendingBadge(count){
-  if (count > 0) {
-    el.pendingBadge.hidden = false;
-    el.pendingBadge.textContent = count;
-  } else {
-    el.pendingBadge.hidden = true;
-  }
-}
-
-function renderPendingList(list){
-  if (!list.length) {
-    el.pendingList.innerHTML = `
-      <div class="admin-empty">
-        <span class="ico">✅</span>
-        <h3>Tidak ada pendaftaran menunggu</h3>
-        <p>Semua pendaftaran sudah dikonfirmasi.</p>
+        <span class="ico">☕</span>
+        <h3>Belum ada pesanan</h3>
+        <p>Santai dulu, pesanan baru akan muncul otomatis di sini.</p>
       </div>`;
     return;
   }
 
-  el.pendingList.innerHTML = list.map(acc => {
-    const role = String(acc.role || 'user').toLowerCase();
-    const label = role === 'driver' ? 'Driver' : 'Pengguna';
-    const icon = role === 'driver' ? '🛵' : '👤';
-    const initial = escapeHtml(String(acc.name || '?').trim().charAt(0).toUpperCase());
-    const name = escapeHtml(acc.name || '(tanpa nama)');
-    const wa = escapeHtml(acc.wa || '-');
-
-    return `
-      <div class="pending-item" data-id="${escapeHtml(acc.id)}">
-        <div class="pending-avatar ${role}">${initial}</div>
-        <div class="pending-info">
-          <strong>${icon} ${name}</strong>
-          <small>${wa} <span class="pending-role ${role}">${label}</span></small>
+  container.innerHTML = list.map(order => `
+    <div class="order-card">
+      <div class="order-head">
+        <div class="order-service">
+          <span>🛵</span> ${escapeHtml(order.serviceName)}
         </div>
-        <div class="pending-actions">
-          <button class="btn-approve" data-action="approve" data-id="${escapeHtml(acc.id)}">✓ Setujui</button>
-          <button class="btn-reject" data-action="reject" data-id="${escapeHtml(acc.id)}">✕ Tolak</button>
+        <div class="order-price">${formatRp(order.fare)}</div>
+      </div>
+
+      <div class="route-box">
+        <div class="route-item">
+          <div class="dot pickup"></div>
+          <div class="route-text">
+            <strong>Jemput / Toko</strong>
+            <span>${escapeHtml(order.pickup)}</span>
+          </div>
+        </div>
+        <div class="route-item">
+          <div class="dot dest"></div>
+          <div class="route-text">
+            <strong>Tujuan / Antar</strong>
+            <span>${escapeHtml(order.dest)}</span>
+          </div>
         </div>
       </div>
-    `;
-  }).join('');
 
-  $$('.pending-item [data-action]').forEach(btn => {
-    btn.addEventListener('click', () => handlePendingAction(btn.dataset.action, btn.dataset.id, btn));
-  });
+      ${order.notes ? `<div class="order-notes">📝 ${escapeHtml(order.notes)}</div>` : ''}
+
+      <div class="order-actions">
+        <button class="btn-accept" onclick="acceptOrder('${order.id}')">
+          ✓ Ambil Pesanan
+        </button>
+      </div>
+    </div>
+  `).join('');
 }
 
-async function handlePendingAction(action, id, btn){
-  if (!db || !id) return;
-
-  const item = btn.closest('.pending-item');
-  const name = item?.querySelector('.pending-info strong')?.textContent?.trim() || 'akun ini';
-
-  if (action === 'reject') {
-    if (!confirm(`Tolak pendaftaran ${name}? Data pendaftaran akan dihapus dan pengguna harus mendaftar ulang.`)) return;
-  }
-
-  btn.disabled = true;
-  const originalText = btn.textContent;
-  btn.textContent = action === 'approve' ? 'Menyetujui…' : 'Menolak…';
-
-  try {
-    if (action === 'approve') {
-      await updateDoc(doc(db, CONFIG.collection, id), {
-        status: 'active',
-        approvedAt: serverTimestamp()
-      });
-      alert(`✓ ${name} berhasil disetujui.`);
-    } else {
-      await deleteDoc(doc(db, CONFIG.collection, id));
-      alert(`✕ Pendaftaran ${name} ditolak dan dihapus.`);
-    }
-    await loadPendingAccounts();
-  } catch (err) {
-    console.error('[Action]', err);
-    alert('Gagal: ' + firebaseError(err));
-    btn.disabled = false;
-    btn.textContent = originalText;
-  }
-}
-
-/* ---------- LOAD SETTINGS ---------- */
-async function loadSettings(){
-  if (!db) return;
-  try {
-    const ref = doc(db, CONFIG.settingsDoc.collection, CONFIG.settingsDoc.doc);
-    const snap = await getDoc(ref);
-    const data = snap.exists() ? { ...DEFAULT_SETTINGS, ...snap.data() } : { ...DEFAULT_SETTINGS };
-
-    el.inputPricePerKm.value  = Number(data.pricePerKm)  || '';
-    el.inputDriverBonus.value = Number(data.driverBonus) || '';
-    el.inputUserBonus.value   = Number(data.userBonus)   || '';
-  } catch (err) {
-    console.error('[Settings]', err);
-  }
-}
-
-/* ---------- SAVE PRICE ---------- */
-el.savePrice.addEventListener('click', async () => {
-  if (!db) return;
-  const price = Number(el.inputPricePerKm.value);
-
-  if (!Number.isFinite(price) || price < 0) {
-    alert('Masukkan harga per km yang valid (minimal 0).');
+function renderActive(list) {
+  const container = document.getElementById('activeList');
+  if (list.length === 0) {
+    container.innerHTML = `
+      <div class="admin-empty">
+        <span class="ico">🛵</span>
+        <h3>Tidak ada tugas aktif</h3>
+        <p>Ambil pesanan dari tab Pesanan Masuk.</p>
+      </div>`;
     return;
   }
 
-  el.savePrice.disabled = true;
-  el.savePrice.textContent = 'Menyimpan…';
+  container.innerHTML = list.map(order => `
+    <div class="order-card active-order">
+      <div class="order-head">
+        <div class="order-service">
+          <span style="font-size:20px;">🏃</span> Sedang Dikerjakan
+        </div>
+        <div class="order-price">${formatRp(order.fare)}</div>
+      </div>
 
-  try {
-    await setDoc(
-      doc(db, CONFIG.settingsDoc.collection, CONFIG.settingsDoc.doc),
-      { pricePerKm: price, updatedAt: serverTimestamp() },
-      { merge: true }
-    );
-    alert('✓ Harga per km berhasil disimpan.');
-  } catch (err) {
-    console.error('[Save price]', err);
-    alert('Gagal menyimpan: ' + firebaseError(err));
-  } finally {
-    el.savePrice.disabled = false;
-    el.savePrice.textContent = 'Simpan Harga';
-  }
-});
+      <div class="route-box">
+        <div class="route-item">
+          <div class="dot pickup"></div>
+          <div class="route-text">
+            <strong>Jemput / Toko</strong>
+            <span>${escapeHtml(order.pickup)}</span>
+          </div>
+        </div>
+        <div class="route-item">
+          <div class="dot dest"></div>
+          <div class="route-text">
+            <strong>Tujuan / Antar</strong>
+            <span>${escapeHtml(order.dest)}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="route-box" style="background:var(--green-50); padding:10px; margin-bottom:16px;">
+        <div style="font-size:12px; color:var(--green-800); font-weight:700;">Info Pelanggan:</div>
+        <div style="font-size:14px; font-weight:800;">${escapeHtml(order.userName)}</div>
+        <div style="font-size:13px; color:var(--muted);">${escapeHtml(order.userWa)}</div>
+      </div>
 
-/* ---------- SAVE BONUS ---------- */
-el.saveBonus.addEventListener('click', async () => {
-  if (!db) return;
-  const driverBonus = Number(el.inputDriverBonus.value);
-  const userBonus   = Number(el.inputUserBonus.value);
+      ${order.notes ? `<div class="order-notes">📝 ${escapeHtml(order.notes)}</div>` : ''}
 
-  if (!Number.isFinite(driverBonus) || driverBonus < 0 ||
-      !Number.isFinite(userBonus)   || userBonus < 0) {
-    alert('Masukkan angka bonus yang valid (minimal 0).');
-    return;
-  }
-
-  el.saveBonus.disabled = true;
-  el.saveBonus.textContent = 'Menyimpan…';
-
-  try {
-    await setDoc(
-      doc(db, CONFIG.settingsDoc.collection, CONFIG.settingsDoc.doc),
-      { driverBonus, userBonus, updatedAt: serverTimestamp() },
-      { merge: true }
-    );
-    alert('✓ Bonus berhasil disimpan.');
-  } catch (err) {
-    console.error('[Save bonus]', err);
-    alert('Gagal menyimpan: ' + firebaseError(err));
-  } finally {
-    el.saveBonus.disabled = false;
-    el.saveBonus.textContent = 'Simpan Bonus';
-  }
-});
-
-/* ==================================================================
-   UTIL
-   ================================================================== */
-function escapeHtml(s){
-  return String(s ?? '').replace(/[&<>"']/g, c => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-  }[c]));
+      <div class="order-actions">
+        <button class="btn-complete" onclick="completeOrder('${order.id}')">
+          ✓ Selesaikan Tugas
+        </button>
+      </div>
+    </div>
+  `).join('');
 }
 
-/* ==================================================================
-   CEK SESI SAAT HALAMAN DIBUKA
-   ================================================================== */
-(function checkSession(){
-  const s = sessionGet();
-  if (!s) return;
+// ============= ACTIONS =============
 
-  // Admin dengan sesi aktif → langsung buka dashboard
-  if (s.role === 'admin') {
-    showAdminDashboard();
-    return;
+window.acceptOrder = async function(orderId) {
+  if (!confirm('Ambil pesanan ini?')) return;
+  try {
+    await updateDoc(doc(db, 'orders', orderId), {
+      status: 'accepted',
+      driverId: session.id,
+      driverName: session.name,
+      driverWa: session.wa,
+      acceptedAt: serverTimestamp()
+    });
+    showToast('✅ Pesanan berhasil diambil!');
+    switchView('active'); // Pindah ke tab aktif otomatis
+  } catch (err) {
+    console.error(err);
+    alert('Gagal mengambil pesanan. Mungkin sudah diambil driver lain.');
   }
+};
 
-  // User / driver dengan sesi → tampilkan note "Lanjutkan"
-  const role = ROLE_LABEL[s.role] || 'Pengguna';
-  el.sessionText.innerHTML = 'Masih tercatat masuk sebagai <strong>' +
-    escapeHtml(s.name) + '</strong>' +
-    '<span>' + role + ' · ' + escapeHtml(s.wa || '') + '</span>';
-  el.sessionNote.hidden = false;
+window.completeOrder = async function(orderId) {
+  if (!confirm('Yakin pesanan ini sudah selesai?')) return;
+  try {
+    await updateDoc(doc(db, 'orders', orderId), {
+      status: 'completed',
+      completedAt: serverTimestamp()
+    });
+    showToast('🎉 Tugas selesai! Terima kasih.');
+    
+    // Update local stats (opsional)
+    completedTripsCount++;
+    document.getElementById('statTrips').textContent = completedTripsCount;
+    
+  } catch (err) {
+    console.error(err);
+    alert('Gagal menyelesaikan pesanan.');
+  }
+};
 
-  el.sessionBtn.addEventListener('click', () => {
-    window.location.href = CONFIG.routes[s.role] || CONFIG.routes.user;
-  });
-})();
+// ============= UTILS =============
 
-/* ==================================================================
-   BOOTSTRAP
-   ================================================================== */
-setMode('user');
-
-if (db) {
-  el.submitBtn.disabled = false;
-  el.submitBtn.textContent = buttonLabel();
-  el.regBtn.disabled = false;
-  el.regBtn.textContent = 'Daftar';
-} else {
-  el.submitBtn.disabled = true;
-  el.submitBtn.textContent = 'Firebase gagal dimuat';
-  el.regBtn.disabled = true;
-  el.regBtn.textContent = 'Firebase gagal dimuat';
-  showAlert('err', 'Gagal memuat Firebase. Periksa koneksi internet lalu muat ulang halaman.');
+function formatRp(num) {
+  return 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(num || 0));
 }
 
-window.addEventListener('load', () => {
-  if (window.innerWidth >= 980) el.wa.focus({ preventScroll: true });
-});
+function escapeHtml(str) {
+  return String(str || '').replace(/[&<>"']/g, match => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[match]));
+}
+
+let toastTimeout;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+window.logout = function() {
+  if (confirm('Keluar dari akun Driver?')) {
+    localStorage.removeItem('tulungiyong.session');
+    window.location.href = 'index.html';
+  }
+};
+
 </script>
-
 </body>
 </html>
