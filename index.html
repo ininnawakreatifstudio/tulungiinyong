@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#0b7a44" />
-<title>Masuk • Tulung Iyong</title>
+<title>Masuk • Tulung Inyong</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -92,98 +92,113 @@
   /* ---------- PANEL BRAND (kiri / atas) ---------- */
   .brand-panel{
     position:relative;
-    overflow:hidden;
     display:flex;
     flex-direction:column;
-    padding:24px 20px 28px;
     color:#fff;
     background:linear-gradient(150deg,#05472a 0%,#0b7a44 48%,#12a05a 100%);
-  }
-  .brand-panel::before{
-    content:"";
-    position:absolute;
-    width:440px;height:440px;border-radius:50%;
-    top:-160px;right:-140px;
-    background:radial-gradient(circle,rgba(255,199,44,.40),transparent 68%);
-    pointer-events:none;
-  }
-  .brand-panel::after{
-    content:"";
-    position:absolute;
-    width:540px;height:540px;border-radius:50%;
-    bottom:-250px;left:-180px;
-    background:radial-gradient(circle,rgba(20,184,106,.55),transparent 70%);
-    pointer-events:none;
+    overflow:hidden;
   }
 
-  /* CATATAN PENTING:
-     .brand-top TIDAK diberi position/z-index (statis) supaya
-     gambar logo di dalamnya bisa "blend" dengan gradien panel.
-     Kalau .brand-top punya z-index, ia membentuk stacking context
-     dan mix-blend-mode logo tidak tembus ke gradien di belakang. */
-  .brand-panel > .brand-copy,
-  .brand-panel > .brand-foot{position:relative;z-index:1}
+  /* ---------- HEADER BANNER (logolatar.png) ----------
+     Banner persegi panjang menggunakan logolatar.png sebagai latar.
+     Di atasnya ada logo1.png + judul + tagline. */
+  .brand-hero{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+    overflow:hidden;
+    padding:72px 20px 24px;
+    min-height:220px;
+    background:
+      url('logolatar.png') center / cover no-repeat,
+      linear-gradient(150deg,#05472a 0%,#0b7a44 48%,#12a05a 100%);
+  }
 
-  /* ---------- BRAND TOP ----------
-     Logo langsung di atas panel, tanpa frame/kotak.
-     Rasio asli dipertahankan (tidak dikunci persegi). */
-  .brand-top{
+  /* Gradient overlay untuk keterbacaan teks di atas gambar */
+  .brand-hero::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(
+      180deg,
+      rgba(5,71,42,.05) 0%,
+      rgba(5,71,42,.35) 45%,
+      rgba(5,71,42,.88) 100%
+    );
+    pointer-events:none;
+    z-index:1;
+  }
+
+  .brand-hero-content{
+    position:relative;
+    z-index:2;
     display:flex;
     flex-direction:column;
     align-items:flex-start;
-    gap:10px;
+    gap:8px;
   }
 
-  /* Logo dengan mix-blend-mode: screen.
-     Efeknya: area hitam (#000) pada PNG menjadi transparan
-     terhadap gradien hijau panel di belakangnya — seolah PNG
-     benar-benar transparan. Warna logo (hijau/kuning/putih)
-     tetap terlihat, hanya sedikit lebih terang. */
+  /* Logo1.png murni — tanpa frame, tanpa background, tanpa filter.
+     Rasio asli dipertahankan. */
   .brand-logo{
     display:block;
-    max-height:64px;
+    max-height:52px;
     max-width:100%;
     width:auto;
     height:auto;
     object-fit:contain;
     background:transparent;
-    mix-blend-mode:screen;
   }
 
   .brand-fallback{
-    font-size:22px;
+    font-size:28px;
+    line-height:1;
+    color:var(--yellow-400);
+  }
+
+  /* Judul aplikasi */
+  .brand-title{
+    display:block;
+    font-size:20px;
     font-weight:800;
     letter-spacing:-.02em;
-    color:var(--yellow-400);
-    line-height:1.1;
+    line-height:1.15;
+    color:#fff;
+    text-shadow:0 2px 12px rgba(0,0,0,.55), 0 1px 3px rgba(0,0,0,.5);
   }
 
   .brand-tagline{
-    font-size:11.8px;
+    display:block;
+    font-size:11.5px;
     font-weight:600;
-    color:rgba(255,255,255,.78);
+    color:rgba(255,255,255,.88);
     letter-spacing:.02em;
     line-height:1.3;
+    text-shadow:0 1px 6px rgba(0,0,0,.5);
   }
 
+  /* ---------- MARKETING COPY (di bawah banner) ---------- */
   .brand-copy{
     flex:1;
     display:flex;
     flex-direction:column;
     justify-content:center;
-    padding:26px 0 18px;
+    padding:28px 20px 22px;
+    position:relative;
+    z-index:1;
   }
   .brand-copy h1{
-    font-size:clamp(26px,3.2vw,40px);
-    line-height:1.12;
-    letter-spacing:-.035em;
+    font-size:clamp(24px,3vw,36px);
+    line-height:1.14;
+    letter-spacing:-.03em;
     font-weight:800;
-    margin:0 0 14px;
+    margin:0 0 12px;
   }
   .brand-copy h1 span{color:var(--yellow-400)}
   .brand-copy p{
-    margin:0 0 22px;
-    font-size:14.5px;
+    margin:0 0 20px;
+    font-size:14px;
     line-height:1.65;
     color:rgba(255,255,255,.82);
     max-width:46ch;
@@ -204,6 +219,9 @@
   }
 
   .brand-foot{
+    padding:0 20px 26px;
+    position:relative;
+    z-index:1;
     font-size:11px;
     color:rgba(255,255,255,.55);
     font-weight:600;
@@ -445,43 +463,50 @@
      RESPONSIVE
      ========================================================== */
   @media (max-width:979px){
-    .brand-panel{
-      padding:72px 20px 24px;
-      min-height:0;
-    }
+    /* Di mobile hanya banner yang tampil — form ada di bawahnya */
     .brand-copy,
     .brand-foot{display:none}
-    .ta-btn{padding:8px 12px;font-size:11.8px}
 
-    /* Logo sedikit lebih kecil di mobile agar layout tetap ringkas */
-    .brand-logo{max-height:52px}
-    .brand-fallback{font-size:19px}
+    .brand-hero{
+      min-height:200px;
+      padding:68px 20px 22px;
+    }
+
+    .brand-logo{max-height:46px}
+    .brand-title{font-size:19px}
     .brand-tagline{font-size:11px}
 
-    /* Di mobile panel pendek, glow ::after bisa menutupi area logo
-       dan menimbulkan tint hijau di atas logo. Sembunyikan saja
-       agar logo tetap bersih. */
-    .brand-panel::after{display:none}
+    .ta-btn{padding:8px 12px;font-size:11.8px}
   }
 
   @media (min-width:980px){
     .shell{grid-template-columns:minmax(0,1.06fr) minmax(0,.94fr)}
-    .brand-panel{
-      padding:44px 48px 40px;
-      min-height:100dvh;
-    }
-    .form-panel{padding:56px 40px}
 
-    /* Logo lebih besar di desktop — tetap proporsional, tanpa frame */
-    .brand-logo{max-height:76px}
-    .brand-fallback{font-size:26px}
+    .brand-hero{
+      min-height:280px;
+      padding:80px 48px 34px;
+    }
+
+    .brand-logo{max-height:64px}
+    .brand-title{font-size:24px}
     .brand-tagline{font-size:12.5px}
-    .brand-top{gap:12px}
+
+    .brand-copy{padding:40px 48px 32px}
+    .brand-foot{padding:0 48px 40px}
+
+    .form-panel{padding:56px 40px}
   }
 
   @media (min-width:1280px){
-    .brand-panel{padding:56px 72px 48px}
-    .brand-logo{max-height:84px}
+    .brand-hero{
+      min-height:320px;
+      padding:88px 72px 40px;
+    }
+    .brand-logo{max-height:72px}
+    .brand-title{font-size:26px}
+
+    .brand-copy{padding:48px 72px 40px}
+    .brand-foot{padding:0 72px 48px}
   }
 
   @media (prefers-reduced-motion:reduce){
@@ -507,15 +532,23 @@
 
   <!-- ========================= PANEL BRAND ========================= -->
   <section class="brand-panel">
-    <div class="brand-top">
-      <!-- Logo1.png. mix-blend-mode: screen membuat area hitam
-           pada PNG menyatu dengan gradien hijau panel — efeknya
-           seperti transparan tanpa mengubah file gambar. -->
-      <img id="brandLogo" src="logo1.png" alt="Tulung Iyong" class="brand-logo" />
-      <div id="logoFallback" class="brand-fallback" hidden>Tulung Iyong</div>
-      <small class="brand-tagline">Aplikasi layanan harian</small>
+
+    <!-- HEADER BANNER: logolatar.png sebagai latar.
+         Di atasnya ditempatkan logo1.png, judul aplikasi, dan tagline. -->
+    <div class="brand-hero">
+      <div class="brand-hero-content">
+        <!-- Logo1.png murni, tanpa frame/kotak, rasio asli dipertahankan -->
+        <img id="brandLogo" src="logo1.png" alt="Tulung Inyong" class="brand-logo"
+             onerror="this.hidden=true;document.getElementById('logoFallback').hidden=false;" />
+        <div id="logoFallback" class="brand-fallback" hidden>🛵</div>
+
+        <!-- Judul aplikasi -->
+        <strong class="brand-title">Tulung Inyong</strong>
+        <small class="brand-tagline">Aplikasi layanan harian</small>
+      </div>
     </div>
 
+    <!-- MARKETING COPY (di bawah banner, desktop only) -->
     <div class="brand-copy">
       <h1>Satu aplikasi,<br /><span>semua kebutuhan</span> harianmu.</h1>
       <p>
@@ -531,7 +564,7 @@
       </ul>
     </div>
 
-    <div class="brand-foot">© 2025 Tulung Iyong · Dibuat untuk UMKM lokal</div>
+    <div class="brand-foot">© 2025 Tulung Inyong · Dibuat untuk UMKM lokal</div>
   </section>
 
   <!-- ========================= PANEL FORM ========================= -->
@@ -593,7 +626,7 @@
         <p>Belum punya akun? <a href="#" id="waHelp">Hubungi admin</a></p>
       </div>
 
-      <div class="version">Tulung Iyong · v1.0</div>
+      <div class="version">Tulung Inyong · v1.0</div>
     </div>
   </section>
 
@@ -606,7 +639,7 @@
 </noscript>
 
 <!-- ============================================================
-     LOGO LOADER — logo1.png; bila gagal, tampilkan fallback teks
+     LOGO LOADER — logo1.png; bila gagal, tampilkan fallback ikon
      ============================================================ -->
 <script>
 (function loadLogo(){
@@ -646,7 +679,7 @@ const firebaseConfig = {
 };
 
 const CONFIG = {
-  brand: 'Tulung Iyong',
+  brand: 'Tulung Inyong',
   collection: 'password',          // koleksi penyimpanan akun sementara
   sessionKey: 'tulungiyong.session',
   // Halaman tujuan setelah login berhasil (buat file-nya nanti)
@@ -1011,7 +1044,7 @@ el.form.addEventListener('submit', async (e) => {
    ------------------------------------------------------------------ */
 el.waHelp.addEventListener('click', (e) => {
   e.preventDefault();
-  showAlert('info', 'Pendaftaran akun dilakukan oleh admin. Hubungi admin Tulung Iyong via WhatsApp untuk mendapatkan nomor & password.');
+  showAlert('info', 'Pendaftaran akun dilakukan oleh admin. Hubungi admin Tulung Inyong via WhatsApp untuk mendapatkan nomor & password.');
 });
 
 /* ------------------------------------------------------------------
