@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0b7a44" />
+<title>Beranda • Tulung Inyong</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  [hidden]{display:none !important}
+
+  :root{
+    --green-900:#05472a; --green-800:#075c36; --green-700:#0b7a44;
+    --green-600:#0f9d58; --green-500:#14b86a; --green-50:#e9f8f0;
+    --yellow-600:#e8ad00; --yellow-500:#ffc72c; --yellow-400:#ffd75e; --yellow-50:#fff8e1;
+    --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --bg:#f6f9f6;
+    --radius:16px; --shadow:0 1px 2px rgba(15,23,42,.05), 0 10px 30px -18px rgba(5,71,42,.4);
+  }
+
+  body{
+    font-family:'Plus Jakarta Sans',Inter,-apple-system,sans-serif;
+    color:var(--ink); background:var(--bg); min-height:100dvh;
+    -webkit-font-smoothing:antialiased; padding-bottom:80px;
+  }
+  @media(min-width:768px){ body{padding-bottom:0} }
+  button,input,select,textarea{font:inherit}
+  button{cursor:pointer;border:0;background:none;color:inherit}
+  a{color:inherit;text-decoration:none}
+  small{font-size:11px;color:var(--muted);display:block;line-height:1.4}
+
+  /* ---------- TOPBAR (Desktop) ---------- */
+  .topbar{
+    display:none; position:sticky; top:0; z-index:50;
+    background:rgba(255,255,255,.95); backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+  }
+  @media(min-width:768px){
+    .topbar{display:block}
+    .topbar-inner{
+      max-width:1000px; margin:0 auto; height:64px; padding:0 24px;
+      display:flex; align-items:center; gap:20px;
+    }
+    .brand{display:flex; align-items:center; gap:10px; font-weight:800; font-size:18px; color:var(--green-800)}
+    .brand img{height:32px; mix-blend-mode:multiply}
+    .nav-menu{display:flex; gap:4px; margin-left:20px}
+    .nav-menu a{padding:8px 16px; border-radius:10px; font-size:14px; font-weight:700; color:var(--muted); transition:.2s}
+    .nav-menu a.active{background:var(--green-50); color:var(--green-700)}
+    .topbar-user{margin-left:auto; display:flex; align-items:center; gap:12px}
+    .avatar{width:40px; height:40px; border-radius:50%; background:var(--yellow-500); color:#4a3400; display:grid; place-items:center; font-weight:800; font-size:16px;}
+    .btn-logout{padding:8px 12px; border-radius:8px; font-size:12px; font-weight:700; background:#fef2f2; color:#b91c1c}
+  }
+
+  /* ---------- MAIN CONTENT ---------- */
+  .main{max-width:1000px; margin:0 auto; padding:20px 16px; animation:fadeUp .3s ease}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)}}
+  
+  .page-header{margin-bottom:24px}
+  .page-header h1{font-size:24px; margin:0 0 6px; letter-spacing:-.03em}
+  .page-header p{margin:0; font-size:14px; color:var(--muted)}
+  .highlight{color:var(--green-700)}
+
+  /* ---------- SERVICE GRID ---------- */
+  .services-grid{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:12px;
+  }
+  @media(min-width:600px){ .services-grid{grid-template-columns:repeat(3,1fr)} }
+  @media(min-width:900px){ .services-grid{grid-template-columns:repeat(5,1fr)} }
+
+  .service-card{
+    background:#fff; border:1.5px solid var(--line); border-radius:var(--radius);
+    padding:20px 16px; display:flex; flex-direction:column; align-items:center;
+    text-align:center; gap:12px; box-shadow:var(--shadow); transition:.2s;
+  }
+  .service-card:hover{border-color:var(--green-500); transform:translateY(-4px); box-shadow:0 12px 30px -12px rgba(15,157,88,.3)}
+  .service-icon{font-size:36px; filter:drop-shadow(0 4px 6px rgba(0,0,0,.1))}
+  .service-name{font-weight:800; font-size:14px; letter-spacing:-.01em}
+  .service-desc{font-size:11px; color:var(--muted); line-height:1.3}
+
+  /* ---------- BOOKING FORM ---------- */
+  .booking-section{margin-top:24px; animation:fadeUp .3s ease}
+  .card{background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:24px; box-shadow:var(--shadow)}
+  
+  .card-head{display:flex; align-items:center; gap:12px; margin-bottom:20px; border-bottom:1px solid var(--line); padding-bottom:16px}
+  .card-head .icon{font-size:32px}
+  .card-head h2{margin:0; font-size:18px}
+  .btn-back{padding:6px 12px; background:#f1f5f9; border-radius:8px; font-size:12px; font-weight:700; color:var(--muted); margin-bottom:16px; display:inline-block}
+
+  .field{margin-bottom:16px}
+  .field label{display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:6px}
+  .field input, .field select, .field textarea{
+    width:100%; padding:12px 14px; border:1.5px solid var(--line); border-radius:12px;
+    font-size:14px; background:#fbfcfd; outline:none; transition:.2s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{
+    border-color:var(--green-600); background:#fff; box-shadow:0 0 0 4px rgba(15,157,88,.13);
+  }
+
+  .fare-box{
+    margin-top:20px; padding:16px; border-radius:12px; background:var(--green-50);
+    border:1px dashed #a7e3c4;
+  }
+  .fare-row{display:flex; justify-content:space-between; font-size:13px; color:#3f6212; margin-bottom:8px}
+  .fare-row.total{font-size:18px; font-weight:800; color:#065f46; margin-top:12px; padding-top:12px; border-top:1px dashed #a7e3c4; margin-bottom:0}
+
+  .btn-primary{
+    width:100%; margin-top:20px; padding:15px; border-radius:12px;
+    font-size:15px; font-weight:800; color:#0b3d22;
+    background:linear-gradient(135deg,var(--yellow-400),var(--yellow-500));
+    box-shadow:0 8px 20px -10px rgba(255,199,44,1); transition:.2s;
+  }
+  .btn-primary:hover:not(:disabled){transform:translateY(-2px); filter:brightness(1.05)}
+  .btn-primary:disabled{opacity:.6; cursor:not-allowed; box-shadow:none}
+
+  /* ---------- BOTTOM NAV (Mobile) ---------- */
+  .bottom-nav{
+    display:flex; position:fixed; left:0; right:0; bottom:0; z-index:50;
+    background:rgba(255,255,255,.95); backdrop-filter:blur(12px);
+    border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom);
+  }
+  @media(min-width:768px){ .bottom-nav{display:none} }
+  .bottom-nav a{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
+    padding:10px 0 8px; font-size:10px; font-weight:700; color:var(--muted); transition:.2s;
+  }
+  .bottom-nav a.active{color:var(--green-700)}
+  .bottom-nav a .ico{font-size:20px; filter:grayscale(1); opacity:.6; transition:.2s}
+  .bottom-nav a.active .ico{filter:none; opacity:1; transform:translateY(-2px)}
+
+  /* Utility */
+  .text-center{text-align:center}
+  .mt-4{margin-top:16px}
+</style>
+</head>
+<body>
+
+<!-- ================= DESKTOP TOPBAR ================= -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <img src="logo1.png" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+      <span style="display:none; font-size:24px;">🛵</span>
+      Tulung Inyong
+    </div>
+    <nav class="nav-menu">
+      <a href="#" class="active" data-nav="home">Beranda</a>
+      <a href="#" data-nav="orders">Pesanan</a>
+    </nav>
+    <div class="topbar-user">
+      <div class="avatar" id="topAvatar">?</div>
+      <button class="btn-logout" onclick="logout()">Keluar</button>
+    </div>
+  </div>
+</header>
+
+<!-- ================= MAIN CONTENT ================= -->
+<main class="main" id="mainContent">
+
+  <!-- HOME / SERVICE SELECTION -->
+  <div id="viewHome">
+    <div class="page-header">
+      <h1>Halo, <span class="highlight" id="userName">Pengguna</span> 👋</h1>
+      <p>Mau pakai layanan apa hari ini?</p>
+    </div>
+
+    <div class="services-grid">
+      <button class="service-card" onclick="openBooking('ojek', 'Ojek Online', '🛵', 5000)">
+        <span class="service-icon">🛵</span>
+        <span class="service-name">Ojek Online</span>
+        <span class="service-desc">Cepat & hemat</span>
+      </button>
+      <button class="service-card" onclick="openBooking('food', 'Food Online', '🍜', 3000)">
+        <span class="service-icon">🍜</span>
+        <span class="service-name">Food Online</span>
+        <span class="service-desc">Pesan makanan</span>
+      </button>
+      <button class="service-card" onclick="openBooking('mobil', 'Mobil Online', '🚗', 10000)">
+        <span class="service-icon">🚗</span>
+        <span class="service-name">Mobil Online</span>
+        <span class="service-desc">Nyaman & luas</span>
+      </button>
+      <button class="service-card" onclick="openBooking('tulung', 'Tulung Apa Bae', '🤝', 6000)">
+        <span class="service-icon">🤝</span>
+        <span class="service-name">Tulung Apa Bae</span>
+        <span class="service-desc">Belanja, antar, titip</span>
+      </button>
+      <button class="service-card" onclick="openBooking('tambal', 'Tambal Ban', '🔧', 15000)">
+        <span class="service-icon">🔧</span>
+        <span class="service-name">Tambal Ban</span>
+        <span class="service-desc">Datang ke lokasi</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- BOOKING FORM -->
+  <div id="viewBooking" class="booking-section" hidden>
+    <button class="btn-back" onclick="closeBooking()">← Kembali</button>
+    
+    <div class="card">
+      <div class="card-head">
+        <span class="icon" id="bookIcon">🛵</span>
+        <div>
+          <h2 id="bookTitle">Ojek Online</h2>
+          <small id="bookSub">Isi detail pesanan kamu</small>
+        </div>
+      </div>
+
+      <form id="bookingForm" onsubmit="submitOrder(event)">
+        <div class="field">
+          <label>Lokasi Jemput / Toko</label>
+          <input type="text" id="pickupLoc" placeholder="Contoh: Jl. Sudirman No. 10" required />
+        </div>
+        <div class="field">
+          <label>Lokasi Tujuan / Alamat Antar</label>
+          <input type="text" id="destLoc" placeholder="Contoh: Jl. Ahmad Yani No. 5" required />
+        </div>
+        <div class="field" id="fieldDistance">
+          <label>Estimasi Jarak (km)</label>
+          <input type="number" id="distanceKm" min="1" value="3" oninput="calculateFare()" required />
+        </div>
+        <div class="field">
+          <label>Catatan Tambahan (Opsional)</label>
+          <textarea id="notes" rows="2" placeholder="Contoh: Tolong belikan 2 nasi goreng"></textarea>
+        </div>
+
+        <div class="fare-box">
+          <div class="fare-row"><span>Tarif Dasar</span><strong id="baseFareLabel">Rp 0</strong></div>
+          <div class="fare-row"><span>Tarif per km</span><strong id="perKmLabel">Rp 0</strong></div>
+          <div class="fare-row"><span>Jarak</span><strong id="distLabel">0 km</strong></div>
+          <div class="fare-row total"><span>Total Bayar</span><strong id="totalFareLabel">Rp 0</strong></div>
+        </div>
+
+        <button type="submit" class="btn-primary" id="orderBtn">Pesan Sekarang</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ORDERS PLACEHOLDER -->
+  <div id="viewOrders" hidden>
+    <div class="page-header">
+      <h1>Pesanan Saya</h1>
+      <p>Riwayat dan pesanan aktif.</p>
+    </div>
+    <div class="card text-center" style="padding:40px 20px;">
+      <span style="font-size:40px;">📭</span>
+      <h3 style="margin:12px 0 6px;">Belum ada pesanan</h3>
+      <p style="margin:0; font-size:13px; color:var(--muted);">Pesanan yang kamu buat akan muncul di sini.</p>
+    </div>
+  </div>
+
+</main>
+
+<!-- ================= MOBILE BOTTOM NAV ================= -->
+<nav class="bottom-nav">
+  <a href="#" class="active" data-nav="home">
+    <span class="ico">🏠</span> Beranda
+  </a>
+  <a href="#" data-nav="orders">
+    <span class="ico">🧾</span> Pesanan
+  </a>
+  <a href="#" onclick="logout()">
+    <span class="ico">🚪</span> Keluar
+  </a>
+</nav>
+
+<!-- ================= FIREBASE & LOGIC ================= -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAXWxcWYhvEKlXC414ECmv0vG0jZAr_Ecc",
+  authDomain: "tulungiiyong.firebaseapp.com",
+  projectId: "tulungiiyong",
+  storageBucket: "tulungiiyong.firebasestorage.app",
+  messagingSenderId: "892623147541",
+  appId: "1:892623147541:web:47812250f6498efad7b41c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Variabel Global
+let session = null;
+let appSettings = { pricePerKm: 2500, driverBonus: 5000, userBonus: 2000 };
+let currentService = { id: '', name: '', icon: '', baseFare: 0 };
+
+// Cek Sesi Login
+const rawSession = localStorage.getItem('tulungiyong.session');
+if (!rawSession) {
+  window.location.href = 'index.html';
+} else {
+  session = JSON.parse(rawSession);
+  if (session.role !== 'user') {
+    // Jika admin/driver nyasar ke sini, kembalikan ke index atau halaman mereka
+    window.location.href = session.role === 'admin' ? 'index.html' : 'driver.html';
+  }
+}
+
+// Tampilkan Nama User
+document.getElementById('userName').textContent = session.name.split(' ')[0];
+document.getElementById('topAvatar').textContent = session.name.charAt(0).toUpperCase();
+
+// Ambil Pengaturan dari Admin (Harga per km, Bonus)
+async function fetchSettings() {
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'app'));
+    if (snap.exists()) {
+      appSettings = { ...appSettings, ...snap.data() };
+    }
+  } catch (err) {
+    console.warn('Gagal memuat pengaturan:', err);
+  }
+}
+fetchSettings();
+
+// Navigasi (Home / Orders)
+function switchView(view) {
+  document.getElementById('viewHome').hidden = view !== 'home';
+  document.getElementById('viewBooking').hidden = true;
+  document.getElementById('viewOrders').hidden = view !== 'orders';
+  
+  document.querySelectorAll('[data-nav]').forEach(el => {
+    el.classList.toggle('active', el.dataset.nav === view);
+  });
+}
+document.querySelectorAll('[data-nav]').forEach(el => {
+  el.addEventListener('click', (e) => {
+    e.preventDefault();
+    switchView(el.dataset.nav);
+  });
+});
+
+// Buka Form Booking
+window.openBooking = function(id, name, icon, baseFare) {
+  currentService = { id, name, icon, baseFare };
+  
+  document.getElementById('bookIcon').textContent = icon;
+  document.getElementById('bookTitle').textContent = name;
+  document.getElementById('baseFareLabel').textContent = formatRp(baseFare);
+  document.getElementById('perKmLabel').textContent = formatRp(appSettings.pricePerKm);
+  
+  // Sembunyikan input jarak jika Tambal Ban (hanya bayar flat)
+  document.getElementById('fieldDistance').hidden = id === 'tambal';
+  
+  document.getElementById('bookingForm').reset();
+  calculateFare();
+  
+  document.getElementById('viewHome').hidden = true;
+  document.getElementById('viewOrders').hidden = true;
+  document.getElementById('viewBooking').hidden = false;
+  window.scrollTo(0, 0);
+};
+
+// Tutup Form Booking
+window.closeBooking = function() {
+  switchView('home');
+};
+
+// Hitung Tarif
+window.calculateFare = function() {
+  const dist = parseFloat(document.getElementById('distanceKm').value) || 0;
+  
+  let total = currentService.baseFare;
+  if (currentService.id !== 'tambal') {
+    total += (dist * appSettings.pricePerKm);
+  }
+
+  document.getElementById('distLabel').textContent = currentService.id === 'tambal' ? 'Datang ke lokasi' : dist + ' km';
+  document.getElementById('totalFareLabel').textContent = formatRp(total);
+};
+
+// Submit Pesanan
+window.submitOrder = async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('orderBtn');
+  
+  const pickup = document.getElementById('pickupLoc').value;
+  const dest = document.getElementById('destLoc').value;
+  const notes = document.getElementById('notes').value;
+  const distance = currentService.id === 'tambal' ? 0 : parseFloat(document.getElementById('distanceKm').value);
+  
+  let totalFare = currentService.baseFare;
+  if (currentService.id !== 'tambal') {
+    totalFare += (distance * appSettings.pricePerKm);
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Memproses...';
+
+  try {
+    await addDoc(collection(db, 'orders'), {
+      userId: session.id,
+      userName: session.name,
+      userWa: session.wa,
+      serviceId: currentService.id,
+      serviceName: currentService.name,
+      pickup,
+      dest,
+      notes,
+      distance,
+      fare: totalFare,
+      status: 'pending',
+      createdAt: serverTimestamp()
+    });
+
+    alert('✅ Pesanan berhasil dibuat! Mitra akan segera mencari kamu.');
+    closeBooking();
+  } catch (err) {
+    console.error('Order Error:', err);
+    alert('Gagal membuat pesanan. Periksa koneksi internet.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Pesan Sekarang';
+  }
+};
+
+// Util Rupiah
+function formatRp(num) {
+  return 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(num));
+}
+
+// Logout
+window.logout = function() {
+  if (confirm('Keluar dari akun?')) {
+    localStorage.removeItem('tulungiyong.session');
+    window.location.href = 'index.html';
+  }
+};
+</script>
+
+</body>
+</html>
