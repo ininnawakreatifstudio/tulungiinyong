@@ -107,11 +107,23 @@
   .card-foot a{color:var(--green-700);font-weight:800;border-bottom:2px solid var(--yellow-400);padding-bottom:1px}
   .card-foot a:hover{color:var(--green-800)}
 
-  .session-note{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:13px;background:var(--yellow-50);border:1px solid #ffe08a;margin-bottom:16px}
+  /* ===== SESSION NOTE (updated: 2 tombol) ===== */
+  .session-note{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    padding:11px 13px;border-radius:13px;
+    background:var(--yellow-50);border:1px solid #ffe08a;
+    margin-bottom:16px;
+  }
   .session-note .sn-txt{flex:1;min-width:0;font-size:12.4px;line-height:1.4;color:#8a6d00;font-weight:700}
   .session-note .sn-txt span{display:block;font-weight:600;color:#a37f00;font-size:11.4px}
   .session-note .sn-btn{flex:none;padding:8px 13px;border-radius:10px;background:var(--green-700);color:#fff;font-size:12px;font-weight:800;transition:.16s}
   .session-note .sn-btn:hover{background:var(--green-800)}
+  .session-note .sn-btn-secondary{background:#fff;color:#8a6d00;border:1.5px solid #ffe08a}
+  .session-note .sn-btn-secondary:hover{background:var(--yellow-50);border-color:var(--yellow-600)}
+  @media (max-width:420px){
+    .session-note .sn-txt{min-width:100%}
+    .session-note .sn-btn{flex:1}
+  }
 
   .version{margin-top:14px;text-align:center;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#94a3b8}
 
@@ -180,6 +192,8 @@
   .admin-card{background:#ffffff;border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:var(--shadow-card);max-width:560px}
   .admin-card label{display:block;font-size:13px;font-weight:700;color:var(--ink-2);margin-bottom:8px;margin-top:18px}
   .admin-card label:first-of-type{margin-top:0}
+  .admin-card h3{margin:0;font-size:15px;letter-spacing:-.01em;color:var(--ink)}
+  .section-divider{height:1px;background:var(--line);margin:22px 0 20px}
   .input-row{display:flex;align-items:center;gap:8px;padding:4px 4px 4px 16px;border:1.5px solid var(--line);border-radius:14px;background:#ffffff;margin-bottom:4px;transition:.16s}
   .input-row:focus-within{border-color:var(--green-600);box-shadow:0 0 0 4px rgba(15,157,88,.15)}
   .input-row span{font-weight:700;color:var(--muted);font-size:14px;flex-shrink:0}
@@ -218,6 +232,13 @@
   }
   .oi-driver-box.assigned{background:var(--green-50);border-color:#a7e3c4;color:var(--green-800)}
 
+  .oi-verified-box{
+    padding:10px 13px;border-radius:10px;
+    background:var(--green-50);border:1px solid #a7e3c4;
+    color:var(--green-800);font-size:12px;font-weight:700;
+    margin-bottom:12px;display:flex;align-items:center;gap:6px;
+  }
+
   .oi-actions{display:flex;gap:8px;flex-wrap:wrap}
   .oi-actions select{
     flex:1;min-width:160px;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;
@@ -231,15 +252,12 @@
   .btn-assign:hover{background:var(--green-700)}
   .btn-done{background:#f8fafc;color:var(--ink);border:1.5px solid var(--line)}
   .btn-done:hover{border-color:var(--green-500)}
+  .btn-verify{background:var(--yellow-500);color:#4a3400}
+  .btn-verify:hover{filter:brightness(1.05)}
   .btn-sm:disabled{opacity:.55;cursor:not-allowed}
 
   .oi-total{display:flex;justify-content:space-between;align-items:flex-end;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
   .oi-total strong{font-size:16px;color:var(--green-800);font-weight:800}
-
-  .price-grid{display:grid;grid-template-columns:1fr;gap:12px}
-  @media(min-width:560px){.price-grid{grid-template-columns:1fr 1fr}}
-  .price-grid .input-row{margin-bottom:0}
-  .price-grid label{margin-top:0 !important}
 
   /* ===== RESPONSIVE ===== */
   @media (max-width:979px){
@@ -320,6 +338,7 @@
       <div class="session-note" id="sessionNote" hidden>
         <div class="sn-txt" id="sessionText">Kamu masih tercatat masuk.</div>
         <button class="sn-btn" id="sessionContinue">Lanjutkan</button>
+        <button class="sn-btn sn-btn-secondary" id="sessionSwitch">Ganti Akun</button>
       </div>
 
       <div id="viewLogin">
@@ -415,7 +434,7 @@
         </div>
       </div>
 
-      <div class="version">Tulung Inyong · v1.1</div>
+      <div class="version">Tulung Inyong · v1.2</div>
     </div>
   </section>
 </main>
@@ -445,7 +464,7 @@
         📦 Pesanan <span class="tab-badge" id="ordersBadge" hidden>0</span>
       </button>
       <button class="admin-tab" data-admin-tab="harga">💰 Harga & Tarif</button>
-      <button class="admin-tab" data-admin-tab="bonus">🎁 Bonus & Kontak</button>
+      <button class="admin-tab" data-admin-tab="bonus">🏦 Pembayaran & Kontak</button>
     </nav>
 
     <!-- Panel Pendaftaran -->
@@ -518,12 +537,37 @@
       </div>
     </div>
 
-    <!-- Panel Bonus & Kontak -->
+    <!-- Panel Pembayaran & Kontak -->
     <div class="admin-panel" data-panel="bonus" hidden>
       <div class="panel-head">
-        <h2>Bonus & Kontak Admin</h2>
+        <h2>Pembayaran, Bonus & Kontak</h2>
       </div>
       <div class="admin-card">
+        <h3>🏦 Rekening Penerima Transfer</h3>
+
+        <label for="inputBankName">Nama Bank</label>
+        <div class="input-row">
+          <input type="text" id="inputBankName" placeholder="Contoh: BCA / BRI / Mandiri / BNI" style="padding-left:16px" />
+        </div>
+
+        <label for="inputBankAccountName">Atas Nama</label>
+        <div class="input-row">
+          <input type="text" id="inputBankAccountName" placeholder="Nama pemilik rekening" style="padding-left:16px" />
+        </div>
+
+        <label for="inputBankAccountNumber">Nomor Rekening</label>
+        <div class="input-row">
+          <input type="text" id="inputBankAccountNumber" placeholder="1234567890" style="padding-left:16px" />
+        </div>
+
+        <div class="admin-info warn">
+          Rekening ini akan ditampilkan ke pengguna saat memilih metode pembayaran <strong>Transfer Bank</strong>. Pengguna mentransfer tepat sejumlah nominal (sudah termasuk kode unik), dan admin/driver wajib verifikasi setelah dana masuk.
+        </div>
+
+        <div class="section-divider"></div>
+
+        <h3>🎁 Bonus</h3>
+
         <label for="inputDriverBonus">Bonus driver per trip (Rp)</label>
         <div class="input-row">
           <span>Rp</span>
@@ -541,16 +585,20 @@
           Bonus pengguna = potongan/credit yang diterima pengguna tiap trip.
         </div>
 
-        <label for="inputAdminWa" style="margin-top:24px">📱 WhatsApp Admin (untuk Tulung Apa Bae)</label>
+        <div class="section-divider"></div>
+
+        <h3>📱 Kontak Admin</h3>
+
+        <label for="inputAdminWa">WhatsApp Admin (untuk Tulung Apa Bae)</label>
         <div class="input-row">
           <span>+62</span>
           <input type="tel" id="inputAdminWa" placeholder="81234567890" style="padding-left:4px" />
         </div>
         <div class="admin-info warn">
-          Nomor ini dipakai sebagai tujuan chat WhatsApp otomatis dari user.html ketika memesan layanan <strong>Tulung Apa Bae</strong>. Gunakan format tanpa tanda <code>+</code> atau <code>0</code> di depan (contoh: <code>81234567890</code>).
+          Nomor ini dipakai sebagai tujuan chat WhatsApp otomatis dari user.html ketika memesan layanan <strong>Tulung Apa Bae</strong>. Format tanpa <code>+</code> atau <code>0</code> di depan (contoh: <code>81234567890</code>).
         </div>
 
-        <button class="btn-primary" id="saveBonus">Simpan</button>
+        <button class="btn-primary" id="saveBonus">Simpan Semua</button>
       </div>
     </div>
 
@@ -577,7 +625,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc,
-  updateDoc, deleteDoc, query, where, limit, orderBy, serverTimestamp
+  updateDoc, deleteDoc, query, where, limit, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -609,7 +657,10 @@ const DEFAULT_SETTINGS = {
   tambalTruk: 50000,
   driverBonus: 5000,
   userBonus: 2000,
-  adminWa: '6281234567890'
+  adminWa: '6281234567890',
+  bankName: '',
+  bankAccountName: '',
+  bankAccountNumber: ''
 };
 
 const ROLE_LABEL = { user:'Pengguna', admin:'Admin', driver:'Driver' };
@@ -630,7 +681,7 @@ const el = {
   viewLogin: $('#viewLogin'), viewRegister: $('#viewRegister'), loginForm: $('#loginForm'), wa: $('#wa'), password: $('#password'),
   eyeBtn: $('#eyeBtn'), submitBtn: $('#submitBtn'), alertBox: $('#alertBox'), cardTitle: $('#cardTitle'), cardSub: $('#cardSub'),
   modePill: $('#modePill'), modePillTx: $('#modePillText'), modeReset: $('#modeReset'), topBtns: $$('[data-mode-btn]'),
-  sessionNote: $('#sessionNote'), sessionText: $('#sessionText'), sessionBtn: $('#sessionContinue'),
+  sessionNote: $('#sessionNote'), sessionText: $('#sessionText'), sessionBtn: $('#sessionContinue'), sessionSwitch: $('#sessionSwitch'),
   showRegister: $('#showRegister'), showLogin: $('#showLogin'), registerForm: $('#registerForm'), regName: $('#regName'),
   regWa: $('#regWa'), regPassword: $('#regPassword'), regBtn: $('#regBtn'), regAlert: $('#regAlert'),
   adminLogout: $('#adminLogout'), adminTabs: $$('[data-admin-tab]'), adminPanels: $$('[data-panel]'),
@@ -639,11 +690,12 @@ const el = {
   inputOjekPrice: $('#inputOjekPrice'), inputTaxiPrice: $('#inputTaxiPrice'),
   inputTambalMotor: $('#inputTambalMotor'), inputTambalMobil: $('#inputTambalMobil'), inputTambalTruk: $('#inputTambalTruk'),
   inputDriverBonus: $('#inputDriverBonus'), inputUserBonus: $('#inputUserBonus'), inputAdminWa: $('#inputAdminWa'),
+  inputBankName: $('#inputBankName'), inputBankAccountName: $('#inputBankAccountName'), inputBankAccountNumber: $('#inputBankAccountNumber'),
   savePrice: $('#savePrice'), saveBonus: $('#saveBonus')
 };
 
 let mode = 'user', busy = false, regBusy = false;
-let driverCache = []; // [{id, name, wa, geohash, photoUrl, vehicle}]
+let driverCache = [];
 
 const EYE_ON = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>`;
 const EYE_OFF = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
@@ -741,7 +793,12 @@ function readRole(data){
   if (ROLE_ALLOWED.driver.includes(raw)) return 'driver';
   return 'user';
 }
-function roleMatches(accountRole, targetMode){ return ROLE_ALLOWED[targetMode].includes(accountRole) || (targetMode === 'user' && accountRole === ''); }
+
+// ===== FIX: mode 'user' (default) menerima role apa pun. Mode 'admin'/'driver' spesifik. =====
+function roleMatches(accountRole, targetMode){
+  if (targetMode === 'user') return true; // default user mode = fleksibel (redirect sesuai role akun)
+  return ROLE_ALLOWED[targetMode].includes(accountRole);
+}
 function accountStatus(account){ return String(account?.status || '').toLowerCase().trim(); }
 
 function setBusy(state){
@@ -771,13 +828,14 @@ el.loginForm.addEventListener('submit', async (e) => {
     if (status === 'rejected') { setBusy(false); return showAlert('err', 'Pendaftaran ditolak.'); }
     if (String(readField(account, CONFIG.passwordFields)) !== pass) { setBusy(false); return showAlert('err', 'Password salah.'); }
     const accountRole = readRole(account);
-    if (!roleMatches(accountRole, mode)) { setBusy(false); return showAlert('err', 'Akun ini terdaftar sebagai ' + ROLE_LABEL[accountRole]); }
+    if (!roleMatches(accountRole, mode)) { setBusy(false); return showAlert('err', 'Akun ini terdaftar sebagai ' + ROLE_LABEL[accountRole] + ', bukan ' + ROLE_LABEL[mode] + '.'); }
     sessionSet({ id: account.id, name: String(readField(account, ['name', 'nama', 'username']) || 'Pengguna'), wa: waDigits, role: accountRole, loginAt: new Date().toISOString() });
+    // Redirect sesuai role akun (bukan mode yang dipilih)
     if (accountRole === 'admin') {
-      showAlert('ok', 'Berhasil masuk. Membuka dashboard admin…');
+      showAlert('ok', 'Berhasil masuk sebagai Admin. Membuka dashboard…');
       setTimeout(() => showAdminDashboard(), 400);
     } else {
-      showAlert('ok', 'Berhasil masuk. Mengalihkan…');
+      showAlert('ok', 'Berhasil masuk sebagai ' + ROLE_LABEL[accountRole] + '. Mengalihkan…');
       setTimeout(() => { window.location.href = CONFIG.routes[accountRole] || CONFIG.routes.user; }, 900);
     }
   } catch (err) { setBusy(false); showAlert('err', firebaseError(err)); }
@@ -802,19 +860,33 @@ el.registerForm.addEventListener('submit', async (e) => {
 });
 
 function showAdminDashboard(){
-  el.topActions.hidden = true; el.authScreen.hidden = true; el.adminScreen.hidden = false;
+  el.topActions.hidden = true;
+  el.authScreen.hidden = true;
+  el.adminScreen.hidden = false;
   el.adminTabs.forEach(t => t.classList.toggle('active', t.dataset.adminTab === 'pendaftaran'));
   el.adminPanels.forEach(p => { p.hidden = p.dataset.panel !== 'pendaftaran'; });
   loadSettings(); loadPendingAccounts(); preloadDrivers();
 }
 
 function showLoginView(){
-  el.topActions.hidden = false; el.adminScreen.hidden = true; el.authScreen.hidden = false;
-  el.viewRegister.hidden = true; el.viewLogin.hidden = false; el.loginForm.reset(); el.registerForm.reset();
-  hideAlert(); hideRegAlert(); setMode('user');
+  el.topActions.hidden = false;
+  el.adminScreen.hidden = true;
+  el.authScreen.hidden = false;
+  el.viewRegister.hidden = true;
+  el.viewLogin.hidden = false;
+  el.sessionNote.hidden = true;   // ← FIX: sembunyikan session note setelah logout
+  el.loginForm.reset();
+  el.registerForm.reset();
+  hideAlert(); hideRegAlert();
+  setMode('user');
 }
 
-el.adminLogout.addEventListener('click', () => { if (confirm('Keluar dari dashboard admin?')) { sessionClear(); showLoginView(); } });
+el.adminLogout.addEventListener('click', () => {
+  if (confirm('Keluar dari dashboard admin?')) {
+    sessionClear();
+    showLoginView();
+  }
+});
 
 el.adminTabs.forEach(tab => tab.addEventListener('click', () => {
   const target = tab.dataset.adminTab;
@@ -886,7 +958,7 @@ async function handlePendingAction(action, id, btn){
     if (action === 'approve') {
       await updateDoc(doc(db, CONFIG.collection, id), { status: 'active', approvedAt: serverTimestamp() });
       alert(`✓ ${name} disetujui.`);
-      preloadDrivers(); // refresh driver cache
+      preloadDrivers();
     } else {
       await deleteDoc(doc(db, CONFIG.collection, id));
       alert(`✕ Pendaftaran ${name} ditolak.`);
@@ -922,7 +994,6 @@ async function loadOrders(){
   if (!db) return;
   el.ordersList.innerHTML = `<div class="admin-empty"><span class="ico">⏳</span><h3>Memuat pesanan…</h3></div>`;
   try {
-    // Query tanpa orderBy (hindari kebutuhan composite index)
     const snap = await getDocs(query(collection(db, CONFIG.ordersCollection), limit(100)));
     const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     const pendingCount = all.filter(o => String(o.status || '').toLowerCase() === 'pending').length;
@@ -947,7 +1018,6 @@ function renderOrders(list){
 
   el.ordersList.innerHTML = list.map(o => renderOrderItem(o)).join('');
 
-  // Attach handlers
   $$('.order-item [data-action="assign"]').forEach(btn => {
     btn.addEventListener('click', () => {
       const orderId = btn.dataset.id;
@@ -965,6 +1035,10 @@ function renderOrders(list){
   $$('.order-item [data-action="done"]').forEach(btn => {
     btn.addEventListener('click', () => setOrderStatus(btn.dataset.id, 'done', btn));
   });
+
+  $$('.order-item [data-action="verify"]').forEach(btn => {
+    btn.addEventListener('click', () => verifyOrderPayment(btn.dataset.id, btn));
+  });
 }
 
 function renderOrderItem(order){
@@ -977,7 +1051,6 @@ function renderOrderItem(order){
   const icon = { ojek: '🛵', taxi: '🚕', food: '🍜', tulung: '🤝', tambal: '🔧' }[order.serviceId] || '📦';
   const dateStr = formatDate(order.createdAt);
 
-  // Detail rows
   const rows = [];
   if (order.serviceId === 'ojek' || order.serviceId === 'taxi') {
     rows.push(['Jemput', order.pickup || '-']);
@@ -1009,7 +1082,13 @@ function renderOrderItem(order){
       ⚠️ Belum ada driver. Assign manual atau klik <strong>Auto</strong> (pilih terdekat by geohash).
     </div>`;
 
-  // Driver dropdown
+  // Verified box
+  const isTransfer = order.paymentMethod === 'transfer';
+  const isVerified = order.paymentVerified === true;
+  const verifiedBox = (isTransfer && isVerified) ? `
+    <div class="oi-verified-box">✅ Pembayaran terverifikasi${order.paymentVerifiedAt ? ' · ' + formatDate(order.paymentVerifiedAt) : ''}</div>
+  ` : '';
+
   const driverOptions = driverCache.map(d => {
     const suffix = d.geohash ? ` (${d.geohash.slice(0, 5)}…)` : '';
     return `<option value="${escapeHtml(d.id)}">${escapeHtml(d.name)}${suffix}</option>`;
@@ -1018,13 +1097,18 @@ function renderOrderItem(order){
     ? `<select data-role="driver-select"><option value="">— Pilih driver —</option>${driverOptions}</select>`
     : `<select disabled><option>Tidak ada driver aktif</option></select>`;
 
-  const actionBtns = status === 'pending' ? `
-    ${selectHtml}
-    <button class="btn-sm btn-assign" data-action="assign" data-id="${escapeHtml(order.id)}">Assign</button>
-    <button class="btn-sm btn-auto" data-action="auto" data-id="${escapeHtml(order.id)}">🎯 Auto</button>
-  ` : status === 'accepted' ? `
-    <button class="btn-sm btn-done" data-action="done" data-id="${escapeHtml(order.id)}">✓ Tandai Selesai</button>
-  ` : '';
+  const actions = [];
+  if (status === 'pending') {
+    actions.push(selectHtml);
+    actions.push(`<button class="btn-sm btn-assign" data-action="assign" data-id="${escapeHtml(order.id)}">Assign</button>`);
+    actions.push(`<button class="btn-sm btn-auto" data-action="auto" data-id="${escapeHtml(order.id)}">🎯 Auto</button>`);
+  } else if (status === 'accepted') {
+    actions.push(`<button class="btn-sm btn-done" data-action="done" data-id="${escapeHtml(order.id)}">✓ Tandai Selesai</button>`);
+  }
+  // Verifikasi pembayaran (admin bisa verifikasi jika belum)
+  if (isTransfer && !isVerified && !['done', 'completed', 'cancelled'].includes(status)) {
+    actions.push(`<button class="btn-sm btn-verify" data-action="verify" data-id="${escapeHtml(order.id)}">💳 Verifikasi Bayar</button>`);
+  }
 
   return `
     <div class="order-item" data-id="${escapeHtml(order.id)}">
@@ -1042,8 +1126,9 @@ function renderOrderItem(order){
       </div>
 
       ${driverBox}
+      ${verifiedBox}
 
-      ${actionBtns ? `<div class="oi-actions">${actionBtns}</div>` : ''}
+      ${actions.length ? `<div class="oi-actions">${actions.join('')}</div>` : ''}
 
       <div class="oi-total">
         <div>${escapeHtml(payMethod)}${order.uniqueCode ? ' · Kode: <strong>' + escapeHtml(order.uniqueCode) + '</strong>' : ''}</div>
@@ -1084,7 +1169,6 @@ async function autoAssignDriver(orderId, btn){
     const targetGeo = order.pickupGeohash || order.geohash || '';
     if (!targetGeo) throw new Error('Order tidak punya geohash lokasi.');
 
-    // Cari driver dengan prefix geohash paling panjang (semakin panjang = semakin dekat)
     let best = null, bestScore = -1;
     for (const d of driverCache) {
       if (!d.geohash) continue;
@@ -1127,8 +1211,27 @@ async function setOrderStatus(orderId, status, btn){
   }
 }
 
+// ===== Admin verify payment =====
+async function verifyOrderPayment(orderId, btn){
+  if (!confirm('Konfirmasi pembayaran transfer sudah masuk ke rekening?\n\nPastikan 3 digit terakhir nominal cocok dengan kode unik order.')) return;
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Memverifikasi…';
+  try {
+    const s = sessionGet();
+    await updateDoc(doc(db, CONFIG.ordersCollection, orderId), {
+      paymentVerified: true,
+      paymentVerifiedAt: serverTimestamp(),
+      paymentVerifiedBy: s?.name || 'admin'
+    });
+    alert('✅ Pembayaran terverifikasi.');
+    await loadOrders();
+  } catch (err) {
+    alert('Gagal: ' + firebaseError(err));
+    btn.disabled = false; btn.textContent = orig;
+  }
+}
+
 // ============================================================
-// SETTINGS (Harga, Bonus, Admin WA)
+// SETTINGS (Harga, Bonus, Bank, Admin WA)
 // ============================================================
 async function loadSettings(){
   if (!db) return;
@@ -1142,7 +1245,9 @@ async function loadSettings(){
     el.inputTambalTruk.value = Number(data.tambalTruk) || '';
     el.inputDriverBonus.value = Number(data.driverBonus) || '';
     el.inputUserBonus.value = Number(data.userBonus) || '';
-    // Tampilkan adminWa tanpa awalan 62
+    el.inputBankName.value = data.bankName || '';
+    el.inputBankAccountName.value = data.bankAccountName || '';
+    el.inputBankAccountNumber.value = data.bankAccountNumber || '';
     const adminWa = String(data.adminWa || '').replace(/\D/g, '');
     el.inputAdminWa.value = adminWa.startsWith('62') ? adminWa.slice(2) : adminWa;
   } catch (err) { console.error('[Settings]', err); }
@@ -1177,6 +1282,10 @@ el.saveBonus.addEventListener('click', async () => {
   if (!db) return;
   const driverBonus = Number(el.inputDriverBonus.value);
   const userBonus = Number(el.inputUserBonus.value);
+  const bankName = el.inputBankName.value.trim();
+  const bankAccountName = el.inputBankAccountName.value.trim();
+  const bankAccountNumber = el.inputBankAccountNumber.value.trim().replace(/\s+/g, '');
+
   let adminWaRaw = String(el.inputAdminWa.value).replace(/\D/g, '');
   if (adminWaRaw.startsWith('0')) adminWaRaw = '62' + adminWaRaw.slice(1);
   else if (adminWaRaw.startsWith('8')) adminWaRaw = '62' + adminWaRaw;
@@ -1185,16 +1294,21 @@ el.saveBonus.addEventListener('click', async () => {
   if (!Number.isFinite(driverBonus) || driverBonus < 0) return alert('Bonus driver tidak valid.');
   if (!Number.isFinite(userBonus) || userBonus < 0) return alert('Bonus pengguna tidak valid.');
   if (!/^62\d{8,13}$/.test(adminWaRaw)) return alert('Nomor WhatsApp admin tidak valid (contoh: 81234567890).');
+  if (!bankName) return alert('Nama bank wajib diisi.');
+  if (!bankAccountName) return alert('Nama pemilik rekening wajib diisi.');
+  if (!/^\d{6,20}$/.test(bankAccountNumber)) return alert('Nomor rekening tidak valid (6-20 digit angka).');
 
   el.saveBonus.disabled = true; el.saveBonus.textContent = 'Menyimpan…';
   try {
     await setDoc(doc(db, CONFIG.settingsDoc.collection, CONFIG.settingsDoc.doc), {
-      driverBonus, userBonus, adminWa: adminWaRaw, updatedAt: serverTimestamp()
+      driverBonus, userBonus, adminWa: adminWaRaw,
+      bankName, bankAccountName, bankAccountNumber,
+      updatedAt: serverTimestamp()
     }, { merge: true });
     el.inputAdminWa.value = adminWaRaw.slice(2);
-    alert('✓ Bonus & kontak admin disimpan.');
+    alert('✓ Pembayaran, bonus & kontak tersimpan.');
   } catch (err) { alert('Gagal: ' + firebaseError(err)); }
-  finally { el.saveBonus.disabled = false; el.saveBonus.textContent = 'Simpan'; }
+  finally { el.saveBonus.disabled = false; el.saveBonus.textContent = 'Simpan Semua'; }
 });
 
 // ============================================================
@@ -1211,20 +1325,40 @@ function formatDate(ts){
 }
 
 // ============================================================
-// SESSION BOOT
+// SESSION BOOT (FIX: login form selalu tampil)
 // ============================================================
 (function checkSession(){
-  const s = sessionGet(); if (!s) return;
-  if (s.role === 'admin') return showAdminDashboard();
+  const s = sessionGet();
+  if (!s) return; // no session, login form normal
+
+  // Session ada → tampilkan session note, tapi tetap di form login
   const role = ROLE_LABEL[s.role] || 'Pengguna';
   el.sessionText.innerHTML = 'Masih tercatat masuk sebagai <strong>' + escapeHtml(s.name) + '</strong><span>' + role + ' · ' + escapeHtml(s.wa || '') + '</span>';
   el.sessionNote.hidden = false;
-  el.sessionBtn.addEventListener('click', () => { window.location.href = CONFIG.routes[s.role] || CONFIG.routes.user; });
+
+  el.sessionBtn.addEventListener('click', () => {
+    if (s.role === 'admin') showAdminDashboard();
+    else window.location.href = CONFIG.routes[s.role] || CONFIG.routes.user;
+  });
+
+  el.sessionSwitch.addEventListener('click', () => {
+    sessionClear();
+    el.sessionNote.hidden = true;
+    setMode('user');
+    hideAlert();
+    el.wa.focus({ preventScroll: true });
+  });
 })();
 
 setMode('user');
-if (db) { el.submitBtn.disabled = false; el.submitBtn.textContent = buttonLabel(); el.regBtn.disabled = false; el.regBtn.textContent = 'Daftar'; }
-else { el.submitBtn.disabled = true; el.submitBtn.textContent = 'Firebase gagal dimuat'; el.regBtn.disabled = true; el.regBtn.textContent = 'Firebase gagal dimuat'; showAlert('err', 'Gagal memuat Firebase.'); }
+if (db) {
+  el.submitBtn.disabled = false; el.submitBtn.textContent = buttonLabel();
+  el.regBtn.disabled = false; el.regBtn.textContent = 'Daftar';
+} else {
+  el.submitBtn.disabled = true; el.submitBtn.textContent = 'Firebase gagal dimuat';
+  el.regBtn.disabled = true; el.regBtn.textContent = 'Firebase gagal dimuat';
+  showAlert('err', 'Gagal memuat Firebase.');
+}
 
 window.addEventListener('load', () => { if (window.innerWidth >= 980) el.wa.focus({ preventScroll: true }); });
 </script>
