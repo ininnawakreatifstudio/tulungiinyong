@@ -34,7 +34,7 @@
   button{cursor:pointer;border:0;background:none;color:inherit}
   a{color:inherit;text-decoration:none}
 
-  /* ===== LOADING (frosted) ===== */
+  /* ===== LOADING ===== */
   .loading-screen{
     position:fixed;inset:0;z-index:999;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -51,18 +51,33 @@
   }
   @keyframes spin{to{transform:rotate(360deg)}}
 
-  /* ===== HEADER ===== */
+  /* ===== HEADER (with isolation for blend) ===== */
   .driver-header{
     background:linear-gradient(135deg,#075c36 0%,#0f9d58 100%);
     color:#fff;position:sticky;top:0;z-index:40;
     box-shadow:0 4px 12px -8px rgba(0,0,0,.2);
+    isolation:isolate;   /* ← kunci agar mix-blend-mode logo bekerja */
   }
   .dh-inner{
     max-width:1000px;margin:0 auto;
     padding:14px 18px;display:flex;align-items:center;gap:14px;
   }
   .dh-brand{display:flex;align-items:center;gap:10px;min-width:0}
-  .dh-logo{width:36px;height:36px;object-fit:contain;mix-blend-mode:screen;flex:none}
+
+  /* LOGO transparan: bg hitam hilang di atas gradient hijau */
+  .dh-logo{
+    height:40px;
+    max-width:110px;
+    width:auto;
+    object-fit:contain;
+    display:block;
+    flex:none;
+    mix-blend-mode:screen;
+    -webkit-mix-blend-mode:screen;
+    background:transparent;
+    filter:drop-shadow(0 1px 2px rgba(0,0,0,.25));
+  }
+
   .dh-brand div{display:flex;flex-direction:column;gap:1px;min-width:0}
   .dh-brand strong{font-size:14px;font-weight:800;letter-spacing:-.02em;white-space:nowrap}
   .dh-brand small{font-size:10.5px;font-weight:600;color:rgba(255,255,255,.85)}
@@ -143,6 +158,7 @@
     gap:12px;margin:8px 0 16px;flex-wrap:wrap;
   }
   .panel-head h2{margin:0;font-size:19px;letter-spacing:-.02em}
+  .panel-head-actions{display:flex;gap:6px;flex-wrap:wrap}
 
   .card{
     background:#fff;border:1px solid var(--line);
@@ -151,7 +167,7 @@
     margin-bottom:14px;
   }
 
-  /* ===== EMPTY STATE ===== */
+  /* ===== EMPTY ===== */
   .empty{
     text-align:center;padding:48px 20px;
     background:#fff;border:2px dashed var(--line);
@@ -260,6 +276,18 @@
     margin-top:8px;font-size:11.5px;color:#991b1b;font-weight:700;
   }
 
+  /* ===== LOCATION STATUS BADGE ===== */
+  .oc-loc-status{
+    display:flex;align-items:center;gap:8px;
+    padding:9px 12px;border-radius:10px;
+    font-size:12px;font-weight:700;
+    margin-bottom:12px;
+  }
+  .oc-loc-status.ok{background:var(--green-50);border:1px solid #a7e3c4;color:var(--green-800)}
+  .oc-loc-status.warn{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+  .oc-loc-status.pending{background:var(--yellow-50);border:1px solid #ffe08a;color:#8a6d00}
+
+  /* ===== ACTIONS ===== */
   .oc-actions{display:flex;gap:8px;flex-wrap:wrap}
   .btn-action{
     flex:1;min-width:130px;
@@ -274,7 +302,11 @@
     box-shadow:0 6px 14px -8px rgba(15,157,88,.8);
   }
   .btn-complete:hover{filter:brightness(1.05);transform:translateY(-1px)}
-  .btn-action:disabled{opacity:.55;cursor:not-allowed;transform:none !important;filter:none !important}
+  .btn-check{
+    background:#fff;border:1.5px solid var(--line);color:var(--ink);
+  }
+  .btn-check:hover{border-color:var(--green-500)}
+  .btn-action:disabled{opacity:.5;cursor:not-allowed;transform:none !important;filter:none !important;background:#e2e8f0;color:#94a3b8;box-shadow:none}
 
   /* ===== LOCATION PANEL ===== */
   .map-box{
@@ -291,7 +323,7 @@
   .loc-info div{display:flex;justify-content:space-between;padding:2px 0}
   .loc-info strong{color:var(--ink);font-family:monospace}
 
-  /* ===== PROFILE PANEL ===== */
+  /* ===== PROFILE ===== */
   .profile-head{
     display:flex;align-items:center;gap:14px;
     padding-bottom:16px;margin-bottom:16px;
@@ -360,6 +392,7 @@
     transition:.16s;
   }
   .btn-refresh:hover{border-color:var(--green-500);color:var(--ink)}
+  .btn-refresh:disabled{opacity:.6;cursor:not-allowed}
 
   .info-box{
     padding:12px 14px;border-radius:11px;
@@ -367,7 +400,7 @@
     font-size:12px;color:#8a6d00;line-height:1.5;margin-bottom:14px;
   }
 
-  /* ===== STATS BAR ===== */
+  /* ===== STATS ===== */
   .stats-bar{
     display:grid;grid-template-columns:repeat(2,1fr);gap:10px;
     margin-bottom:16px;
@@ -383,6 +416,7 @@
   /* ===== MOBILE ===== */
   @media (max-width:600px){
     .dh-inner{padding:12px 14px;gap:10px}
+    .dh-logo{height:34px;max-width:90px}
     .dh-brand strong{font-size:13px}
     .dh-user-info strong{max-width:90px;font-size:12px}
     .dh-avatar{width:32px;height:32px;font-size:12.5px}
@@ -405,7 +439,8 @@
   <header class="driver-header">
     <div class="dh-inner">
       <div class="dh-brand">
-        <img src="logo1.png" alt="Tulung Inyong" class="dh-logo" onerror="this.style.display='none'" />
+        <img src="logo2.png" alt="Tulung Inyong Driver" class="dh-logo"
+             onerror="this.style.display='none'" />
         <div>
           <strong>Tulung Inyong</strong>
           <small>Driver Panel</small>
@@ -453,7 +488,10 @@
 
       <div class="panel-head">
         <h2>Pesanan Aktif</h2>
-        <button class="btn-refresh" onclick="refreshOrders()">🔄 Muat Ulang</button>
+        <div class="panel-head-actions">
+          <button class="btn-refresh" onclick="refreshDistanceChecks(true)">📍 Refresh Lokasi</button>
+          <button class="btn-refresh" onclick="refreshOrders()">🔄 Muat Ulang</button>
+        </div>
       </div>
       <div id="ordersList">
         <div class="empty"><span class="ico">⏳</span><h3>Memuat…</h3></div>
@@ -557,6 +595,9 @@ const CONFIG = {
   routes: { user: 'user.html', admin: 'index.html', driver: 'driver.html' }
 };
 
+// Radius toleransi untuk tombol "Selesaikan"
+const COMPLETE_RADIUS_M = 200;
+
 // ============================================================
 // GEOHASH INLINE
 // ============================================================
@@ -583,6 +624,18 @@ function geohashForLocation([lat, lng], precision = 9) {
 }
 
 // ============================================================
+// HAVERSINE (meter)
+// ============================================================
+function haversineM(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+
+// ============================================================
 // STATE
 // ============================================================
 let session = null;
@@ -591,7 +644,10 @@ let ordersUnsub = null;
 let activeOrders = [];
 let historyOrders = [];
 
-// ⬇️ FIX: appSettings sudah memuat field bank
+// Cache hasil cek jarak per order: { [orderId]: { ok, dist, msg, checkedAt } }
+const distanceChecks = {};
+let checkingDistances = false;
+
 let appSettings = {
   driverBonus: 5000,
   userBonus: 2000,
@@ -600,7 +656,6 @@ let appSettings = {
   bankAccountNumber: ''
 };
 
-// Location map
 let locMap = null, locMarker = null, pickedCoords = null;
 
 // ============================================================
@@ -630,6 +685,8 @@ async function boot() {
     setupTabs();
     document.getElementById('loadingScreen').hidden = true;
     document.getElementById('driverApp').hidden = false;
+    // Cek jarak awal (silent, tidak blok UI)
+    setTimeout(() => refreshDistanceChecks(false), 800);
   } catch (err) {
     console.error('[Boot]', err);
     alert('Gagal memuat data driver: ' + (err.message || err));
@@ -717,10 +774,11 @@ window.switchTab = function(name) {
   document.querySelectorAll('.panel').forEach(p => { p.hidden = p.dataset.panel !== name; });
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   if (name === 'location') setTimeout(initLocMap, 100);
+  if (name === 'orders') setTimeout(() => refreshDistanceChecks(false), 200);
 };
 
 // ============================================================
-// ORDERS (onSnapshot)
+// ORDERS SUBSCRIPTION
 // ============================================================
 function subscribeOrders() {
   if (ordersUnsub) ordersUnsub();
@@ -737,10 +795,21 @@ function subscribeOrders() {
     activeOrders.sort(sortFn);
     historyOrders.sort(sortFn);
 
+    // Bersihkan cache untuk order yang sudah tidak aktif
+    Object.keys(distanceChecks).forEach(id => {
+      if (!activeOrders.find(o => o.id === id)) delete distanceChecks[id];
+    });
+
     renderActiveOrders();
     renderHistory();
     updateStats();
     updateOrdersBadge(activeOrders.length);
+
+    // Auto-check jarak jika tab orders sedang aktif
+    const ordersPanelVisible = !document.querySelector('[data-panel="orders"]')?.hidden;
+    if (ordersPanelVisible && activeOrders.length) {
+      setTimeout(() => refreshDistanceChecks(false), 400);
+    }
   }, (err) => {
     console.error('[Orders]', err);
     document.getElementById('ordersList').innerHTML = `
@@ -762,6 +831,98 @@ function updateOrdersBadge(count) {
   if (count > 0) { badge.hidden = false; badge.textContent = count; }
   else { badge.hidden = true; }
 }
+
+// ============================================================
+// GPS + DISTANCE CHECK
+// ============================================================
+function getCurrentPositionAsync() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) return reject(new Error('Geolocation tidak didukung'));
+    navigator.geolocation.getCurrentPosition(
+      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy }),
+      (err) => reject(err),
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  });
+}
+
+function getOrderTargetCoords(order) {
+  if (order.serviceId === 'ojek' || order.serviceId === 'taxi') return order.destCoords;
+  if (order.serviceId === 'tambal') return order.coords;
+  return null; // tulung = no target
+}
+
+window.refreshDistanceChecks = async function(manual = false) {
+  if (checkingDistances) return;
+  if (!activeOrders.length) {
+    if (manual) alert('Tidak ada pesanan aktif.');
+    return;
+  }
+
+  // Order tanpa target → langsung lolos
+  const needsCheck = activeOrders.filter(o => getOrderTargetCoords(o));
+  if (!needsCheck.length) {
+    activeOrders.forEach(o => {
+      distanceChecks[o.id] = { ok: true, dist: 0, msg: 'Tanpa lokasi target', checkedAt: Date.now() };
+    });
+    renderActiveOrders();
+    if (manual) alert('✅ Semua pesanan tidak memerlukan cek lokasi.');
+    return;
+  }
+
+  checkingDistances = true;
+
+  // Update tombol refresh visual
+  const refreshBtn = document.querySelector('[onclick="refreshDistanceChecks(true)"]');
+  if (refreshBtn) { refreshBtn.disabled = true; refreshBtn.textContent = '📍 Mengecek…'; }
+
+  try {
+    const pos = await getCurrentPositionAsync();
+
+    needsCheck.forEach(o => {
+      const target = getOrderTargetCoords(o);
+      const dist = haversineM(pos.lat, pos.lng, target[0], target[1]);
+      const ok = dist <= COMPLETE_RADIUS_M;
+      distanceChecks[o.id] = {
+        ok,
+        dist: Math.round(dist),
+        msg: ok
+          ? `Anda berada ${Math.round(dist)}m dari tujuan ✓`
+          : `Anda masih ${Math.round(dist)}m dari tujuan`,
+        checkedAt: Date.now()
+      };
+    });
+
+    activeOrders.forEach(o => {
+      if (!distanceChecks[o.id]) {
+        distanceChecks[o.id] = { ok: true, dist: 0, msg: 'Tanpa lokasi target', checkedAt: Date.now() };
+      }
+    });
+
+    renderActiveOrders();
+    if (manual) {
+      const okCount = needsCheck.filter(o => distanceChecks[o.id].ok).length;
+      const farCount = needsCheck.length - okCount;
+      if (farCount === 0) alert('✅ Lokasi sudah sesuai untuk semua pesanan.');
+      else alert(`📍 ${okCount} pesanan siap diselesaikan, ${farCount} pesanan masih jauh (>${COMPLETE_RADIUS_M}m).`);
+    }
+  } catch (err) {
+    console.warn('[GPS]', err);
+    needsCheck.forEach(o => {
+      distanceChecks[o.id] = {
+        ok: false,
+        dist: -1,
+        msg: 'Gagal cek GPS: ' + (err.message || 'lokasi tidak tersedia'),
+        checkedAt: Date.now()
+      };
+    });
+    renderActiveOrders();
+    if (manual) alert('⚠️ Gagal mendapatkan lokasi: ' + (err.message || 'Periksa izin lokasi browser.'));
+  } finally {
+    checkingDistances = false;
+    if (refreshBtn) { refreshBtn.disabled = false; refreshBtn.textContent = '📍 Refresh Lokasi'; }
+  }
+};
 
 // ============================================================
 // RENDER ACTIVE ORDERS
@@ -786,6 +947,9 @@ function renderActiveOrders() {
   });
   document.querySelectorAll('[data-action="complete"]').forEach(b => {
     b.addEventListener('click', () => completeOrder(b.dataset.id, b));
+  });
+  document.querySelectorAll('[data-action="check"]').forEach(b => {
+    b.addEventListener('click', () => refreshDistanceChecks(true));
   });
 }
 
@@ -860,7 +1024,6 @@ function renderOrderCard(order) {
   let paymentHtml = '';
 
   if (isTransfer) {
-    // ⬇️ PATCH: blok info rekening di kartu transfer
     const bankName = String(appSettings.bankName || '').trim();
     const accNumber = String(appSettings.bankAccountNumber || '').trim();
     const accName = String(appSettings.bankAccountName || '').trim();
@@ -916,12 +1079,48 @@ function renderOrderCard(order) {
       </div>`;
   }
 
+  // ⬇️ Location status badge
+  const target = getOrderTargetCoords(order);
+  const check = distanceChecks[order.id];
+  let locStatusHtml = '';
+
+  if (target) {
+    if (!check) {
+      locStatusHtml = `
+        <div class="oc-loc-status pending">
+          <span style="font-size:15px">🟡</span>
+          <span>Mengecek lokasi Anda…</span>
+        </div>`;
+    } else if (check.ok) {
+      locStatusHtml = `
+        <div class="oc-loc-status ok">
+          <span style="font-size:15px">🟢</span>
+          <span><strong>${check.dist}m</strong> dari tujuan — Anda siap menyelesaikan</span>
+        </div>`;
+    } else {
+      locStatusHtml = `
+        <div class="oc-loc-status warn">
+          <span style="font-size:15px">🔴</span>
+          <span>${check.dist >= 0 ? `<strong>${check.dist}m</strong> dari tujuan — mendekat dulu` : escapeHtml(check.msg)}</span>
+        </div>`;
+    }
+  }
+
+  // ⬇️ Complete button state — disable if not near
+  const completeDisabled = target && (!check || !check.ok);
+  const completeTitle = completeDisabled
+    ? `Harus berada dalam ${COMPLETE_RADIUS_M}m dari tujuan`
+    : 'Tandai pesanan selesai';
+
   // Actions
   const actions = [];
   if (isTransfer && !isVerified) {
     actions.push(`<button class="btn-action btn-verify" data-action="verify" data-id="${escapeHtml(order.id)}">✅ Verifikasi Pembayaran</button>`);
   }
-  actions.push(`<button class="btn-action btn-complete" data-action="complete" data-id="${escapeHtml(order.id)}">🏁 Selesaikan Pesanan</button>`);
+  if (target) {
+    actions.push(`<button class="btn-action btn-check" data-action="check" data-id="${escapeHtml(order.id)}">📍 Cek Jarak</button>`);
+  }
+  actions.push(`<button class="btn-action btn-complete" data-action="complete" data-id="${escapeHtml(order.id)}" ${completeDisabled ? 'disabled' : ''} title="${escapeHtml(completeTitle)}">🏁 Selesaikan Pesanan</button>`);
 
   return `
     <div class="order-card ${isTransfer ? 'transfer' : ''}">
@@ -936,6 +1135,7 @@ function renderOrderCard(order) {
       ${routeHtml}
       ${userHtml}
       ${paymentHtml}
+      ${locStatusHtml}
       <div class="oc-actions">${actions.join('')}</div>
     </div>`;
 }
@@ -958,6 +1158,7 @@ function renderHistory() {
   container.innerHTML = historyOrders.map(o => {
     const icon = { ojek: '🛵', taxi: '🚕', food: '🍜', tulung: '🤝', tambal: '🔧' }[o.serviceId] || '📦';
     const total = o.paymentTotal ?? o.fare ?? 0;
+    const completedBy = o.completedBy || '-';
     return `
       <div class="order-card done">
         <div class="oc-head">
@@ -968,10 +1169,11 @@ function renderHistory() {
           </div>
           <span class="oc-status done">Selesai</span>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:6px">
           <span style="color:var(--muted)">${o.paymentMethod === 'transfer' ? 'Transfer' : o.paymentMethod === 'wa' ? 'Via WA' : 'Tunai'}</span>
           <strong style="color:var(--green-800)">${formatRp(total)}</strong>
         </div>
+        <div style="font-size:10.5px;color:var(--muted);text-align:right">Diselesaikan oleh: ${escapeHtml(completedBy)}</div>
       </div>
     `;
   }).join('');
@@ -1007,7 +1209,7 @@ window.verifyPayment = async function(orderId, btn) {
     await updateDoc(doc(db, CONFIG.ordersCollection, orderId), {
       paymentVerified: true,
       paymentVerifiedAt: serverTimestamp(),
-      paymentVerifiedBy: 'Driver: ' + (driverData?.name || session?.name || 'driver')  // ⬅️ PATCH: audit trail
+      paymentVerifiedBy: 'Driver: ' + (driverData?.name || session?.name || 'driver')
     });
   } catch (err) {
     alert('Gagal: ' + (err.message || err));
@@ -1017,15 +1219,81 @@ window.verifyPayment = async function(orderId, btn) {
 };
 
 window.completeOrder = async function(orderId, btn) {
-  if (!confirm('Tandai pesanan ini selesai? Pastikan sudah serah terima dengan pengguna.')) return;
-  btn.disabled = true;
+  const order = activeOrders.find(o => o.id === orderId);
+  if (!order) return alert('Pesanan tidak ditemukan.');
+
+  const target = getOrderTargetCoords(order);
+
+  // ── 1. Cek GPS + jarak real-time
+  if (target) {
+    const orig = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '📍 Mengecek lokasi…';
+
+    try {
+      const pos = await getCurrentPositionAsync();
+      const dist = haversineM(pos.lat, pos.lng, target[0], target[1]);
+
+      if (dist > COMPLETE_RADIUS_M) {
+        btn.disabled = false;
+        btn.textContent = orig;
+        // update cache agar tombol konsisten disabled
+        distanceChecks[order.id] = {
+          ok: false,
+          dist: Math.round(dist),
+          msg: `Anda masih ${Math.round(dist)}m dari tujuan`,
+          checkedAt: Date.now()
+        };
+        renderActiveOrders();
+        return alert(
+          `❌ Tidak bisa menyelesaikan pesanan\n\n` +
+          `Anda masih ${Math.round(dist)}m dari lokasi tujuan.\n` +
+          `Batas toleransi: ${COMPLETE_RADIUS_M}m.\n\n` +
+          `Silakan mendekat ke lokasi tujuan terlebih dahulu, atau mintalah admin/user untuk menyelesaikan jika Anda sudah yakin tiba di lokasi.`
+        );
+      }
+
+      // Update cache → OK
+      distanceChecks[order.id] = {
+        ok: true,
+        dist: Math.round(dist),
+        msg: `Anda berada ${Math.round(dist)}m dari tujuan ✓`,
+        checkedAt: Date.now()
+      };
+
+      if (!confirm(`Tandai pesanan selesai?\n\n✓ Anda berada ${Math.round(dist)}m dari tujuan.`)) {
+        btn.disabled = false;
+        btn.textContent = orig;
+        return;
+      }
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = orig;
+      return alert(
+        '❌ Gagal mendapatkan lokasi Anda: ' + (err.message || 'izin lokasi diperlukan') +
+        '\n\nAktifkan GPS dan izinkan akses lokasi, lalu coba lagi.'
+      );
+    }
+  } else {
+    // Tulung — tanpa target lokasi
+    if (!confirm('Tandai pesanan selesai?\n\nPastikan sudah serah terima dengan pengguna.')) return;
+  }
+
+  // ── 2. Simpan
   const orig = btn.textContent;
+  btn.disabled = true;
   btn.textContent = 'Menyimpan…';
+
   try {
+    const check = distanceChecks[order.id];
     await updateDoc(doc(db, CONFIG.ordersCollection, orderId), {
       status: 'done',
-      completedAt: serverTimestamp()
+      completedAt: serverTimestamp(),
+      completedBy: 'Driver: ' + (driverData?.name || session?.name || 'driver'),
+      completedViaLocation: !!target,
+      completionDistance: check?.dist ?? 0
     });
+    // onSnapshot akan refresh otomatis
   } catch (err) {
     alert('Gagal: ' + (err.message || err));
     btn.disabled = false;
