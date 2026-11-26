@@ -35,10 +35,10 @@
   a{color:inherit;text-decoration:none}
   small{font-size:11px;color:var(--muted);display:block;line-height:1.4}
 
-  /* ---------- TOPBAR ---------- */
+  /* ---------- TOPBAR (solid white so logo multiply works clean) ---------- */
   .topbar{
     display:none; position:sticky; top:0; z-index:50;
-    background:rgba(255,255,255,.95); backdrop-filter:blur(12px);
+    background:#ffffff;                /* ← sebelumnya rgba(.95) bikin logo kelihatan kotak */
     border-bottom:1px solid var(--line);
   }
   @media(min-width:768px){
@@ -46,9 +46,14 @@
     .topbar-inner{
       max-width:1000px; margin:0 auto; height:64px; padding:0 24px;
       display:flex; align-items:center; gap:20px;
+      isolation:isolate;                /* ← pastikan blend context bersih */
     }
-    .brand{display:flex; align-items:center; gap:10px; font-weight:800; font-size:18px; color:var(--green-800)}
-    .brand img{height:32px; mix-blend-mode:multiply}
+    .brand{display:flex; align-items:center; gap:10px; font-weight:800; font-size:18px; color:var(--green-800); isolation:isolate}
+    .brand img{
+      height:32px; width:auto; max-width:120px; object-fit:contain;
+      mix-blend-mode:multiply;          /* hapus background putih bawaan PNG */
+      background:transparent !important;
+    }
     .nav-menu{display:flex; gap:4px; margin-left:20px}
     .nav-menu a{padding:8px 16px; border-radius:10px; font-size:14px; font-weight:700; color:var(--muted); transition:.2s}
     .nav-menu a.active{background:var(--green-50); color:var(--green-700)}
@@ -108,7 +113,6 @@
   .input-with-btn{display:flex; gap:8px; align-items:stretch}
   .input-with-btn input{flex:1}
 
-  /* Tombol lokasi gaya Google Maps */
   .loc-btn-map{
     width:48px; height:48px; border-radius:12px;
     background:#fff; border:1.5px solid var(--line);
@@ -145,19 +149,15 @@
   .btn-wa:disabled{opacity:.6; cursor:not-allowed}
 
   /* ---------- MAP ---------- */
-  #map, #tambalMap {height:300px; border-radius:12px; margin-bottom:16px; border:1.5px solid var(--line); z-index:1}
+  #map, #tambalMap{
+    height:300px; border-radius:12px; margin-bottom:16px;
+    border:1.5px solid var(--line); z-index:1;
+    background:transparent;   /* Leaflet default gray → transparan */
+  }
   .map-hint{font-size:11px; color:var(--muted); margin-top:-10px; margin-bottom:16px}
   .loc-btn{padding:10px 12px; border-radius:8px; font-size:12px; font-weight:700; background:#fff; border:1.5px solid var(--line); display:inline-flex; align-items:center; gap:6px; white-space:nowrap}
   .loc-btn:hover{border-color:var(--green-500)}
   .map-tools{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px}
-
-  /* ---------- FOOD MENU ---------- */
-  .menu-item{display:flex; align-items:center; gap:12px; padding:12px; border:1px solid var(--line); border-radius:12px; margin-bottom:8px}
-  .menu-item input[type="number"]{width:60px; padding:8px; border:1px solid var(--line); border-radius:8px; text-align:center}
-  .menu-item-info{flex:1}
-  .menu-item-info strong{display:block; font-size:14px}
-  .menu-item-info small{color:var(--muted); font-size:11px}
-  .menu-item-price{font-weight:800; font-size:13px; white-space:nowrap}
 
   .coming-soon{
     text-align:center; padding:44px 20px; border-radius:16px;
@@ -174,6 +174,37 @@
   .payment-option input{accent-color:var(--green-600); width:18px; height:18px}
   .payment-option .po-text{flex:1; font-weight:700; font-size:14px}
   .payment-option .po-sub{font-size:11px; color:var(--muted); font-weight:500}
+
+  /* ===== BANK INFO (NEW) ===== */
+  .bank-info{
+    margin-top:14px; padding:16px; border-radius:12px;
+    background:linear-gradient(135deg, #ffffff, var(--green-50));
+    border:1.5px solid #a7e3c4;
+    position:relative;
+  }
+  .bank-info-label{
+    font-size:10.5px; font-weight:800; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--green-800);
+    margin-bottom:10px;
+  }
+  .bank-info-row{display:flex; align-items:center; gap:12px; margin-bottom:8px}
+  .bank-info-row:last-child{margin-bottom:0}
+  .bank-info-row .k{font-size:11px; color:var(--muted); font-weight:700; min-width:64px}
+  .bank-info-row .v{font-size:15px; font-weight:800; color:var(--ink); letter-spacing:-.01em}
+  .bank-info-row .v.mono{font-family:'SF Mono', 'Courier New', monospace; font-size:17px; letter-spacing:.05em; color:var(--green-800)}
+  .bank-info-copy{
+    margin-left:auto; padding:6px 10px; border-radius:8px;
+    background:#fff; border:1.5px solid #a7e3c4;
+    color:var(--green-800); font-size:11px; font-weight:800;
+    transition:.16s; display:inline-flex; align-items:center; gap:4px;
+  }
+  .bank-info-copy:hover{background:var(--green-50)}
+  .bank-info-empty{
+    padding:14px; border-radius:10px;
+    background:#fef2f2; border:1px solid #fecaca;
+    color:#991b1b; font-size:12.5px; line-height:1.5;
+    display:flex; gap:8px; align-items:flex-start;
+  }
 
   .transfer-note{
     background:#fef2f2; border:1px solid #fecaca; border-radius:10px;
@@ -245,6 +276,25 @@
   .oc-foot strong{font-size:15px; font-weight:800}
   .oc-total{text-align:right}
   .oc-total strong{color:var(--green-800); font-size:17px}
+
+  /* ===== LOADING CARD (NEW: frosted/transparan) ===== */
+  .loading-card{
+    background:rgba(255,255,255,.55) !important;
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+    border:1.5px dashed var(--line) !important;
+    box-shadow:none !important;
+    text-align:center; padding:40px 20px;
+  }
+  .loading-spinner{
+    display:inline-block; width:32px; height:32px;
+    border-radius:50%;
+    border:3px solid rgba(15,157,88,.2);
+    border-top-color:var(--green-600);
+    animation:spin .8s linear infinite;
+    margin-bottom:12px;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
 
   /* ---------- BOTTOM NAV ---------- */
   .bottom-nav{
@@ -449,10 +499,13 @@
         </div>
 
         <div id="transferSection" hidden>
+          <!-- BANK INFO (diisi oleh renderBankInfo()) -->
+          <div id="bankInfoCard"></div>
+
           <div class="transfer-note">
             <strong>ℹ️ Nominal Transfer Sudah Final</strong><br>
             Transfer tepat sejumlah <strong id="transferAmountLabel">Rp 0</strong> — kode unik sudah termasuk dalam nominal ini.
-            Admin akan mencocokkan 3 digit terakhir nominal Anda.
+            Admin/driver akan mencocokkan 3 digit terakhir nominal Anda.
           </div>
           <div class="upload-area" onclick="alert('Fitur upload bukti transfer akan segera tersedia.')">
             <div class="up-icon">📤</div>
@@ -474,10 +527,10 @@
       <p>Riwayat dan pesanan aktif.</p>
     </div>
     <div id="ordersList">
-      <div class="card text-center" style="padding:40px 20px;">
-        <span style="font-size:40px;">⏳</span>
-        <h3 style="margin:12px 0 6px;">Memuat pesanan…</h3>
-        <p style="margin:0; font-size:13px; color:var(--muted);">Sebentar ya.</p>
+      <div class="card loading-card">
+        <div class="loading-spinner"></div>
+        <h3 style="margin:0 0 4px;">Memuat pesanan…</h3>
+        <p style="margin:0; font-size:12px; color:var(--muted);">Sebentar ya.</p>
       </div>
     </div>
   </div>
@@ -502,7 +555,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getFirestore, doc, getDoc, collection, addDoc, serverTimestamp,
-  query, where, onSnapshot, getDocs
+  query, where, onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -554,22 +607,23 @@ let appSettings = {
   tambalMotor: 15000,
   tambalMobil: 25000,
   tambalTruk: 50000,
-  adminWa: '6281234567890'
+  adminWa: '6281234567890',
+  bankName: '',
+  bankAccountName: '',
+  bankAccountNumber: ''
 };
 let currentService = {
   id: '', name: '', icon: '', baseFare: 0,
   calculatedFare: 0, uniqueCode: null, codeBase: null, displayTotal: 0
 };
 
-// Map state (route)
 let mainMap = null, pickupMarker = null, destMarker = null, routeLine = null;
 let pickupCoords = null, destCoords = null;
 
-// Map state (tambal)
 let tambalMapInstance = null, tambalMarker = null, tambalCoords = null;
 
-// Orders subscription
 let ordersUnsubscribe = null;
+let settingsLoaded = false;
 
 // ============================================================
 // SESSION
@@ -578,14 +632,11 @@ const rawSession = localStorage.getItem('tulungiyong.session');
 if (!rawSession) {
   window.location.href = 'index.html';
 } else {
-  try {
-    session = JSON.parse(rawSession);
-  } catch { window.location.href = 'index.html'; }
+  try { session = JSON.parse(rawSession); } catch { window.location.href = 'index.html'; }
   if (session && session.role !== 'user') {
     window.location.href = session.role === 'admin' ? 'index.html' : 'driver.html';
   }
 }
-
 if (session) {
   document.getElementById('userName').textContent = (session.name || 'Pengguna').split(' ')[0];
   document.getElementById('topAvatar').textContent = (session.name || '?').charAt(0).toUpperCase();
@@ -598,8 +649,13 @@ async function fetchSettings() {
   try {
     const snap = await getDoc(doc(db, 'settings', 'app'));
     if (snap.exists()) appSettings = { ...appSettings, ...snap.data() };
+    settingsLoaded = true;
+    // Re-render bank info if transfer section is visible
+    const transferVisible = !document.getElementById('transferSection')?.hidden;
+    if (transferVisible) renderBankInfo();
   } catch (err) {
     console.warn('[Settings] gagal memuat:', err);
+    settingsLoaded = true;
   }
 }
 fetchSettings();
@@ -629,9 +685,13 @@ function subscribeOrders() {
   const container = document.getElementById('ordersList');
   if (!session) return;
 
-  container.innerHTML = `<div class="card text-center" style="padding:40px 20px;"><span style="font-size:40px;">⏳</span><h3 style="margin:12px 0 6px;">Memuat pesanan…</h3></div>`;
+  container.innerHTML = `
+    <div class="card loading-card">
+      <div class="loading-spinner"></div>
+      <h3 style="margin:0 0 4px;">Memuat pesanan…</h3>
+      <p style="margin:0; font-size:12px; color:var(--muted);">Sebentar ya.</p>
+    </div>`;
 
-  // Hanya where userId — tidak butuh composite index
   const q = query(collection(db, 'orders'), where('userId', '==', session.id));
 
   ordersUnsubscribe = onSnapshot(q, (snap) => {
@@ -665,20 +725,14 @@ function renderOrderCard(order) {
     cancelled: 'Dibatalkan', completed: 'Selesai'
   }[status] || status;
 
-  const icon = {
-    ojek: '🛵', taxi: '🚕', food: '🍜', tulung: '🤝', tambal: '🔧'
-  }[order.serviceId] || '📦';
-
+  const icon = { ojek: '🛵', taxi: '🚕', food: '🍜', tulung: '🤝', tambal: '🔧' }[order.serviceId] || '📦';
   const dateStr = formatDate(order.createdAt);
 
-  // Driver info
   const hasDriver = order.driverName && String(order.driverName).trim();
   const driverInitial = hasDriver ? String(order.driverName).trim().charAt(0).toUpperCase() : '?';
   const photoUrl = order.driverPhotoUrl || '';
   const avatarStyle = photoUrl ? `background-image:url('${escapeHtml(photoUrl)}');color:transparent;` : '';
-  // NOTE Cloudinary: nanti photoUrl diisi dari Cloudinary URL setelah upload
 
-  // Route info
   let routeHtml = '';
   if (order.serviceId === 'ojek' || order.serviceId === 'taxi') {
     routeHtml = `
@@ -702,6 +756,9 @@ function renderOrderCard(order) {
 
   const payMethod = order.paymentMethod === 'transfer' ? 'Transfer' : order.paymentMethod === 'wa' ? 'Via WA' : 'Tunai';
   const displayTotal = order.paymentTotal ?? order.totalWithCode ?? order.fare ?? 0;
+
+  const verifiedBadge = (order.paymentMethod === 'transfer' && order.paymentVerified === true)
+    ? `<div style="font-size:11px; color:var(--green-700); font-weight:700; margin-top:6px">✅ Pembayaran sudah diverifikasi</div>` : '';
 
   return `
     <div class="order-card">
@@ -738,6 +795,7 @@ function renderOrderCard(order) {
         <div>
           <small>Metode Bayar</small>
           <strong>${payMethod}</strong>
+          ${verifiedBadge}
         </div>
         <div class="oc-total">
           <small>Total</small>
@@ -768,7 +826,6 @@ window.openBooking = function(id, name, icon, baseFare) {
   document.getElementById('bookTitle').textContent = name;
   document.getElementById('baseFareLabel').textContent = formatRp(baseFare);
 
-  // Sembunyikan semua section
   ['mapSection', 'foodSection', 'tulungSection', 'tambalSection'].forEach(sid => {
     document.getElementById(sid).hidden = true;
   });
@@ -781,14 +838,12 @@ window.openBooking = function(id, name, icon, baseFare) {
   document.getElementById('perKmRow').hidden = true;
   document.getElementById('distRow').hidden = true;
 
-  // Reset form
   document.getElementById('bookingForm').reset();
   foodCart = [];
   pickupCoords = null;
   destCoords = null;
   tambalCoords = null;
 
-  // Cleanup maps
   if (mainMap) { mainMap.remove(); mainMap = null; }
   if (tambalMapInstance) { tambalMapInstance.remove(); tambalMapInstance = null; }
   pickupMarker = destMarker = routeLine = tambalMarker = null;
@@ -808,7 +863,6 @@ window.openBooking = function(id, name, icon, baseFare) {
     document.getElementById('fareBox').hidden = true;
     document.getElementById('paymentMethodSection').hidden = true;
     document.getElementById('orderBtn').hidden = true;
-    document.getElementById('waBtn').hidden = true;
 
   } else if (id === 'tulung') {
     document.getElementById('tulungSection').hidden = false;
@@ -1032,10 +1086,6 @@ window.detectTambalLocation = function() {
 // FOOD CART
 // ============================================================
 let foodCart = [];
-const FOOD_MENU = [];
-
-window.updateFoodCart = function() { /* tidak dipakai saat ini */ };
-window.calculateFare = function() { /* tidak dipakai saat ini */ };
 
 // ============================================================
 // TAMBAL FARE (dengan qty)
@@ -1054,6 +1104,68 @@ window.calculateTambalFare = function() {
   currentService.tireType = type;
   currentService.tireQty = qty;
   updateTotalDisplay();
+};
+
+// ============================================================
+// BANK INFO (NEW)
+// ============================================================
+function renderBankInfo() {
+  const card = document.getElementById('bankInfoCard');
+  if (!card) return;
+
+  const bankName = String(appSettings.bankName || '').trim();
+  const accNumber = String(appSettings.bankAccountNumber || '').trim();
+  const accName = String(appSettings.bankAccountName || '').trim();
+
+  if (!bankName || !accNumber || !accName) {
+    card.innerHTML = `
+      <div class="bank-info">
+        <div class="bank-info-empty">
+          <span style="font-size:18px;line-height:1">⚠️</span>
+          <span>Info rekening belum diatur oleh admin.<br>Silakan hubungi admin untuk info transfer.</span>
+        </div>
+      </div>`;
+    return;
+  }
+
+  card.innerHTML = `
+    <div class="bank-info">
+      <div class="bank-info-label">💳 Transfer ke rekening</div>
+      <div class="bank-info-row">
+        <span class="k">Bank</span>
+        <span class="v">${escapeHtml(bankName)}</span>
+      </div>
+      <div class="bank-info-row">
+        <span class="k">No. Rek</span>
+        <span class="v mono" id="bankAccNum">${escapeHtml(accNumber)}</span>
+        <button type="button" class="bank-info-copy" onclick="copyAccountNumber('${escapeHtml(accNumber)}', this)">📋 Salin</button>
+      </div>
+      <div class="bank-info-row">
+        <span class="k">A.N.</span>
+        <span class="v">${escapeHtml(accName)}</span>
+      </div>
+    </div>`;
+}
+
+window.copyAccountNumber = async function(num, btn) {
+  try {
+    await navigator.clipboard.writeText(num);
+    const orig = btn.textContent;
+    btn.textContent = '✅ Tersalin';
+    btn.disabled = true;
+    setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 1600);
+  } catch {
+    // Fallback: select text
+    const el = document.getElementById('bankAccNum');
+    if (el) {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      alert('Nomor rekening terpilih. Tekan Ctrl+C / Cmd+C untuk menyalin.');
+    }
+  }
 };
 
 // ============================================================
@@ -1089,6 +1201,7 @@ window.updatePaymentUI = function() {
   const method = document.querySelector('input[name="paymentMethod"]:checked')?.value;
   const transferSection = document.getElementById('transferSection');
   transferSection.hidden = method !== 'transfer';
+  if (method === 'transfer') renderBankInfo();
   updateTotalDisplay();
 };
 
@@ -1136,7 +1249,6 @@ window.submitOrder = async function(e) {
       orderData.fare = currentService.calculatedFare || 0;
     }
 
-    // Simpan nominal final (sudah termasuk kode unik jika transfer)
     orderData.fare = currentService.calculatedFare || 0;
     orderData.paymentTotal = currentService.displayTotal || orderData.fare;
     if (paymentMethod === 'transfer' && currentService.uniqueCode != null) {
