@@ -34,13 +34,16 @@
   button{cursor:pointer;border:0;background:none;color:inherit}
   a{color:inherit;text-decoration:none}
 
-  /* ===== LOADING ===== */
+  /* ===== LOADING (frosted) ===== */
   .loading-screen{
     position:fixed;inset:0;z-index:999;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    background:#fff;gap:16px;
+    background:rgba(246,249,246,.85);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    gap:16px;
   }
-  .loading-screen p{color:var(--muted);font-weight:600}
+  .loading-screen p{color:var(--muted);font-weight:600;font-size:14px}
   .spinner{
     width:32px;height:32px;border-radius:50%;
     border:3px solid rgba(15,157,88,.22);border-top-color:var(--green-600);
@@ -90,6 +93,7 @@
     display:flex;align-items:center;gap:10px;
     font-size:12.5px;font-weight:700;
     border-bottom:1px solid var(--line);
+    background:#fff;
   }
   .loc-bar.fresh{background:var(--green-50);color:var(--green-800);border-bottom-color:#a7e3c4}
   .loc-bar.stale{background:var(--yellow-50);color:#8a6d00;border-bottom-color:#ffe08a}
@@ -107,12 +111,11 @@
   /* ===== TABS ===== */
   .tabs{
     max-width:1000px;margin:0 auto;
-    padding:10px 14px 0;
+    padding:10px 14px 10px;
     display:flex;gap:6px;overflow-x:auto;
     scrollbar-width:none;-webkit-overflow-scrolling:touch;
     background:var(--bg);
     position:sticky;top:0;z-index:30;
-    padding-bottom:10px;
   }
   .tabs::-webkit-scrollbar{display:none}
   .tab{
@@ -237,6 +240,26 @@
     font-size:10.5px;font-weight:800;letter-spacing:.02em;
   }
 
+  .oc-bank{
+    margin-top:8px;padding-top:8px;border-top:1px dashed #e8ad00;
+  }
+  .oc-bank-label{
+    font-size:10.5px;font-weight:800;letter-spacing:.04em;
+    text-transform:uppercase;color:#8a6d00;margin-bottom:4px;
+  }
+  .oc-bank-body{font-size:12px;line-height:1.5}
+  .oc-bank-body strong{display:block;font-size:13px;color:var(--ink)}
+  .oc-bank-acc{
+    display:inline-block;
+    font-family:'SF Mono', 'Courier New', monospace;
+    font-size:14px;font-weight:800;color:var(--green-800);
+    letter-spacing:.05em;margin:2px 0;
+  }
+  .oc-bank-name{color:var(--muted);font-size:11.5px}
+  .oc-bank-empty{
+    margin-top:8px;font-size:11.5px;color:#991b1b;font-weight:700;
+  }
+
   .oc-actions{display:flex;gap:8px;flex-wrap:wrap}
   .btn-action{
     flex:1;min-width:130px;
@@ -258,12 +281,12 @@
     height:320px;border-radius:12px;
     border:1.5px solid var(--line);
     margin-bottom:14px;z-index:1;
+    background:transparent;
   }
   .loc-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
   .loc-info{
     background:#f8fafc;border-radius:11px;padding:12px 14px;
     font-size:11.5px;color:var(--muted);line-height:1.6;
-    font-family:'Plus Jakarta Sans',monospace;
   }
   .loc-info div{display:flex;justify-content:space-between;padding:2px 0}
   .loc-info strong{color:var(--ink);font-family:monospace}
@@ -568,6 +591,15 @@ let ordersUnsub = null;
 let activeOrders = [];
 let historyOrders = [];
 
+// ⬇️ FIX: appSettings sudah memuat field bank
+let appSettings = {
+  driverBonus: 5000,
+  userBonus: 2000,
+  bankName: '',
+  bankAccountName: '',
+  bankAccountNumber: ''
+};
+
 // Location map
 let locMap = null, locMarker = null, pickedCoords = null;
 
@@ -614,7 +646,6 @@ async function loadDriverData() {
   driverData = snap.data();
 }
 
-let appSettings = { driverBonus: 5000, userBonus: 2000 };
 async function loadSettings() {
   try {
     const snap = await getDoc(doc(db, 'settings', 'app'));
@@ -702,7 +733,6 @@ function subscribeOrders() {
     activeOrders = all.filter(o => String(o.status || '').toLowerCase() === 'accepted');
     historyOrders = all.filter(o => ['done', 'completed'].includes(String(o.status || '').toLowerCase()));
 
-    // sort by createdAt
     const sortFn = (a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
     activeOrders.sort(sortFn);
     historyOrders.sort(sortFn);
@@ -723,7 +753,6 @@ function subscribeOrders() {
 }
 
 window.refreshOrders = function() {
-  // onSnapshot sudah realtime; tombol ini hanya feedback visual
   const btn = event?.target;
   if (btn) { btn.disabled = true; btn.textContent = '🔄 Memuat…'; setTimeout(() => { btn.disabled = false; btn.textContent = '🔄 Muat Ulang'; }, 600); }
 };
@@ -809,7 +838,7 @@ function renderOrderCard(order) {
       </div>`;
   }
 
-  // User card with WA link
+  // User card
   const userWaClean = String(order.userWa || '').replace(/\D/g, '');
   const waLink = userWaClean
     ? `https://wa.me/${userWaClean.startsWith('0') ? '62' + userWaClean.slice(1) : userWaClean}`
@@ -829,7 +858,24 @@ function renderOrderCard(order) {
   const uniqueCode = order.uniqueCode;
 
   let paymentHtml = '';
+
   if (isTransfer) {
+    // ⬇️ PATCH: blok info rekening di kartu transfer
+    const bankName = String(appSettings.bankName || '').trim();
+    const accNumber = String(appSettings.bankAccountNumber || '').trim();
+    const accName = String(appSettings.bankAccountName || '').trim();
+
+    const bankBlock = (bankName && accNumber && accName)
+      ? `<div class="oc-bank">
+           <div class="oc-bank-label">Cek mutasi ke:</div>
+           <div class="oc-bank-body">
+             <strong>${escapeHtml(bankName)}</strong>
+             <div class="oc-bank-acc">${escapeHtml(accNumber)}</div>
+             <div class="oc-bank-name">a.n. ${escapeHtml(accName)}</div>
+           </div>
+         </div>`
+      : `<div class="oc-bank-empty">⚠️ Info rekening belum diatur admin</div>`;
+
     paymentHtml = `
       <div class="oc-payment transfer">
         <div class="oc-payment-row">
@@ -841,13 +887,15 @@ function renderOrderCard(order) {
             <span>Kode Unik</span>
             <span class="oc-code">${escapeHtml(uniqueCode)}</span>
           </div>` : ''}
-        <div class="oc-payment-row">
+        ${bankBlock}
+        <div class="oc-payment-row" style="margin-top:8px;padding-top:8px;border-top:1px dashed #e8ad00">
           <span>Verifikasi</span>
           ${isVerified
-            ? `<span class="oc-verified">✅ Terverifikasi</span>`
+            ? `<span class="oc-verified">✅ ${order.paymentVerifiedBy ? 'Oleh ' + escapeHtml(order.paymentVerifiedBy) : 'Terverifikasi'}</span>`
             : `<span style="color:#991b1b;font-weight:700;font-size:11.5px">⚠️ Belum dicek</span>`}
         </div>
       </div>`;
+
   } else if (isCash) {
     paymentHtml = `
       <div class="oc-payment cash">
@@ -958,7 +1006,8 @@ window.verifyPayment = async function(orderId, btn) {
   try {
     await updateDoc(doc(db, CONFIG.ordersCollection, orderId), {
       paymentVerified: true,
-      paymentVerifiedAt: serverTimestamp()
+      paymentVerifiedAt: serverTimestamp(),
+      paymentVerifiedBy: 'Driver: ' + (driverData?.name || session?.name || 'driver')  // ⬅️ PATCH: audit trail
     });
   } catch (err) {
     alert('Gagal: ' + (err.message || err));
@@ -1008,7 +1057,6 @@ function initLocMap() {
     updateLocInfo();
   });
 
-  // Preload existing
   if (driverData?.lat && driverData?.lng) {
     pickedCoords = [driverData.lat, driverData.lng];
     locMarker = L.marker(pickedCoords, { icon: pinIcon() }).addTo(locMap);
@@ -1089,7 +1137,6 @@ window.saveLocation = async function() {
       lastSeen: serverTimestamp()
     });
 
-    // update local state agar loc bar langsung berubah
     driverData.lat = pickedCoords[0];
     driverData.lng = pickedCoords[1];
     driverData.geohash = geohashForLocation(pickedCoords);
@@ -1153,7 +1200,6 @@ window.saveProfile = async function() {
     driverData.name = name;
     driverData.vehicle = vehicle;
 
-    // Update session juga
     session.name = name;
     localStorage.setItem(CONFIG.sessionKey, JSON.stringify(session));
 
@@ -1195,10 +1241,8 @@ function formatDate(ts) {
   return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} · ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-// Update location bar tiap 60 detik
 setInterval(() => { if (driverData) updateLocationBar(); }, 60000);
 
-// Boot
 boot();
 </script>
 
