@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0b7a44" />
+<title>Driver • Tulung Inyong</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  [hidden]{display:none !important}
+
+  :root{
+    --green-900:#05472a; --green-800:#075c36; --green-700:#0b7a44;
+    --green-600:#0f9d58; --green-500:#14b86a; --green-50:#e9f8f0;
+    --yellow-600:#e8ad00; --yellow-500:#ffc72c; --yellow-400:#ffd75e; --yellow-50:#fff8e1;
+    --ink:#0f172a; --ink-2:#334155; --muted:#64748b; --line:#e2e8f0; --bg:#f6f9f6;
+    --radius:16px; --shadow:0 1px 2px rgba(15,23,42,.05), 0 10px 30px -18px rgba(5,71,42,.4);
+    --danger:#dc2626;
+  }
+
+  body{
+    font-family:'Plus Jakarta Sans',Inter,-apple-system,sans-serif;
+    color:var(--ink); background:var(--bg); min-height:100dvh;
+    -webkit-font-smoothing:antialiased;
+  }
+  button,input,select,textarea{font:inherit}
+  button{cursor:pointer;border:0;background:none;color:inherit}
+  a{color:inherit;text-decoration:none}
+
+  /* ===== LOADING ===== */
+  .loading-screen{
+    position:fixed;inset:0;z-index:999;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:#fff;gap:16px;
+  }
+  .loading-screen p{color:var(--muted);font-weight:600}
+  .spinner{
+    width:32px;height:32px;border-radius:50%;
+    border:3px solid rgba(15,157,88,.22);border-top-color:var(--green-600);
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ===== HEADER ===== */
+  .driver-header{
+    background:linear-gradient(135deg,#075c36 0%,#0f9d58 100%);
+    color:#fff;position:sticky;top:0;z-index:40;
+    box-shadow:0 4px 12px -8px rgba(0,0,0,.2);
+  }
+  .dh-inner{
+    max-width:1000px;margin:0 auto;
+    padding:14px 18px;display:flex;align-items:center;gap:14px;
+  }
+  .dh-brand{display:flex;align-items:center;gap:10px;min-width:0}
+  .dh-logo{width:36px;height:36px;object-fit:contain;mix-blend-mode:screen;flex:none}
+  .dh-brand div{display:flex;flex-direction:column;gap:1px;min-width:0}
+  .dh-brand strong{font-size:14px;font-weight:800;letter-spacing:-.02em;white-space:nowrap}
+  .dh-brand small{font-size:10.5px;font-weight:600;color:rgba(255,255,255,.85)}
+
+  .dh-user{margin-left:auto;display:flex;align-items:center;gap:10px;flex-shrink:0}
+  .dh-avatar{
+    width:36px;height:36px;border-radius:50%;
+    background:var(--yellow-500);color:#4a3400;
+    display:grid;place-items:center;font-weight:800;font-size:14px;
+    background-size:cover;background-position:center;flex-shrink:0;
+  }
+  .dh-user-info{display:flex;flex-direction:column;gap:0;line-height:1.2}
+  .dh-user-info strong{font-size:13px;font-weight:800;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis}
+  .dh-user-info small{font-size:10.5px;color:rgba(255,255,255,.85);font-weight:600}
+  .dh-logout{
+    padding:7px 12px;border-radius:9px;
+    background:rgba(255,255,255,.2);color:#fff;
+    font-size:11.5px;font-weight:800;
+    border:1px solid rgba(255,255,255,.3);
+    transition:.16s;flex-shrink:0;
+  }
+  .dh-logout:hover{background:rgba(255,255,255,.35)}
+
+  /* ===== LOCATION BAR ===== */
+  .loc-bar{
+    max-width:1000px;margin:0 auto;
+    padding:10px 18px;
+    display:flex;align-items:center;gap:10px;
+    font-size:12.5px;font-weight:700;
+    border-bottom:1px solid var(--line);
+  }
+  .loc-bar.fresh{background:var(--green-50);color:var(--green-800);border-bottom-color:#a7e3c4}
+  .loc-bar.stale{background:var(--yellow-50);color:#8a6d00;border-bottom-color:#ffe08a}
+  .loc-bar.danger{background:#fef2f2;color:#991b1b;border-bottom-color:#fecaca}
+  .loc-bar-icon{font-size:15px}
+  .loc-bar-text{flex:1;min-width:0}
+  .loc-bar-btn{
+    padding:6px 11px;border-radius:8px;
+    background:#fff;border:1px solid currentColor;
+    color:inherit;font-size:11.5px;font-weight:800;
+    transition:.16s;flex-shrink:0;
+  }
+  .loc-bar-btn:hover{background:rgba(255,255,255,.5)}
+
+  /* ===== TABS ===== */
+  .tabs{
+    max-width:1000px;margin:0 auto;
+    padding:10px 14px 0;
+    display:flex;gap:6px;overflow-x:auto;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch;
+    background:var(--bg);
+    position:sticky;top:0;z-index:30;
+    padding-bottom:10px;
+  }
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{
+    padding:10px 16px;border-radius:11px;
+    font-size:13px;font-weight:700;
+    background:#fff;color:var(--muted);
+    border:1.5px solid var(--line);
+    white-space:nowrap;transition:.16s;
+    display:flex;align-items:center;gap:6px;flex-shrink:0;
+  }
+  .tab:hover{border-color:var(--green-500)}
+  .tab.active{background:var(--green-700);color:#fff;border-color:var(--green-700)}
+  .tab-badge{
+    background:#fff;color:var(--green-700);
+    padding:1px 7px;border-radius:99px;
+    font-size:10.5px;font-weight:800;min-width:18px;text-align:center;
+  }
+  .tab.active .tab-badge{background:var(--yellow-400);color:#4a3400}
+
+  /* ===== CONTENT ===== */
+  .content{max-width:1000px;margin:0 auto;padding:8px 14px 80px}
+
+  .panel-head{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:12px;margin:8px 0 16px;flex-wrap:wrap;
+  }
+  .panel-head h2{margin:0;font-size:19px;letter-spacing:-.02em}
+
+  .card{
+    background:#fff;border:1px solid var(--line);
+    border-radius:var(--radius);padding:20px;
+    box-shadow:var(--shadow);
+    margin-bottom:14px;
+  }
+
+  /* ===== EMPTY STATE ===== */
+  .empty{
+    text-align:center;padding:48px 20px;
+    background:#fff;border:2px dashed var(--line);
+    border-radius:16px;color:var(--muted);
+  }
+  .empty .ico{font-size:42px;margin-bottom:10px;display:block}
+  .empty h3{margin:0 0 6px;color:var(--ink);font-size:16px}
+  .empty p{margin:0;font-size:13px}
+
+  /* ===== ORDER CARD ===== */
+  .order-card{
+    background:#fff;border:1.5px solid var(--line);
+    border-radius:16px;padding:18px;margin-bottom:14px;
+    box-shadow:0 2px 8px rgba(0,0,0,.04);
+    animation:fadeUp .25s ease;
+    border-left:4px solid var(--green-500);
+  }
+  .order-card.transfer{border-left-color:var(--yellow-500)}
+  .order-card.done{border-left-color:#94a3b8;opacity:.85}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+  .oc-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+  .oc-icon{
+    font-size:24px;width:46px;height:46px;border-radius:12px;
+    background:var(--green-50);display:grid;place-items:center;flex-shrink:0;
+  }
+  .oc-info{flex:1;min-width:0}
+  .oc-info strong{display:block;font-size:15px;font-weight:800;margin-bottom:2px;letter-spacing:-.01em}
+  .oc-info small{color:var(--muted);font-size:11.5px;display:block;line-height:1.4}
+
+  .oc-status{
+    font-size:10px;font-weight:800;padding:4px 9px;border-radius:99px;
+    text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;flex-shrink:0;
+  }
+  .oc-status.pending{background:#fef3c7;color:#92400e}
+  .oc-status.accepted{background:#dbeafe;color:#1e40af}
+  .oc-status.done{background:var(--green-50);color:var(--green-800)}
+
+  .oc-route{
+    background:#f8fafc;border-radius:11px;padding:11px 13px;
+    margin-bottom:12px;font-size:12.5px;line-height:1.5;
+  }
+  .oc-route-item{display:flex;gap:9px;padding:3px 0}
+  .oc-route-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:6px}
+  .oc-route-dot.green{background:var(--green-600)}
+  .oc-route-dot.red{background:var(--danger)}
+  .oc-route-item strong{font-weight:700;color:var(--ink);margin-right:4px}
+  .oc-route-item span{color:var(--muted);word-break:break-word}
+
+  .oc-user{
+    display:flex;align-items:center;gap:10px;
+    padding:11px 13px;border-radius:11px;
+    background:var(--green-50);border:1px solid #a7e3c4;
+    margin-bottom:12px;font-size:12.5px;
+  }
+  .oc-user-info{flex:1;min-width:0}
+  .oc-user-info strong{display:block;font-size:13px;font-weight:800;color:var(--green-800)}
+  .oc-user-info small{font-size:11px;color:#3f6212}
+  .oc-user-wa{
+    padding:7px 12px;border-radius:8px;
+    background:#25d366;color:#fff;
+    font-size:11.5px;font-weight:800;
+    display:inline-flex;align-items:center;gap:5px;flex-shrink:0;
+  }
+  .oc-user-wa:hover{background:#128c7e}
+
+  .oc-payment{
+    border-radius:11px;padding:12px 13px;
+    margin-bottom:12px;font-size:12.5px;
+  }
+  .oc-payment.cash{background:var(--green-50);border:1px solid #a7e3c4;color:var(--green-800)}
+  .oc-payment.transfer{background:var(--yellow-50);border:1px solid #ffe08a;color:#8a6d00}
+  .oc-payment-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .oc-payment-row + .oc-payment-row{margin-top:6px}
+  .oc-payment-row strong{font-weight:800;font-size:14px}
+  .oc-code{
+    display:inline-block;padding:3px 9px;border-radius:6px;
+    background:#fff;color:#8a6d00;
+    font-family:monospace;font-size:13px;font-weight:800;letter-spacing:1px;
+    border:1.5px dashed #e8ad00;
+  }
+  .oc-verified{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:4px 10px;border-radius:99px;
+    background:var(--green-600);color:#fff;
+    font-size:10.5px;font-weight:800;letter-spacing:.02em;
+  }
+
+  .oc-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .btn-action{
+    flex:1;min-width:130px;
+    padding:12px 16px;border-radius:11px;
+    font-size:13px;font-weight:800;
+    transition:.16s;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  }
+  .btn-verify{background:var(--yellow-500);color:#4a3400}
+  .btn-verify:hover{filter:brightness(1.05)}
+  .btn-complete{
+    background:linear-gradient(135deg,var(--green-600),var(--green-500));color:#fff;
+    box-shadow:0 6px 14px -8px rgba(15,157,88,.8);
+  }
+  .btn-complete:hover{filter:brightness(1.05);transform:translateY(-1px)}
+  .btn-action:disabled{opacity:.55;cursor:not-allowed;transform:none !important;filter:none !important}
+
+  /* ===== LOCATION PANEL ===== */
+  .map-box{
+    height:320px;border-radius:12px;
+    border:1.5px solid var(--line);
+    margin-bottom:14px;z-index:1;
+  }
+  .loc-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .loc-info{
+    background:#f8fafc;border-radius:11px;padding:12px 14px;
+    font-size:11.5px;color:var(--muted);line-height:1.6;
+    font-family:'Plus Jakarta Sans',monospace;
+  }
+  .loc-info div{display:flex;justify-content:space-between;padding:2px 0}
+  .loc-info strong{color:var(--ink);font-family:monospace}
+
+  /* ===== PROFILE PANEL ===== */
+  .profile-head{
+    display:flex;align-items:center;gap:14px;
+    padding-bottom:16px;margin-bottom:16px;
+    border-bottom:1px solid var(--line);
+  }
+  .profile-avatar{
+    width:64px;height:64px;border-radius:50%;
+    background:linear-gradient(135deg,var(--green-700),var(--green-500));
+    color:#fff;display:grid;place-items:center;
+    font-weight:800;font-size:24px;flex-shrink:0;
+    background-size:cover;background-position:center;
+    box-shadow:0 4px 12px -4px rgba(15,157,88,.4);
+  }
+  .profile-head h3{margin:0 0 3px;font-size:17px;letter-spacing:-.02em}
+  .profile-head small{color:var(--muted);font-size:12px;display:block}
+
+  .upload-area{
+    border:2px dashed var(--line);border-radius:12px;
+    padding:18px;text-align:center;cursor:pointer;
+    transition:.2s;margin-bottom:18px;
+  }
+  .upload-area:hover{border-color:var(--green-500);background:var(--green-50)}
+  .upload-area .up-icon{font-size:22px;margin-bottom:4px}
+  .upload-area p{margin:0;font-size:12px;color:var(--muted)}
+
+  .field-label{
+    display:block;font-size:12px;font-weight:700;
+    color:var(--ink-2);margin-bottom:6px;margin-top:14px;
+  }
+  .field-label:first-of-type{margin-top:0}
+  .input{
+    width:100%;padding:12px 14px;
+    border:1.5px solid var(--line);border-radius:12px;
+    font-size:14px;background:#fbfcfd;outline:none;
+    transition:.2s;color:var(--ink);font-weight:600;
+  }
+  .input:focus{
+    border-color:var(--green-600);background:#fff;
+    box-shadow:0 0 0 4px rgba(15,157,88,.13);
+  }
+  .input[readonly]{background:#f1f5f9;color:var(--muted);cursor:not-allowed}
+
+  /* ===== BUTTONS ===== */
+  .btn-primary{
+    width:100%;margin-top:16px;padding:14px;border-radius:12px;
+    font-size:14.5px;font-weight:800;color:#0b3d22;
+    background:linear-gradient(135deg,var(--yellow-400),var(--yellow-500));
+    box-shadow:0 8px 20px -10px rgba(255,199,44,1);
+    transition:.2s;
+  }
+  .btn-primary:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.05)}
+  .btn-primary:disabled{opacity:.6;cursor:not-allowed;box-shadow:none}
+
+  .btn-secondary{
+    padding:12px 16px;border-radius:11px;
+    background:#fff;border:1.5px solid var(--line);
+    font-size:13px;font-weight:700;color:var(--ink);
+    transition:.16s;flex:1;min-width:130px;
+  }
+  .btn-secondary:hover{border-color:var(--green-500)}
+
+  .btn-refresh{
+    padding:8px 12px;border-radius:10px;
+    background:#fff;border:1.5px solid var(--line);
+    font-size:12px;font-weight:700;color:var(--muted);
+    transition:.16s;
+  }
+  .btn-refresh:hover{border-color:var(--green-500);color:var(--ink)}
+
+  .info-box{
+    padding:12px 14px;border-radius:11px;
+    background:var(--yellow-50);border-left:3px solid var(--yellow-500);
+    font-size:12px;color:#8a6d00;line-height:1.5;margin-bottom:14px;
+  }
+
+  /* ===== STATS BAR ===== */
+  .stats-bar{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:10px;
+    margin-bottom:16px;
+  }
+  @media(min-width:480px){.stats-bar{grid-template-columns:repeat(4,1fr)}}
+  .stat{
+    background:#fff;border:1px solid var(--line);border-radius:12px;
+    padding:12px 14px;text-align:center;
+  }
+  .stat-val{font-size:18px;font-weight:800;color:var(--green-700);display:block;letter-spacing:-.02em}
+  .stat-label{font-size:10.5px;color:var(--muted);font-weight:700;letter-spacing:.02em;text-transform:uppercase}
+
+  /* ===== MOBILE ===== */
+  @media (max-width:600px){
+    .dh-inner{padding:12px 14px;gap:10px}
+    .dh-brand strong{font-size:13px}
+    .dh-user-info strong{max-width:90px;font-size:12px}
+    .dh-avatar{width:32px;height:32px;font-size:12.5px}
+    .content{padding:8px 12px 60px}
+    .oc-actions .btn-action{min-width:0;flex:1 1 100%}
+    .loc-actions .btn-secondary{min-width:0;flex:1 1 100%}
+  }
+</style>
+</head>
+<body>
+
+<div class="loading-screen" id="loadingScreen">
+  <div class="spinner"></div>
+  <p>Memuat panel driver…</p>
+</div>
+
+<div id="driverApp" hidden>
+
+  <!-- HEADER -->
+  <header class="driver-header">
+    <div class="dh-inner">
+      <div class="dh-brand">
+        <img src="logo1.png" alt="Tulung Inyong" class="dh-logo" onerror="this.style.display='none'" />
+        <div>
+          <strong>Tulung Inyong</strong>
+          <small>Driver Panel</small>
+        </div>
+      </div>
+      <div class="dh-user">
+        <div class="dh-avatar" id="headerAvatar">?</div>
+        <div class="dh-user-info">
+          <strong id="headerName">-</strong>
+          <small id="headerStatus">Offline</small>
+        </div>
+        <button class="dh-logout" onclick="doLogout()">Keluar</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- LOCATION BAR -->
+  <div class="loc-bar danger" id="locBar">
+    <div class="loc-bar-icon" id="locBarIcon">⚠️</div>
+    <div class="loc-bar-text" id="locBarText">Lokasi belum diperbarui</div>
+    <button class="loc-bar-btn" onclick="switchTab('location')">Update</button>
+  </div>
+
+  <!-- TABS -->
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="orders">
+      📦 Pesanan <span class="tab-badge" id="ordersBadge" hidden>0</span>
+    </button>
+    <button class="tab" data-tab="location">🗺️ Lokasi</button>
+    <button class="tab" data-tab="history">🕓 Riwayat</button>
+    <button class="tab" data-tab="profile">👤 Profil</button>
+  </nav>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <!-- ============ PANEL: ORDERS ============ -->
+    <div class="panel" data-panel="orders">
+      <div class="stats-bar" id="statsBar">
+        <div class="stat"><span class="stat-val" id="statActive">0</span><span class="stat-label">Aktif</span></div>
+        <div class="stat"><span class="stat-val" id="statToday">0</span><span class="stat-label">Trip Hari Ini</span></div>
+        <div class="stat"><span class="stat-val" id="statEarnings">Rp 0</span><span class="stat-label">Pendapatan</span></div>
+        <div class="stat"><span class="stat-val" id="statRating">-</span><span class="stat-label">Rating</span></div>
+      </div>
+
+      <div class="panel-head">
+        <h2>Pesanan Aktif</h2>
+        <button class="btn-refresh" onclick="refreshOrders()">🔄 Muat Ulang</button>
+      </div>
+      <div id="ordersList">
+        <div class="empty"><span class="ico">⏳</span><h3>Memuat…</h3></div>
+      </div>
+    </div>
+
+    <!-- ============ PANEL: LOCATION ============ -->
+    <div class="panel" data-panel="location" hidden>
+      <div class="panel-head">
+        <h2>Lokasi Saya</h2>
+      </div>
+      <div class="card">
+        <div class="info-box">
+          ℹ️ Perbarui lokasi Anda setiap kali pindah area agar admin bisa menugaskan order terdekat.
+          Sistem <strong>tidak</strong> melacak realtime — hemat kuota & baterai.
+        </div>
+        <div id="locMap" class="map-box"></div>
+        <div class="loc-actions">
+          <button class="btn-secondary" onclick="detectMyLocation()">📍 Gunakan GPS</button>
+          <button class="btn-secondary" onclick="clearPickedLocation()">🔄 Reset</button>
+        </div>
+        <div class="loc-info" id="locInfo">
+          <div><span>Latitude</span><strong id="locLat">-</strong></div>
+          <div><span>Longitude</span><strong id="locLng">-</strong></div>
+          <div><span>Geohash</span><strong id="locGeohash">-</strong></div>
+        </div>
+        <button class="btn-primary" onclick="saveLocation()" id="saveLocBtn">💾 Simpan Lokasi</button>
+      </div>
+    </div>
+
+    <!-- ============ PANEL: HISTORY ============ -->
+    <div class="panel" data-panel="history" hidden>
+      <div class="panel-head">
+        <h2>Riwayat Pesanan</h2>
+      </div>
+      <div id="historyList">
+        <div class="empty"><span class="ico">📭</span><h3>Belum ada riwayat</h3><p>Pesanan yang selesai akan muncul di sini.</p></div>
+      </div>
+    </div>
+
+    <!-- ============ PANEL: PROFILE ============ -->
+    <div class="panel" data-panel="profile" hidden>
+      <div class="panel-head">
+        <h2>Profil Saya</h2>
+      </div>
+      <div class="card">
+        <div class="profile-head">
+          <div class="profile-avatar" id="profileAvatar">?</div>
+          <div>
+            <h3 id="profileName">-</h3>
+            <small id="profileWa">-</small>
+          </div>
+        </div>
+
+        <div class="upload-area" onclick="uploadPhoto()">
+          <div class="up-icon">📤</div>
+          <p>Unggah Foto Profil</p>
+          <p style="font-size:10px;color:#94a3b8">(Segera hadir — via Cloudinary)</p>
+        </div>
+
+        <label class="field-label">Nama Lengkap</label>
+        <input type="text" id="inputName" class="input" placeholder="Nama Anda" />
+
+        <label class="field-label">Nomor WhatsApp</label>
+        <input type="tel" id="inputWa" class="input" readonly />
+
+        <label class="field-label">Kendaraan</label>
+        <input type="text" id="inputVehicle" class="input" placeholder="Contoh: Honda Vario · AB 1234 CD" />
+
+        <button class="btn-primary" onclick="saveProfile()" id="saveProfileBtn">💾 Simpan Profil</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, updateDoc, collection, query, where, onSnapshot, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAXWxcWYhvEKlXC414ECmv0vG0jZAr_Ecc",
+  authDomain: "tulungiiyong.firebaseapp.com",
+  projectId: "tulungiiyong",
+  storageBucket: "tulungiiyong.firebasestorage.app",
+  messagingSenderId: "892623147541",
+  appId: "1:892623147541:web:47812250f6498efad7b41c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const CONFIG = {
+  collection: 'password',
+  ordersCollection: 'orders',
+  sessionKey: 'tulungiyong.session',
+  routes: { user: 'user.html', admin: 'index.html', driver: 'driver.html' }
+};
+
+// ============================================================
+// GEOHASH INLINE
+// ============================================================
+function geohashForLocation([lat, lng], precision = 9) {
+  const B32 = '0123456789bcdefghjkmnpqrstuvwxyz';
+  let latMin = -90, latMax = 90, lngMin = -180, lngMax = 180;
+  let hash = '', bits = 0, bitCount = 0, isEven = true;
+  while (hash.length < precision) {
+    let mid;
+    if (isEven) {
+      mid = (lngMin + lngMax) / 2;
+      if (lng >= mid) { bits = (bits << 1) | 1; lngMin = mid; }
+      else { bits = bits << 1; lngMax = mid; }
+    } else {
+      mid = (latMin + latMax) / 2;
+      if (lat >= mid) { bits = (bits << 1) | 1; latMin = mid; }
+      else { bits = bits << 1; latMax = mid; }
+    }
+    isEven = !isEven;
+    bitCount++;
+    if (bitCount === 5) { hash += B32[bits]; bits = 0; bitCount = 0; }
+  }
+  return hash;
+}
+
+// ============================================================
+// STATE
+// ============================================================
+let session = null;
+let driverData = null;
+let ordersUnsub = null;
+let activeOrders = [];
+let historyOrders = [];
+
+// Location map
+let locMap = null, locMarker = null, pickedCoords = null;
+
+// ============================================================
+// SESSION CHECK
+// ============================================================
+(function checkSession() {
+  const raw = localStorage.getItem(CONFIG.sessionKey);
+  if (!raw) { window.location.href = 'index.html'; return; }
+  try { session = JSON.parse(raw); } catch { window.location.href = 'index.html'; return; }
+  if (!session || session.role !== 'driver') {
+    window.location.href = session?.role === 'admin' ? 'index.html' : 'user.html';
+    return;
+  }
+})();
+
+// ============================================================
+// BOOT
+// ============================================================
+async function boot() {
+  try {
+    await loadDriverData();
+    await loadSettings();
+    renderHeader();
+    renderProfile();
+    updateLocationBar();
+    subscribeOrders();
+    setupTabs();
+    document.getElementById('loadingScreen').hidden = true;
+    document.getElementById('driverApp').hidden = false;
+  } catch (err) {
+    console.error('[Boot]', err);
+    alert('Gagal memuat data driver: ' + (err.message || err));
+    doLogout();
+  }
+}
+
+// ============================================================
+// LOAD DATA
+// ============================================================
+async function loadDriverData() {
+  const snap = await getDoc(doc(db, CONFIG.collection, session.id));
+  if (!snap.exists()) throw new Error('Data akun driver tidak ditemukan.');
+  driverData = snap.data();
+}
+
+let appSettings = { driverBonus: 5000, userBonus: 2000 };
+async function loadSettings() {
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'app'));
+    if (snap.exists()) appSettings = { ...appSettings, ...snap.data() };
+  } catch (err) { console.warn('[Settings]', err); }
+}
+
+// ============================================================
+// HEADER
+// ============================================================
+function renderHeader() {
+  const name = driverData.name || session.name || 'Driver';
+  const initial = name.charAt(0).toUpperCase();
+  document.getElementById('headerAvatar').textContent = initial;
+  document.getElementById('headerName').textContent = name;
+  document.getElementById('headerStatus').textContent = driverData.lastSeen ? 'Aktif' : 'Offline';
+
+  if (driverData.photoUrl) {
+    const av = document.getElementById('headerAvatar');
+    av.style.backgroundImage = `url('${driverData.photoUrl}')`;
+    av.style.color = 'transparent';
+  }
+  document.title = name + ' • Driver Tulung Inyong';
+}
+
+// ============================================================
+// LOCATION BAR
+// ============================================================
+function updateLocationBar() {
+  const bar = document.getElementById('locBar');
+  const icon = document.getElementById('locBarIcon');
+  const text = document.getElementById('locBarText');
+
+  if (!driverData.lastSeen) {
+    bar.className = 'loc-bar danger';
+    icon.textContent = '⚠️';
+    text.textContent = 'Lokasi belum diperbarui — klik Update';
+    return;
+  }
+
+  const ts = driverData.lastSeen.toDate ? driverData.lastSeen.toDate() : new Date(driverData.lastSeen.seconds * 1000);
+  const mins = Math.max(0, Math.round((Date.now() - ts.getTime()) / 60000));
+
+  if (mins < 5) {
+    bar.className = 'loc-bar fresh';
+    icon.textContent = '📍';
+    text.textContent = `Lokasi segar · ${mins === 0 ? 'baru saja' : mins + ' menit lalu'}`;
+  } else if (mins < 15) {
+    bar.className = 'loc-bar stale';
+    icon.textContent = '⏰';
+    text.textContent = `Perbarui lokasi · ${mins} menit lalu`;
+  } else {
+    bar.className = 'loc-bar danger';
+    icon.textContent = '⚠️';
+    text.textContent = `Lokasi lama · ${mins} menit lalu`;
+  }
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function setupTabs() {
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+  });
+}
+
+window.switchTab = function(name) {
+  document.querySelectorAll('.panel').forEach(p => { p.hidden = p.dataset.panel !== name; });
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  if (name === 'location') setTimeout(initLocMap, 100);
+};
+
+// ============================================================
+// ORDERS (onSnapshot)
+// ============================================================
+function subscribeOrders() {
+  if (ordersUnsub) ordersUnsub();
+
+  const q = query(collection(db, CONFIG.ordersCollection), where('driverId', '==', session.id));
+
+  ordersUnsub = onSnapshot(q, (snap) => {
+    const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    activeOrders = all.filter(o => String(o.status || '').toLowerCase() === 'accepted');
+    historyOrders = all.filter(o => ['done', 'completed'].includes(String(o.status || '').toLowerCase()));
+
+    // sort by createdAt
+    const sortFn = (a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+    activeOrders.sort(sortFn);
+    historyOrders.sort(sortFn);
+
+    renderActiveOrders();
+    renderHistory();
+    updateStats();
+    updateOrdersBadge(activeOrders.length);
+  }, (err) => {
+    console.error('[Orders]', err);
+    document.getElementById('ordersList').innerHTML = `
+      <div class="empty">
+        <span class="ico">⚠️</span>
+        <h3>Gagal memuat pesanan</h3>
+        <p>${escapeHtml(err.message || 'Periksa Firestore Rules & index.')}</p>
+      </div>`;
+  });
+}
+
+window.refreshOrders = function() {
+  // onSnapshot sudah realtime; tombol ini hanya feedback visual
+  const btn = event?.target;
+  if (btn) { btn.disabled = true; btn.textContent = '🔄 Memuat…'; setTimeout(() => { btn.disabled = false; btn.textContent = '🔄 Muat Ulang'; }, 600); }
+};
+
+function updateOrdersBadge(count) {
+  const badge = document.getElementById('ordersBadge');
+  if (count > 0) { badge.hidden = false; badge.textContent = count; }
+  else { badge.hidden = true; }
+}
+
+// ============================================================
+// RENDER ACTIVE ORDERS
+// ============================================================
+function renderActiveOrders() {
+  const container = document.getElementById('ordersList');
+
+  if (!activeOrders.length) {
+    container.innerHTML = `
+      <div class="empty">
+        <span class="ico">✅</span>
+        <h3>Tidak ada pesanan aktif</h3>
+        <p>Pesanan baru akan otomatis muncul di sini.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = activeOrders.map(renderOrderCard).join('');
+
+  document.querySelectorAll('[data-action="verify"]').forEach(b => {
+    b.addEventListener('click', () => verifyPayment(b.dataset.id, b));
+  });
+  document.querySelectorAll('[data-action="complete"]').forEach(b => {
+    b.addEventListener('click', () => completeOrder(b.dataset.id, b));
+  });
+}
+
+function renderOrderCard(order) {
+  const icon = { ojek: '🛵', taxi: '🚕', food: '🍜', tulung: '🤝', tambal: '🔧' }[order.serviceId] || '📦';
+  const payMethod = order.paymentMethod;
+  const isTransfer = payMethod === 'transfer';
+  const isCash = payMethod === 'cash' || !payMethod;
+  const isVerified = order.paymentVerified === true;
+
+  // Route
+  let routeHtml = '';
+  if (order.serviceId === 'ojek' || order.serviceId === 'taxi') {
+    routeHtml = `
+      <div class="oc-route">
+        <div class="oc-route-item">
+          <span class="oc-route-dot green"></span>
+          <span><strong>Jemput:</strong> ${escapeHtml(order.pickup || '-')}</span>
+        </div>
+        <div class="oc-route-item">
+          <span class="oc-route-dot red"></span>
+          <span><strong>Tujuan:</strong> ${escapeHtml(order.dest || '-')}</span>
+        </div>
+        ${order.distance ? `<div style="margin-top:5px;font-size:11px;color:var(--muted)">Jarak: ${Number(order.distance).toFixed(1)} km</div>` : ''}
+      </div>`;
+  } else if (order.serviceId === 'tambal') {
+    routeHtml = `
+      <div class="oc-route">
+        <div class="oc-route-item">
+          <span class="oc-route-dot red"></span>
+          <span><strong>Lokasi:</strong> ${escapeHtml(order.address || '-')}</span>
+        </div>
+        <div class="oc-route-item">
+          <span class="oc-route-dot green"></span>
+          <span><strong>Ban:</strong> ${escapeHtml((order.tireType || '-') + ' × ' + (order.tireQty || 1))}</span>
+        </div>
+        ${order.notes ? `<div style="margin-top:5px;font-size:11px;color:var(--muted)">Catatan: ${escapeHtml(order.notes)}</div>` : ''}
+      </div>`;
+  } else if (order.serviceId === 'tulung') {
+    routeHtml = `
+      <div class="oc-route">
+        <div class="oc-route-item">
+          <span class="oc-route-dot green"></span>
+          <span><strong>Alamat:</strong> ${escapeHtml(order.address || '-')}</span>
+        </div>
+        <div class="oc-route-item">
+          <span class="oc-route-dot red"></span>
+          <span><strong>Detail:</strong> ${escapeHtml(order.detail || '-')}</span>
+        </div>
+      </div>`;
+  }
+
+  // User card with WA link
+  const userWaClean = String(order.userWa || '').replace(/\D/g, '');
+  const waLink = userWaClean
+    ? `https://wa.me/${userWaClean.startsWith('0') ? '62' + userWaClean.slice(1) : userWaClean}`
+    : '#';
+
+  const userHtml = `
+    <div class="oc-user">
+      <div class="oc-user-info">
+        <strong>👤 ${escapeHtml(order.userName || '-')}</strong>
+        <small>${escapeHtml(order.userWa || '-')}</small>
+      </div>
+      ${userWaClean ? `<a class="oc-user-wa" href="${waLink}" target="_blank" rel="noopener">💬 Chat</a>` : ''}
+    </div>`;
+
+  // Payment
+  const total = order.paymentTotal ?? order.totalWithCode ?? order.fare ?? 0;
+  const uniqueCode = order.uniqueCode;
+
+  let paymentHtml = '';
+  if (isTransfer) {
+    paymentHtml = `
+      <div class="oc-payment transfer">
+        <div class="oc-payment-row">
+          <span>💳 Transfer Bank</span>
+          <strong>${formatRp(total)}</strong>
+        </div>
+        ${uniqueCode ? `
+          <div class="oc-payment-row">
+            <span>Kode Unik</span>
+            <span class="oc-code">${escapeHtml(uniqueCode)}</span>
+          </div>` : ''}
+        <div class="oc-payment-row">
+          <span>Verifikasi</span>
+          ${isVerified
+            ? `<span class="oc-verified">✅ Terverifikasi</span>`
+            : `<span style="color:#991b1b;font-weight:700;font-size:11.5px">⚠️ Belum dicek</span>`}
+        </div>
+      </div>`;
+  } else if (isCash) {
+    paymentHtml = `
+      <div class="oc-payment cash">
+        <div class="oc-payment-row">
+          <span>💵 Bayar di Tempat</span>
+          <strong>${formatRp(total)}</strong>
+        </div>
+        <div style="margin-top:5px;font-size:11px">Tagih tunai saat serah terima</div>
+      </div>`;
+  } else if (payMethod === 'wa') {
+    paymentHtml = `
+      <div class="oc-payment cash">
+        <div class="oc-payment-row">
+          <span>💬 Koordinasi WA</span>
+          <strong>—</strong>
+        </div>
+        <div style="margin-top:5px;font-size:11px">Harga disepakati via WhatsApp admin</div>
+      </div>`;
+  }
+
+  // Actions
+  const actions = [];
+  if (isTransfer && !isVerified) {
+    actions.push(`<button class="btn-action btn-verify" data-action="verify" data-id="${escapeHtml(order.id)}">✅ Verifikasi Pembayaran</button>`);
+  }
+  actions.push(`<button class="btn-action btn-complete" data-action="complete" data-id="${escapeHtml(order.id)}">🏁 Selesaikan Pesanan</button>`);
+
+  return `
+    <div class="order-card ${isTransfer ? 'transfer' : ''}">
+      <div class="oc-head">
+        <div class="oc-icon">${icon}</div>
+        <div class="oc-info">
+          <strong>${escapeHtml(order.serviceName || '-')}</strong>
+          <small>${formatDate(order.createdAt)}</small>
+        </div>
+        <span class="oc-status accepted">Aktif</span>
+      </div>
+      ${routeHtml}
+      ${userHtml}
+      ${paymentHtml}
+      <div class="oc-actions">${actions.join('')}</div>
+    </div>`;
+}
+
+// ============================================================
+// RENDER HISTORY
+// ============================================================
+function renderHistory() {
+  const container = document.getElementById('historyList');
+  if (!historyOrders.length) {
+    container.innerHTML = `
+      <div class="empty">
+        <span class="ico">📭</span>
+        <h3>Belum ada riwayat</h3>
+        <p>Pesanan yang selesai akan muncul di sini.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = historyOrders.map(o => {
+    const icon = { ojek: '🛵', taxi: '🚕', food: '🍜', tulung: '🤝', tambal: '🔧' }[o.serviceId] || '📦';
+    const total = o.paymentTotal ?? o.fare ?? 0;
+    return `
+      <div class="order-card done">
+        <div class="oc-head">
+          <div class="oc-icon">${icon}</div>
+          <div class="oc-info">
+            <strong>${escapeHtml(o.serviceName || '-')}</strong>
+            <small>${escapeHtml(o.userName || '-')} · ${formatDate(o.createdAt)}</small>
+          </div>
+          <span class="oc-status done">Selesai</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
+          <span style="color:var(--muted)">${o.paymentMethod === 'transfer' ? 'Transfer' : o.paymentMethod === 'wa' ? 'Via WA' : 'Tunai'}</span>
+          <strong style="color:var(--green-800)">${formatRp(total)}</strong>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================================
+// STATS
+// ============================================================
+function updateStats() {
+  document.getElementById('statActive').textContent = activeOrders.length;
+
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const todayOrders = historyOrders.filter(o => {
+    const ts = o.completedAt?.toDate ? o.completedAt.toDate() : (o.completedAt?.seconds ? new Date(o.completedAt.seconds * 1000) : null);
+    return ts && ts >= today;
+  });
+
+  document.getElementById('statToday').textContent = todayOrders.length;
+
+  const earnings = todayOrders.reduce((sum, o) => sum + Number(o.paymentTotal ?? o.fare ?? 0), 0);
+  document.getElementById('statEarnings').textContent = formatRp(earnings);
+}
+
+// ============================================================
+// ACTIONS
+// ============================================================
+window.verifyPayment = async function(orderId, btn) {
+  if (!confirm('Konfirmasi bahwa pembayaran transfer sudah masuk ke rekening?\n\nPastikan 3 digit terakhir nominal cocok dengan kode unik.')) return;
+  btn.disabled = true;
+  const orig = btn.textContent;
+  btn.textContent = 'Memverifikasi…';
+  try {
+    await updateDoc(doc(db, CONFIG.ordersCollection, orderId), {
+      paymentVerified: true,
+      paymentVerifiedAt: serverTimestamp()
+    });
+  } catch (err) {
+    alert('Gagal: ' + (err.message || err));
+    btn.disabled = false;
+    btn.textContent = orig;
+  }
+};
+
+window.completeOrder = async function(orderId, btn) {
+  if (!confirm('Tandai pesanan ini selesai? Pastikan sudah serah terima dengan pengguna.')) return;
+  btn.disabled = true;
+  const orig = btn.textContent;
+  btn.textContent = 'Menyimpan…';
+  try {
+    await updateDoc(doc(db, CONFIG.ordersCollection, orderId), {
+      status: 'done',
+      completedAt: serverTimestamp()
+    });
+  } catch (err) {
+    alert('Gagal: ' + (err.message || err));
+    btn.disabled = false;
+    btn.textContent = orig;
+  }
+};
+
+// ============================================================
+// LOCATION MAP
+// ============================================================
+function initLocMap() {
+  if (typeof L === 'undefined') return console.error('[Map] Leaflet gagal dimuat');
+  if (locMap) { locMap.invalidateSize(); return; }
+
+  const el = document.getElementById('locMap');
+  if (!el) return;
+
+  locMap = L.map('locMap').setView([-7.7956, 110.3695], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap', maxZoom: 19
+  }).addTo(locMap);
+
+  setTimeout(() => { if (locMap) locMap.invalidateSize(); }, 100);
+
+  locMap.on('click', (e) => {
+    pickedCoords = [e.latlng.lat, e.latlng.lng];
+    if (locMarker) locMap.removeLayer(locMarker);
+    locMarker = L.marker(pickedCoords, { icon: pinIcon() }).addTo(locMap);
+    updateLocInfo();
+  });
+
+  // Preload existing
+  if (driverData?.lat && driverData?.lng) {
+    pickedCoords = [driverData.lat, driverData.lng];
+    locMarker = L.marker(pickedCoords, { icon: pinIcon() }).addTo(locMap);
+    locMap.setView(pickedCoords, 15);
+    updateLocInfo();
+  } else if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { if (locMap) locMap.setView([pos.coords.latitude, pos.coords.longitude], 15); },
+      () => {}
+    );
+  }
+}
+
+function pinIcon() {
+  return L.divIcon({
+    className: '',
+    html: '<div style="background:#0f9d58;width:22px;height:22px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.4)"></div>',
+    iconSize: [22, 22], iconAnchor: [11, 11]
+  });
+}
+
+window.detectMyLocation = function() {
+  if (!navigator.geolocation) return alert('Browser tidak mendukung geolokasi.');
+  if (!locMap) return alert('Peta belum siap.');
+
+  const btn = event?.target;
+  if (btn) { btn.disabled = true; btn.textContent = '📍 Mencari…'; }
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      pickedCoords = [lat, lng];
+      if (locMarker) locMap.removeLayer(locMarker);
+      locMarker = L.marker(pickedCoords, { icon: pinIcon() }).addTo(locMap);
+      locMap.setView(pickedCoords, 16);
+      updateLocInfo();
+      if (btn) { btn.disabled = false; btn.textContent = '📍 Gunakan GPS'; }
+    },
+    (err) => {
+      alert('Gagal dapat lokasi: ' + err.message);
+      if (btn) { btn.disabled = false; btn.textContent = '📍 Gunakan GPS'; }
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
+};
+
+window.clearPickedLocation = function() {
+  if (locMarker) { locMap.removeLayer(locMarker); locMarker = null; }
+  pickedCoords = null;
+  updateLocInfo();
+};
+
+function updateLocInfo() {
+  if (!pickedCoords) {
+    document.getElementById('locLat').textContent = '-';
+    document.getElementById('locLng').textContent = '-';
+    document.getElementById('locGeohash').textContent = '-';
+    return;
+  }
+  document.getElementById('locLat').textContent = pickedCoords[0].toFixed(6);
+  document.getElementById('locLng').textContent = pickedCoords[1].toFixed(6);
+  document.getElementById('locGeohash').textContent = geohashForLocation(pickedCoords);
+}
+
+window.saveLocation = async function() {
+  if (!pickedCoords) return alert('Tandai lokasi Anda dulu di peta atau klik "Gunakan GPS".');
+  const btn = document.getElementById('saveLocBtn');
+  btn.disabled = true;
+  const orig = btn.textContent;
+  btn.textContent = '💾 Menyimpan…';
+
+  try {
+    await updateDoc(doc(db, CONFIG.collection, session.id), {
+      lat: pickedCoords[0],
+      lng: pickedCoords[1],
+      geohash: geohashForLocation(pickedCoords),
+      lastSeen: serverTimestamp()
+    });
+
+    // update local state agar loc bar langsung berubah
+    driverData.lat = pickedCoords[0];
+    driverData.lng = pickedCoords[1];
+    driverData.geohash = geohashForLocation(pickedCoords);
+    driverData.lastSeen = { seconds: Math.floor(Date.now() / 1000) };
+
+    updateLocationBar();
+    renderHeader();
+    btn.textContent = '✅ Tersimpan!';
+    setTimeout(() => { btn.disabled = false; btn.textContent = orig; }, 1200);
+  } catch (err) {
+    alert('Gagal menyimpan lokasi: ' + (err.message || err));
+    btn.disabled = false;
+    btn.textContent = orig;
+  }
+};
+
+// ============================================================
+// PROFILE
+// ============================================================
+function renderProfile() {
+  const name = driverData.name || session.name || 'Driver';
+  const initial = name.charAt(0).toUpperCase();
+
+  document.getElementById('inputName').value = driverData.name || '';
+  document.getElementById('inputWa').value = driverData.wa || session.wa || '';
+  document.getElementById('inputVehicle').value = driverData.vehicle || '';
+
+  document.getElementById('profileName').textContent = name;
+  document.getElementById('profileWa').textContent = driverData.wa || session.wa || '-';
+
+  const av = document.getElementById('profileAvatar');
+  av.textContent = initial;
+  if (driverData.photoUrl) {
+    av.style.backgroundImage = `url('${driverData.photoUrl}')`;
+    av.style.color = 'transparent';
+  }
+}
+
+window.uploadPhoto = function() {
+  alert('Fitur upload foto profil akan segera tersedia.\n\nNanti akan menggunakan Cloudinary untuk penyimpanan.');
+};
+
+window.saveProfile = async function() {
+  const name = document.getElementById('inputName').value.trim();
+  const vehicle = document.getElementById('inputVehicle').value.trim();
+
+  if (name.length < 3) return alert('Nama minimal 3 karakter.');
+
+  const btn = document.getElementById('saveProfileBtn');
+  btn.disabled = true;
+  const orig = btn.textContent;
+  btn.textContent = '💾 Menyimpan…';
+
+  try {
+    await updateDoc(doc(db, CONFIG.collection, session.id), {
+      name,
+      vehicle,
+      updatedAt: serverTimestamp()
+    });
+
+    driverData.name = name;
+    driverData.vehicle = vehicle;
+
+    // Update session juga
+    session.name = name;
+    localStorage.setItem(CONFIG.sessionKey, JSON.stringify(session));
+
+    renderHeader();
+    renderProfile();
+    btn.textContent = '✅ Tersimpan!';
+    setTimeout(() => { btn.disabled = false; btn.textContent = orig; }, 1200);
+  } catch (err) {
+    alert('Gagal: ' + (err.message || err));
+    btn.disabled = false;
+    btn.textContent = orig;
+  }
+};
+
+// ============================================================
+// LOGOUT
+// ============================================================
+window.doLogout = function() {
+  if (!confirm('Keluar dari panel driver?')) return;
+  if (ordersUnsub) ordersUnsub();
+  localStorage.removeItem(CONFIG.sessionKey);
+  window.location.href = 'index.html';
+};
+
+// ============================================================
+// UTIL
+// ============================================================
+function formatRp(num) {
+  return 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(num || 0));
+}
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+function formatDate(ts) {
+  if (!ts) return '-';
+  const d = ts.toDate ? ts.toDate() : new Date(ts.seconds ? ts.seconds * 1000 : ts);
+  if (isNaN(d.getTime())) return '-';
+  const pad = n => String(n).padStart(2, '0');
+  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} · ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// Update location bar tiap 60 detik
+setInterval(() => { if (driverData) updateLocationBar(); }, 60000);
+
+// Boot
+boot();
+</script>
+
+</body>
+</html>
