@@ -51,12 +51,12 @@
   }
   @keyframes spin{to{transform:rotate(360deg)}}
 
-  /* ===== HEADER (with isolation for blend) ===== */
+  /* ===== HEADER ===== */
   .driver-header{
     background:linear-gradient(135deg,#075c36 0%,#0f9d58 100%);
     color:#fff;position:sticky;top:0;z-index:40;
     box-shadow:0 4px 12px -8px rgba(0,0,0,.2);
-    isolation:isolate;   /* ← kunci agar mix-blend-mode logo bekerja */
+    isolation:isolate;
   }
   .dh-inner{
     max-width:1000px;margin:0 auto;
@@ -64,7 +64,6 @@
   }
   .dh-brand{display:flex;align-items:center;gap:10px;min-width:0}
 
-  /* LOGO transparan: bg hitam hilang di atas gradient hijau */
   .dh-logo{
     height:40px;
     max-width:110px;
@@ -89,9 +88,12 @@
     display:grid;place-items:center;font-weight:800;font-size:14px;
     background-size:cover;background-position:center;flex-shrink:0;
   }
-  .dh-user-info{display:flex;flex-direction:column;gap:0;line-height:1.2}
-  .dh-user-info strong{font-size:13px;font-weight:800;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis}
-  .dh-user-info small{font-size:10.5px;color:rgba(255,255,255,.85);font-weight:600}
+  .dh-user-info{display:flex;flex-direction:column;gap:0;line-height:1.2;min-width:0}
+  .dh-user-info strong{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}
+  .dh-user-info small{
+    font-size:10.5px;color:rgba(255,255,255,.85);font-weight:600;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;
+  }
   .dh-logout{
     padding:7px 12px;border-radius:9px;
     background:rgba(255,255,255,.2);color:#fff;
@@ -149,6 +151,8 @@
     font-size:10.5px;font-weight:800;min-width:18px;text-align:center;
   }
   .tab.active .tab-badge{background:var(--yellow-400);color:#4a3400}
+  .tab.tab-warn{border-color:#fde68a;background:#fffbeb;color:#92400e}
+  .tab.tab-warn.active{background:#92400e;color:#fff;border-color:#92400e}
 
   /* ===== CONTENT ===== */
   .content{max-width:1000px;margin:0 auto;padding:8px 14px 80px}
@@ -166,6 +170,13 @@
     box-shadow:var(--shadow);
     margin-bottom:14px;
   }
+  .card-title{
+    margin:0 0 6px;font-size:16px;font-weight:800;letter-spacing:-.01em;
+    display:flex;align-items:center;gap:8px;
+  }
+  .card-subtitle{
+    margin:0 0 16px;font-size:12.5px;color:var(--muted);line-height:1.5;
+  }
 
   /* ===== EMPTY ===== */
   .empty{
@@ -176,6 +187,30 @@
   .empty .ico{font-size:42px;margin-bottom:10px;display:block}
   .empty h3{margin:0 0 6px;color:var(--ink);font-size:16px}
   .empty p{margin:0;font-size:13px}
+
+  /* ===== SERVICES WARNING BANNER ===== */
+  .services-warning{
+    display:flex;gap:12px;padding:14px 16px;
+    border-radius:14px;margin-bottom:16px;
+    background:linear-gradient(135deg,#fffbeb,#fff);
+    border:2px solid #fde68a;
+    animation:fadeUp .3s ease;
+  }
+  .services-warning .ico{font-size:26px;line-height:1;flex-shrink:0}
+  .services-warning .sw-body{flex:1;min-width:0}
+  .services-warning strong{
+    display:block;color:#92400e;font-size:14px;font-weight:800;margin-bottom:4px;
+  }
+  .services-warning p{
+    margin:0 0 10px;font-size:12.5px;color:#78350f;line-height:1.5;
+  }
+  .services-warning .sw-btn{
+    padding:8px 14px;border-radius:9px;
+    background:#92400e;color:#fff;
+    font-size:12px;font-weight:800;border:0;cursor:pointer;
+    transition:.16s;
+  }
+  .services-warning .sw-btn:hover{background:#78350f}
 
   /* ===== ORDER CARD ===== */
   .order-card{
@@ -276,7 +311,6 @@
     margin-top:8px;font-size:11.5px;color:#991b1b;font-weight:700;
   }
 
-  /* ===== LOCATION STATUS BADGE ===== */
   .oc-loc-status{
     display:flex;align-items:center;gap:8px;
     padding:9px 12px;border-radius:10px;
@@ -287,7 +321,6 @@
   .oc-loc-status.warn{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
   .oc-loc-status.pending{background:var(--yellow-50);border:1px solid #ffe08a;color:#8a6d00}
 
-  /* ===== ACTIONS ===== */
   .oc-actions{display:flex;gap:8px;flex-wrap:wrap}
   .btn-action{
     flex:1;min-width:130px;
@@ -366,6 +399,50 @@
   }
   .input[readonly]{background:#f1f5f9;color:var(--muted);cursor:not-allowed}
 
+  /* ===== SERVICES CHECKBOX ===== */
+  .service-checkbox{
+    display:flex;align-items:center;gap:12px;
+    padding:14px;border-radius:12px;
+    border:1.5px solid var(--line);
+    background:#fff;cursor:pointer;
+    transition:.16s;margin-bottom:10px;
+    user-select:none;
+  }
+  .service-checkbox:hover{border-color:var(--green-500);background:#f8fdfb}
+  .service-checkbox:has(input:checked){
+    border-color:var(--green-600);
+    background:var(--green-50);
+    box-shadow:0 0 0 1px var(--green-500);
+  }
+  .service-checkbox input{
+    width:20px;height:20px;
+    accent-color:var(--green-600);
+    flex-shrink:0;cursor:pointer;
+  }
+  .sc-icon{font-size:22px;flex-shrink:0;line-height:1}
+  .sc-text{flex:1;min-width:0}
+  .sc-text strong{display:block;font-size:14px;font-weight:800;color:var(--ink);margin-bottom:2px}
+  .sc-text small{display:block;font-size:11.5px;color:var(--muted);font-weight:600;line-height:1.3}
+
+  .services-note{
+    padding:11px 13px;border-radius:10px;
+    background:var(--yellow-50);border:1px solid #ffe08a;
+    color:#8a6d00;font-size:12px;font-weight:600;line-height:1.5;
+    margin-bottom:14px;
+  }
+  .services-note strong{color:#7c2d12;font-weight:800}
+
+  .services-actions{
+    display:flex;gap:8px;margin-top:4px;margin-bottom:14px;
+  }
+  .services-actions button{
+    flex:1;padding:10px 14px;border-radius:10px;
+    font-size:12.5px;font-weight:800;
+    background:#fff;border:1.5px solid var(--line);
+    color:var(--ink);transition:.16s;
+  }
+  .services-actions button:hover{border-color:var(--green-500);color:var(--green-800)}
+
   /* ===== BUTTONS ===== */
   .btn-primary{
     width:100%;margin-top:16px;padding:14px;border-radius:12px;
@@ -419,6 +496,7 @@
     .dh-logo{height:34px;max-width:90px}
     .dh-brand strong{font-size:13px}
     .dh-user-info strong{max-width:90px;font-size:12px}
+    .dh-user-info small{max-width:90px}
     .dh-avatar{width:32px;height:32px;font-size:12.5px}
     .content{padding:8px 12px 60px}
     .oc-actions .btn-action{min-width:0;flex:1 1 100%}
@@ -471,7 +549,9 @@
     </button>
     <button class="tab" data-tab="location">🗺️ Lokasi</button>
     <button class="tab" data-tab="history">🕓 Riwayat</button>
-    <button class="tab" data-tab="profile">👤 Profil</button>
+    <button class="tab" data-tab="profile" id="profileTab">
+      👤 Profil <span class="tab-badge" id="servicesWarnBadge" hidden style="background:#fde68a;color:#92400e">!</span>
+    </button>
   </nav>
 
   <!-- CONTENT -->
@@ -479,6 +559,17 @@
 
     <!-- ============ PANEL: ORDERS ============ -->
     <div class="panel" data-panel="orders">
+
+      <!-- WARNING BANNER: LAYANAN BELUM DIATUR -->
+      <div class="services-warning" id="servicesWarning" hidden>
+        <div class="ico">⚠️</div>
+        <div class="sw-body">
+          <strong>Layanan Aktif Belum Diatur</strong>
+          <p>Atur layanan yang bisa Anda layani. Admin hanya akan menugaskan pesanan sesuai layanan yang Anda aktifkan.</p>
+          <button class="sw-btn" onclick="switchTab('profile')">⚙️ Atur Sekarang</button>
+        </div>
+      </div>
+
       <div class="stats-bar" id="statsBar">
         <div class="stat"><span class="stat-val" id="statActive">0</span><span class="stat-label">Aktif</span></div>
         <div class="stat"><span class="stat-val" id="statToday">0</span><span class="stat-label">Trip Hari Ini</span></div>
@@ -537,7 +628,27 @@
       <div class="panel-head">
         <h2>Profil Saya</h2>
       </div>
+
+      <!-- CARD: LAYANAN AKTIF -->
       <div class="card">
+        <h3 class="card-title">🎯 Layanan Aktif</h3>
+        <p class="card-subtitle">Pilih layanan yang bisa Anda layani. Admin hanya akan menugaskan pesanan sesuai layanan yang Anda aktifkan di sini.</p>
+
+        <div class="services-note" id="servicesNote" hidden></div>
+
+        <div id="servicesList"></div>
+
+        <div class="services-actions">
+          <button type="button" onclick="selectAllServices()">✓ Pilih Semua</button>
+          <button type="button" onclick="clearAllServices()">✕ Kosongkan</button>
+        </div>
+
+        <button class="btn-primary" onclick="saveServices()" id="saveServicesBtn">💾 Simpan Layanan</button>
+      </div>
+
+      <!-- CARD: DATA DIRI -->
+      <div class="card">
+        <h3 class="card-title">👤 Data Diri</h3>
         <div class="profile-head">
           <div class="profile-avatar" id="profileAvatar">?</div>
           <div>
@@ -595,8 +706,23 @@ const CONFIG = {
   routes: { user: 'user.html', admin: 'index.html', driver: 'driver.html' }
 };
 
-// Radius toleransi untuk tombol "Selesaikan"
 const COMPLETE_RADIUS_M = 200;
+
+// Daftar layanan yang bisa diaktifkan driver
+// 'tulung' = 'bantu' (alias, untuk backward compat)
+const SERVICE_OPTIONS = [
+  { id: 'ojek',   label: 'Ojek Online',    icon: '🛵', desc: 'Antar penumpang dengan motor' },
+  { id: 'taxi',   label: 'Taxi Online',    icon: '🚕', desc: 'Antar penumpang dengan mobil' },
+  { id: 'food',   label: 'Food Online',    icon: '🍜', desc: 'Antar pesanan makanan' },
+  { id: 'tulung', label: 'Tulung / Bantu', icon: '🤝', desc: 'Belanja, antar, titip barang' },
+  { id: 'tambal', label: 'Tambal Ban',     icon: '🔧', desc: 'Datang ke lokasi ban bocor' }
+];
+
+function normalizeServiceId(id) {
+  const s = String(id || '').toLowerCase();
+  if (s === 'bantu') return 'tulung';
+  return s;
+}
 
 // ============================================================
 // GEOHASH INLINE
@@ -623,9 +749,6 @@ function geohashForLocation([lat, lng], precision = 9) {
   return hash;
 }
 
-// ============================================================
-// HAVERSINE (meter)
-// ============================================================
 function haversineM(lat1, lon1, lat2, lon2) {
   const R = 6371000;
   const toRad = d => d * Math.PI / 180;
@@ -644,7 +767,6 @@ let ordersUnsub = null;
 let activeOrders = [];
 let historyOrders = [];
 
-// Cache hasil cek jarak per order: { [orderId]: { ok, dist, msg, checkedAt } }
 const distanceChecks = {};
 let checkingDistances = false;
 
@@ -680,12 +802,13 @@ async function boot() {
     await loadSettings();
     renderHeader();
     renderProfile();
+    renderServices();
+    updateServicesWarning();
     updateLocationBar();
     subscribeOrders();
     setupTabs();
     document.getElementById('loadingScreen').hidden = true;
     document.getElementById('driverApp').hidden = false;
-    // Cek jarak awal (silent, tidak blok UI)
     setTimeout(() => refreshDistanceChecks(false), 800);
   } catch (err) {
     console.error('[Boot]', err);
@@ -694,9 +817,6 @@ async function boot() {
   }
 }
 
-// ============================================================
-// LOAD DATA
-// ============================================================
 async function loadDriverData() {
   const snap = await getDoc(doc(db, CONFIG.collection, session.id));
   if (!snap.exists()) throw new Error('Data akun driver tidak ditemukan.');
@@ -711,14 +831,48 @@ async function loadSettings() {
 }
 
 // ============================================================
-// HEADER
+// SERVICES HELPERS
+// ============================================================
+function isServicesConfigured() {
+  const raw = driverData?.services;
+  return Array.isArray(raw) && raw.length > 0;
+}
+
+function getActiveServices() {
+  const raw = driverData?.services;
+  if (!Array.isArray(raw)) {
+    // Belum diatur — sistem anggap semua aktif (default/backward compat)
+    return SERVICE_OPTIONS.map(o => o.id);
+  }
+  return raw.map(normalizeServiceId).filter(Boolean);
+}
+
+function getServicesBadgeText() {
+  const raw = driverData?.services;
+  if (!Array.isArray(raw)) {
+    return `Semua layanan`;
+  }
+  if (raw.length === 0) {
+    return `⚠️ Belum diatur`;
+  }
+  if (raw.length === SERVICE_OPTIONS.length) {
+    return `Semua layanan`;
+  }
+  return `${raw.length} layanan`;
+}
+
+// ============================================================
+// RENDER HEADER
 // ============================================================
 function renderHeader() {
   const name = driverData.name || session.name || 'Driver';
   const initial = name.charAt(0).toUpperCase();
   document.getElementById('headerAvatar').textContent = initial;
   document.getElementById('headerName').textContent = name;
-  document.getElementById('headerStatus').textContent = driverData.lastSeen ? 'Aktif' : 'Offline';
+
+  const active = driverData.lastSeen ? 'Aktif' : 'Offline';
+  const svcText = getServicesBadgeText();
+  document.getElementById('headerStatus').textContent = `${active} · ${svcText}`;
 
   if (driverData.photoUrl) {
     const av = document.getElementById('headerAvatar');
@@ -726,6 +880,98 @@ function renderHeader() {
     av.style.color = 'transparent';
   }
   document.title = name + ' • Driver Tulung Inyong';
+}
+
+// ============================================================
+// RENDER SERVICES
+// ============================================================
+function renderServices() {
+  const container = document.getElementById('servicesList');
+  const noteEl = document.getElementById('servicesNote');
+  if (!container) return;
+
+  const raw = driverData?.services;
+  const isDefault = !Array.isArray(raw);
+  const currentIds = isDefault
+    ? SERVICE_OPTIONS.map(o => o.id)
+    : raw.map(normalizeServiceId).filter(Boolean);
+
+  container.innerHTML = SERVICE_OPTIONS.map(opt => {
+    const checked = currentIds.includes(opt.id);
+    return `
+      <label class="service-checkbox">
+        <input type="checkbox" name="service" value="${opt.id}" ${checked ? 'checked' : ''} />
+        <span class="sc-icon">${opt.icon}</span>
+        <span class="sc-text">
+          <strong>${opt.label}</strong>
+          <small>${opt.desc}</small>
+        </span>
+      </label>
+    `;
+  }).join('');
+
+  if (noteEl) {
+    if (isDefault) {
+      noteEl.hidden = false;
+      noteEl.innerHTML = 'ℹ️ Anda <strong>belum mengatur</strong> layanan secara eksplisit. Saat ini sistem menganggap <strong>semua layanan aktif</strong>. Klik <strong>Simpan Layanan</strong> untuk mengonfirmasi pilihan Anda.';
+    } else if (raw.length === 0) {
+      noteEl.hidden = false;
+      noteEl.innerHTML = '⚠️ Anda <strong>belum memilih layanan apa pun</strong>. Admin tidak akan bisa menugaskan pesanan ke Anda. Pilih minimal 1 layanan lalu simpan.';
+    } else {
+      noteEl.hidden = true;
+    }
+  }
+}
+
+window.selectAllServices = function() {
+  document.querySelectorAll('input[name="service"]').forEach(cb => cb.checked = true);
+};
+window.clearAllServices = function() {
+  document.querySelectorAll('input[name="service"]').forEach(cb => cb.checked = false);
+};
+
+window.saveServices = async function() {
+  const checked = [...document.querySelectorAll('input[name="service"]:checked')].map(el => el.value);
+  if (checked.length === 0) {
+    return alert('Pilih minimal 1 layanan.\n\nJika Anda tidak ingin menerima pesanan, logout atau hubungi admin untuk menonaktifkan akun.');
+  }
+
+  const btn = document.getElementById('saveServicesBtn');
+  btn.disabled = true;
+  const orig = btn.textContent;
+  btn.textContent = '💾 Menyimpan…';
+
+  try {
+    await updateDoc(doc(db, CONFIG.collection, session.id), {
+      services: checked,
+      servicesUpdatedAt: serverTimestamp()
+    });
+
+    driverData.services = checked;
+    renderServices();
+    renderHeader();
+    updateServicesWarning();
+
+    btn.textContent = '✅ Tersimpan!';
+    setTimeout(() => { btn.disabled = false; btn.textContent = orig; }, 1200);
+  } catch (err) {
+    alert('Gagal menyimpan layanan: ' + (err.message || err));
+    btn.disabled = false;
+    btn.textContent = orig;
+  }
+};
+
+function updateServicesWarning() {
+  const warningEl = document.getElementById('servicesWarning');
+  const tabBadge = document.getElementById('servicesWarnBadge');
+  const profileTab = document.getElementById('profileTab');
+  if (!warningEl) return;
+
+  const configured = isServicesConfigured();
+  warningEl.hidden = configured;
+
+  if (tabBadge) tabBadge.hidden = configured;
+  if (profileTab) profileTab.classList.toggle('tab-warn', !configured);
 }
 
 // ============================================================
@@ -775,6 +1021,10 @@ window.switchTab = function(name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   if (name === 'location') setTimeout(initLocMap, 100);
   if (name === 'orders') setTimeout(() => refreshDistanceChecks(false), 200);
+  if (name === 'profile') {
+    renderServices();
+    setTimeout(() => { if (locMap) locMap.invalidateSize(); }, 100);
+  }
 };
 
 // ============================================================
@@ -795,7 +1045,6 @@ function subscribeOrders() {
     activeOrders.sort(sortFn);
     historyOrders.sort(sortFn);
 
-    // Bersihkan cache untuk order yang sudah tidak aktif
     Object.keys(distanceChecks).forEach(id => {
       if (!activeOrders.find(o => o.id === id)) delete distanceChecks[id];
     });
@@ -805,7 +1054,6 @@ function subscribeOrders() {
     updateStats();
     updateOrdersBadge(activeOrders.length);
 
-    // Auto-check jarak jika tab orders sedang aktif
     const ordersPanelVisible = !document.querySelector('[data-panel="orders"]')?.hidden;
     if (ordersPanelVisible && activeOrders.length) {
       setTimeout(() => refreshDistanceChecks(false), 400);
@@ -849,7 +1097,7 @@ function getCurrentPositionAsync() {
 function getOrderTargetCoords(order) {
   if (order.serviceId === 'ojek' || order.serviceId === 'taxi') return order.destCoords;
   if (order.serviceId === 'tambal') return order.coords;
-  return null; // tulung = no target
+  return null;
 }
 
 window.refreshDistanceChecks = async function(manual = false) {
@@ -859,7 +1107,6 @@ window.refreshDistanceChecks = async function(manual = false) {
     return;
   }
 
-  // Order tanpa target → langsung lolos
   const needsCheck = activeOrders.filter(o => getOrderTargetCoords(o));
   if (!needsCheck.length) {
     activeOrders.forEach(o => {
@@ -872,7 +1119,6 @@ window.refreshDistanceChecks = async function(manual = false) {
 
   checkingDistances = true;
 
-  // Update tombol refresh visual
   const refreshBtn = document.querySelector('[onclick="refreshDistanceChecks(true)"]');
   if (refreshBtn) { refreshBtn.disabled = true; refreshBtn.textContent = '📍 Mengecek…'; }
 
@@ -960,7 +1206,6 @@ function renderOrderCard(order) {
   const isCash = payMethod === 'cash' || !payMethod;
   const isVerified = order.paymentVerified === true;
 
-  // Route
   let routeHtml = '';
   if (order.serviceId === 'ojek' || order.serviceId === 'taxi') {
     routeHtml = `
@@ -1002,7 +1247,6 @@ function renderOrderCard(order) {
       </div>`;
   }
 
-  // User card
   const userWaClean = String(order.userWa || '').replace(/\D/g, '');
   const waLink = userWaClean
     ? `https://wa.me/${userWaClean.startsWith('0') ? '62' + userWaClean.slice(1) : userWaClean}`
@@ -1017,7 +1261,6 @@ function renderOrderCard(order) {
       ${userWaClean ? `<a class="oc-user-wa" href="${waLink}" target="_blank" rel="noopener">💬 Chat</a>` : ''}
     </div>`;
 
-  // Payment
   const total = order.paymentTotal ?? order.totalWithCode ?? order.fare ?? 0;
   const uniqueCode = order.uniqueCode;
 
@@ -1079,7 +1322,6 @@ function renderOrderCard(order) {
       </div>`;
   }
 
-  // ⬇️ Location status badge
   const target = getOrderTargetCoords(order);
   const check = distanceChecks[order.id];
   let locStatusHtml = '';
@@ -1106,13 +1348,11 @@ function renderOrderCard(order) {
     }
   }
 
-  // ⬇️ Complete button state — disable if not near
   const completeDisabled = target && (!check || !check.ok);
   const completeTitle = completeDisabled
     ? `Harus berada dalam ${COMPLETE_RADIUS_M}m dari tujuan`
     : 'Tandai pesanan selesai';
 
-  // Actions
   const actions = [];
   if (isTransfer && !isVerified) {
     actions.push(`<button class="btn-action btn-verify" data-action="verify" data-id="${escapeHtml(order.id)}">✅ Verifikasi Pembayaran</button>`);
@@ -1224,7 +1464,6 @@ window.completeOrder = async function(orderId, btn) {
 
   const target = getOrderTargetCoords(order);
 
-  // ── 1. Cek GPS + jarak real-time
   if (target) {
     const orig = btn.textContent;
     btn.disabled = true;
@@ -1237,7 +1476,6 @@ window.completeOrder = async function(orderId, btn) {
       if (dist > COMPLETE_RADIUS_M) {
         btn.disabled = false;
         btn.textContent = orig;
-        // update cache agar tombol konsisten disabled
         distanceChecks[order.id] = {
           ok: false,
           dist: Math.round(dist),
@@ -1253,7 +1491,6 @@ window.completeOrder = async function(orderId, btn) {
         );
       }
 
-      // Update cache → OK
       distanceChecks[order.id] = {
         ok: true,
         dist: Math.round(dist),
@@ -1275,11 +1512,9 @@ window.completeOrder = async function(orderId, btn) {
       );
     }
   } else {
-    // Tulung — tanpa target lokasi
     if (!confirm('Tandai pesanan selesai?\n\nPastikan sudah serah terima dengan pengguna.')) return;
   }
 
-  // ── 2. Simpan
   const orig = btn.textContent;
   btn.disabled = true;
   btn.textContent = 'Menyimpan…';
@@ -1293,7 +1528,6 @@ window.completeOrder = async function(orderId, btn) {
       completedViaLocation: !!target,
       completionDistance: check?.dist ?? 0
     });
-    // onSnapshot akan refresh otomatis
   } catch (err) {
     alert('Gagal: ' + (err.message || err));
     btn.disabled = false;
