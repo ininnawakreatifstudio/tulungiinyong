@@ -47,10 +47,20 @@
   .shell{min-height:100dvh;display:grid;grid-template-columns:1fr}
   .brand-panel{position:relative;display:flex;flex-direction:column;color:#fff;background:linear-gradient(150deg,#075c36 0%,#0f9d58 50%,#14b86a 100%);overflow:hidden}
   .brand-hero{position:relative;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;padding:72px 20px 24px;min-height:220px;
-    background:url('logolatar.png') center / cover no-repeat,linear-gradient(150deg,#075c36 0%,#0f9d58 50%,#14b86a 100%);}
+    background:url('logolatar.png') center / cover no-repeat,linear-gradient(150deg,#075c36 0%,#0f9d58 50%,#14b86a 100%);
+    isolation:isolate;}
   .brand-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,71,42,0) 0%,rgba(5,71,42,0.2) 40%,rgba(5,71,42,0.6) 100%);pointer-events:none;z-index:1}
-  .brand-hero-content{position:relative;z-index:2;display:flex;flex-direction:row;align-items:center;gap:14px;mix-blend-mode:screen}
-  .brand-logo{display:block;max-height:52px;max-width:180px;width:auto;height:auto;object-fit:contain;background:transparent;flex:none}
+  .brand-hero-content{position:relative;z-index:2;display:flex;flex-direction:row;align-items:center;gap:14px}
+
+  /* ── LOGO TRANSPARAN: mix-blend-mode:screen di img langsung ── */
+  .brand-logo{
+    display:block;max-height:52px;max-width:180px;width:auto;height:auto;
+    object-fit:contain;background:transparent;flex:none;
+    mix-blend-mode:screen;
+    -webkit-mix-blend-mode:screen;
+    filter:drop-shadow(0 2px 6px rgba(0,0,0,.3));
+  }
+
   .brand-fallback{font-size:28px;line-height:1;color:var(--yellow-400);flex:none}
   .brand-text{display:flex;flex-direction:column;gap:3px;min-width:0}
   .brand-title{display:block;font-size:20px;font-weight:800;letter-spacing:-.02em;line-height:1.15;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -107,7 +117,6 @@
   .card-foot a{color:var(--green-700);font-weight:800;border-bottom:2px solid var(--yellow-400);padding-bottom:1px}
   .card-foot a:hover{color:var(--green-800)}
 
-  /* ===== SESSION NOTE (updated: 2 tombol) ===== */
   .session-note{
     display:flex;align-items:center;gap:8px;flex-wrap:wrap;
     padding:11px 13px;border-radius:13px;
@@ -135,10 +144,19 @@
 
   /* ===== ADMIN DASHBOARD ===== */
   .admin-app{min-height:100dvh;background:#ffffff;display:flex;flex-direction:column}
-  .admin-header{background:linear-gradient(135deg,#075c36 0%,#0f9d58 100%);color:#fff;box-shadow:0 4px 12px -8px rgba(0,0,0,.2);position:sticky;top:0;z-index:50}
+  .admin-header{background:linear-gradient(135deg,#075c36 0%,#0f9d58 100%);color:#fff;box-shadow:0 4px 12px -8px rgba(0,0,0,.2);position:sticky;top:0;z-index:50;isolation:isolate}
   .admin-header-inner{max-width:1120px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px}
-  .admin-brand{display:flex;align-items:center;gap:10px;min-width:0}
-  .admin-logo{width:42px;height:42px;object-fit:contain;mix-blend-mode:screen;flex:none}
+  .admin-brand{display:flex;align-items:center;gap:10px;min-width:0;isolation:isolate}
+
+  /* ── LOGO ADMIN TRANSPARAN ── */
+  .admin-logo{
+    width:42px;height:42px;object-fit:contain;flex:none;
+    background:transparent;
+    mix-blend-mode:screen;
+    -webkit-mix-blend-mode:screen;
+    filter:drop-shadow(0 1px 4px rgba(0,0,0,.25));
+  }
+
   .admin-brand-text{display:flex;flex-direction:column;gap:1px;min-width:0}
   .admin-brand-text strong{font-size:16px;font-weight:800;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .admin-brand-text small{font-size:11px;font-weight:600;color:rgba(255,255,255,.85);letter-spacing:.01em}
@@ -239,13 +257,16 @@
     margin-bottom:12px;display:flex;align-items:center;gap:6px;
   }
 
-  .oi-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .oi-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
   .oi-actions select{
     flex:1;min-width:160px;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;
     font-size:12.5px;font-weight:700;background:#fff;color:var(--ink);outline:none;
   }
   .oi-actions select:focus{border-color:var(--green-600)}
-  .btn-sm{padding:9px 14px;border-radius:10px;font-size:12.5px;font-weight:800;transition:.16s;white-space:nowrap}
+  .btn-sm{
+    padding:9px 14px;border-radius:10px;font-size:12.5px;font-weight:800;transition:.16s;white-space:nowrap;
+    text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:4px;
+  }
   .btn-auto{background:linear-gradient(135deg,var(--yellow-400),var(--yellow-500));color:#4a3400}
   .btn-auto:hover{filter:brightness(1.05)}
   .btn-assign{background:var(--green-600);color:#fff}
@@ -254,6 +275,10 @@
   .btn-done:hover{border-color:var(--green-500)}
   .btn-verify{background:var(--yellow-500);color:#4a3400}
   .btn-verify:hover{filter:brightness(1.05)}
+  .btn-contact{background:#25d366;color:#fff}
+  .btn-contact:hover{background:#128c7e}
+  .btn-force-done{background:#fef2f2;color:#991b1b;border:1.5px solid #fecaca}
+  .btn-force-done:hover{background:#fee2e2}
   .btn-sm:disabled{opacity:.55;cursor:not-allowed}
 
   .oi-total{display:flex;justify-content:space-between;align-items:flex-end;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
@@ -794,9 +819,8 @@ function readRole(data){
   return 'user';
 }
 
-// ===== FIX: mode 'user' (default) menerima role apa pun. Mode 'admin'/'driver' spesifik. =====
 function roleMatches(accountRole, targetMode){
-  if (targetMode === 'user') return true; // default user mode = fleksibel (redirect sesuai role akun)
+  if (targetMode === 'user') return true;
   return ROLE_ALLOWED[targetMode].includes(accountRole);
 }
 function accountStatus(account){ return String(account?.status || '').toLowerCase().trim(); }
@@ -830,7 +854,6 @@ el.loginForm.addEventListener('submit', async (e) => {
     const accountRole = readRole(account);
     if (!roleMatches(accountRole, mode)) { setBusy(false); return showAlert('err', 'Akun ini terdaftar sebagai ' + ROLE_LABEL[accountRole] + ', bukan ' + ROLE_LABEL[mode] + '.'); }
     sessionSet({ id: account.id, name: String(readField(account, ['name', 'nama', 'username']) || 'Pengguna'), wa: waDigits, role: accountRole, loginAt: new Date().toISOString() });
-    // Redirect sesuai role akun (bukan mode yang dipilih)
     if (accountRole === 'admin') {
       showAlert('ok', 'Berhasil masuk sebagai Admin. Membuka dashboard…');
       setTimeout(() => showAdminDashboard(), 400);
@@ -874,7 +897,7 @@ function showLoginView(){
   el.authScreen.hidden = false;
   el.viewRegister.hidden = true;
   el.viewLogin.hidden = false;
-  el.sessionNote.hidden = true;   // ← FIX: sembunyikan session note setelah logout
+  el.sessionNote.hidden = true;
   el.loginForm.reset();
   el.registerForm.reset();
   hideAlert(); hideRegAlert();
@@ -1036,6 +1059,10 @@ function renderOrders(list){
     btn.addEventListener('click', () => setOrderStatus(btn.dataset.id, 'done', btn));
   });
 
+  $$('.order-item [data-action="force-done"]').forEach(btn => {
+    btn.addEventListener('click', () => forceCompleteOrder(btn.dataset.id, btn));
+  });
+
   $$('.order-item [data-action="verify"]').forEach(btn => {
     btn.addEventListener('click', () => verifyOrderPayment(btn.dataset.id, btn));
   });
@@ -1082,7 +1109,6 @@ function renderOrderItem(order){
       ⚠️ Belum ada driver. Assign manual atau klik <strong>Auto</strong> (pilih terdekat by geohash).
     </div>`;
 
-  // Verified box
   const isTransfer = order.paymentMethod === 'transfer';
   const isVerified = order.paymentVerified === true;
   const verifiedBox = (isTransfer && isVerified) ? `
@@ -1097,15 +1123,30 @@ function renderOrderItem(order){
     ? `<select data-role="driver-select"><option value="">— Pilih driver —</option>${driverOptions}</select>`
     : `<select disabled><option>Tidak ada driver aktif</option></select>`;
 
+  // WA link ke user (untuk konfirmasi internal)
+  const userWaClean = String(order.userWa || '').replace(/\D/g, '');
+  const userWaHref = userWaClean
+    ? (userWaClean.startsWith('0') ? '62' + userWaClean.slice(1) : userWaClean)
+    : '';
+  const waMsgUser = encodeURIComponent(
+    `Halo ${order.userName || 'kak'}, kami dari Admin Tulung Inyong.\n\n` +
+    `Mohon konfirmasi: apakah pesanan *${order.serviceName || ''}* sudah selesai dan diterima dengan baik?\n\n` +
+    `Terima kasih 🙏`
+  );
+
   const actions = [];
   if (status === 'pending') {
     actions.push(selectHtml);
     actions.push(`<button class="btn-sm btn-assign" data-action="assign" data-id="${escapeHtml(order.id)}">Assign</button>`);
     actions.push(`<button class="btn-sm btn-auto" data-action="auto" data-id="${escapeHtml(order.id)}">🎯 Auto</button>`);
   } else if (status === 'accepted') {
+    // Hubungi user dulu untuk konfirmasi internal
+    if (userWaHref) {
+      actions.push(`<a class="btn-sm btn-contact" href="https://wa.me/${userWaHref}?text=${waMsgUser}" target="_blank" rel="noopener">💬 Hubungi User</a>`);
+    }
     actions.push(`<button class="btn-sm btn-done" data-action="done" data-id="${escapeHtml(order.id)}">✓ Tandai Selesai</button>`);
+    actions.push(`<button class="btn-sm btn-force-done" data-action="force-done" data-id="${escapeHtml(order.id)}">🔒 Selesaikan Paksa</button>`);
   }
-  // Verifikasi pembayaran (admin bisa verifikasi jika belum)
   if (isTransfer && !isVerified && !['done', 'completed', 'cancelled'].includes(status)) {
     actions.push(`<button class="btn-sm btn-verify" data-action="verify" data-id="${escapeHtml(order.id)}">💳 Verifikasi Bayar</button>`);
   }
@@ -1201,8 +1242,11 @@ async function setOrderStatus(orderId, status, btn){
   if (!confirm(`Tandai pesanan sebagai "${status}"?`)) return;
   btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Menyimpan…';
   try {
+    const s = sessionGet();
     await updateDoc(doc(db, CONFIG.ordersCollection, orderId), {
-      status, completedAt: serverTimestamp()
+      status,
+      completedAt: serverTimestamp(),
+      completedBy: 'Admin: ' + (s?.name || 'admin')
     });
     await loadOrders();
   } catch (err) {
@@ -1211,7 +1255,48 @@ async function setOrderStatus(orderId, status, btn){
   }
 }
 
-// ===== Admin verify payment =====
+// ===== Admin: Selesaikan Paksa =====
+async function forceCompleteOrder(orderId, btn){
+  const orderSnap = await getDoc(doc(db, CONFIG.ordersCollection, orderId));
+  if (!orderSnap.exists()) return alert('Order tidak ditemukan.');
+  const order = orderSnap.data();
+
+  const userWaClean = String(order.userWa || '').replace(/\D/g, '');
+  const waHref = userWaClean
+    ? (userWaClean.startsWith('0') ? '62' + userWaClean.slice(1) : userWaClean)
+    : '';
+  const waHint = waHref ? `\n\n💬 Buka WA user dulu:\nhttps://wa.me/${waHref}` : '';
+
+  const ok = confirm(
+    '⚠️ SELESAIKAN PAKSA\n\n' +
+    'Pastikan Anda SUDAH:\n' +
+    '1. Menghubungi user untuk konfirmasi internal\n' +
+    '2. Yakin pesanan sudah selesai/diterima user\n\n' +
+    'Pesanan akan ditandai selesai oleh ADMIN (bukan driver).' +
+    waHint
+  );
+  if (!ok) return;
+
+  btn.disabled = true;
+  const orig = btn.textContent;
+  btn.textContent = 'Menyimpan…';
+  try {
+    const s = sessionGet();
+    await updateDoc(doc(db, CONFIG.ordersCollection, orderId), {
+      status: 'done',
+      completedAt: serverTimestamp(),
+      completedBy: 'Admin: ' + (s?.name || 'admin'),
+      adminForceComplete: true
+    });
+    alert('✅ Pesanan ditandai selesai oleh admin.');
+    await loadOrders();
+  } catch (err) {
+    alert('Gagal: ' + firebaseError(err));
+    btn.disabled = false;
+    btn.textContent = orig;
+  }
+}
+
 async function verifyOrderPayment(orderId, btn){
   if (!confirm('Konfirmasi pembayaran transfer sudah masuk ke rekening?\n\nPastikan 3 digit terakhir nominal cocok dengan kode unik order.')) return;
   btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Memverifikasi…';
@@ -1231,7 +1316,7 @@ async function verifyOrderPayment(orderId, btn){
 }
 
 // ============================================================
-// SETTINGS (Harga, Bonus, Bank, Admin WA)
+// SETTINGS
 // ============================================================
 async function loadSettings(){
   if (!db) return;
@@ -1325,13 +1410,12 @@ function formatDate(ts){
 }
 
 // ============================================================
-// SESSION BOOT (FIX: login form selalu tampil)
+// SESSION BOOT
 // ============================================================
 (function checkSession(){
   const s = sessionGet();
-  if (!s) return; // no session, login form normal
+  if (!s) return;
 
-  // Session ada → tampilkan session note, tapi tetap di form login
   const role = ROLE_LABEL[s.role] || 'Pengguna';
   el.sessionText.innerHTML = 'Masih tercatat masuk sebagai <strong>' + escapeHtml(s.name) + '</strong><span>' + role + ' · ' + escapeHtml(s.wa || '') + '</span>';
   el.sessionNote.hidden = false;
