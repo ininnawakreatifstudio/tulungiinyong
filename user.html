@@ -50,7 +50,6 @@
     }
     .brand{display:flex; align-items:center; gap:10px; font-weight:800; font-size:18px; color:var(--green-800);}
 
-    /* ── LOGO TRANSPARAN: badge hijau + screen mode ── */
     .brand-logo-wrap{
       display:inline-flex; align-items:center;
       background:linear-gradient(135deg, var(--green-700), var(--green-600));
@@ -84,6 +83,23 @@
   .page-header p{margin:0; font-size:14px; color:var(--muted)}
   .highlight{color:var(--green-700)}
 
+  /* ---------- GLOBAL BANNER ---------- */
+  .global-banner{
+    display:flex; gap:12px; align-items:flex-start;
+    padding:14px 16px; border-radius:14px;
+    background:#fef2f2; border:1.5px solid #fecaca;
+    margin-bottom:16px;
+    animation:fadeUp .3s ease;
+  }
+  .global-banner .gb-ico{font-size:22px; line-height:1; flex-shrink:0}
+  .global-banner .gb-body{flex:1; min-width:0}
+  .global-banner strong{
+    display:block; font-size:13.5px; font-weight:800; color:#991b1b; margin-bottom:3px;
+  }
+  .global-banner p{
+    margin:0; font-size:12px; color:#7f1d1d; line-height:1.5;
+  }
+
   /* ---------- SERVICE GRID ---------- */
   .services-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px}
   @media(min-width:600px){ .services-grid{grid-template-columns:repeat(3,1fr)} }
@@ -91,10 +107,12 @@
 
   .service-card{
     background:#fff; border:1.5px solid var(--line); border-radius:var(--radius);
-    padding:20px 16px; display:flex; flex-direction:column; align-items:center;
-    text-align:center; gap:12px; box-shadow:var(--shadow); transition:.2s; position:relative;
+    padding:20px 16px 16px; display:flex; flex-direction:column; align-items:center;
+    text-align:center; gap:10px; box-shadow:var(--shadow); transition:.2s; position:relative;
   }
   .service-card:hover{border-color:var(--green-500); transform:translateY(-4px); box-shadow:0 12px 30px -12px rgba(15,157,88,.3)}
+  .service-card.no-driver-avail{border-color:#fde68a; background:#fffbeb}
+  .service-card.no-driver-avail:hover{border-color:#f59e0b}
   .service-icon{font-size:36px; filter:drop-shadow(0 4px 6px rgba(0,0,0,.1))}
   .service-name{font-weight:800; font-size:14px; letter-spacing:-.01em}
   .service-desc{font-size:11px; color:var(--muted); line-height:1.3}
@@ -105,6 +123,24 @@
     letter-spacing:.02em;
   }
 
+  /* Availability badge */
+  .service-availability{
+    display:inline-flex; align-items:center; gap:4px;
+    font-size:10px; font-weight:800;
+    padding:4px 10px; border-radius:99px;
+    letter-spacing:.02em; margin-top:2px;
+    line-height:1.2;
+  }
+  .service-availability.available{
+    background:var(--green-50); color:var(--green-800); border:1px solid #a7e3c4;
+  }
+  .service-availability.no-driver{
+    background:#fef2f2; color:#991b1b; border:1px solid #fecaca;
+  }
+  .service-availability.loading{
+    background:#f1f5f9; color:#94a3b8; border:1px solid var(--line);
+  }
+
   /* ---------- BOOKING ---------- */
   .booking-section{margin-top:24px; animation:fadeUp .3s ease}
   .card{background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:24px; box-shadow:var(--shadow)}
@@ -113,6 +149,18 @@
   .card-head .icon{font-size:32px}
   .card-head h2{margin:0; font-size:18px}
   .btn-back{padding:6px 12px; background:#f1f5f9; border-radius:8px; font-size:12px; font-weight:700; color:var(--muted); margin-bottom:16px; display:inline-block}
+
+  /* Booking availability warning */
+  .booking-warning{
+    display:flex; gap:10px; align-items:flex-start;
+    padding:12px 14px; border-radius:11px;
+    background:#fffbeb; border:1.5px solid #fde68a;
+    margin-bottom:16px;
+    animation:fadeUp .3s ease;
+  }
+  .booking-warning .bw-ico{font-size:20px; line-height:1; flex-shrink:0}
+  .booking-warning .bw-body{flex:1; min-width:0; font-size:12px; color:#92400e; line-height:1.5}
+  .booking-warning strong{color:#78350f; font-weight:800}
 
   .field{margin-bottom:16px}
   .field label{display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:6px}
@@ -370,32 +418,45 @@
       <p>Mau pakai layanan apa hari ini?</p>
     </div>
 
+    <!-- Global banner kalau tidak ada driver aktif sama sekali -->
+    <div class="global-banner" id="globalDriverBanner" hidden>
+      <div class="gb-ico">⚠️</div>
+      <div class="gb-body">
+        <strong>Belum ada driver aktif saat ini</strong>
+        <p>Pesanan Anda akan tetap tercatat, dan admin akan berusaha menugaskan driver. Mohon tunggu lebih lama dari biasanya.</p>
+      </div>
+    </div>
+
     <div class="services-grid">
-      <button class="service-card" onclick="openBooking('ojek', 'Ojek Online', '🛵', 5000)">
+      <button class="service-card" data-service="ojek" onclick="openBooking('ojek', 'Ojek Online', '🛵', 5000)">
         <span class="service-icon">🛵</span>
         <span class="service-name">Ojek Online</span>
         <span class="service-desc">Cepat & hemat</span>
+        <span class="service-availability loading" data-avail="ojek">Memuat…</span>
       </button>
-      <button class="service-card" onclick="openBooking('taxi', 'Taxi Online', '🚕', 10000)">
+      <button class="service-card" data-service="taxi" onclick="openBooking('taxi', 'Taxi Online', '🚕', 10000)">
         <span class="service-icon">🚕</span>
         <span class="service-name">Taxi Online</span>
         <span class="service-desc">Nyaman & luas</span>
+        <span class="service-availability loading" data-avail="taxi">Memuat…</span>
       </button>
-      <button class="service-card" onclick="openBooking('food', 'Food Online', '🍜', 0)">
+      <button class="service-card" data-service="food" onclick="openBooking('food', 'Food Online', '🍜', 0)">
         <span class="badge-soon">Segera</span>
         <span class="service-icon">🍜</span>
         <span class="service-name">Food Online</span>
         <span class="service-desc">Segera hadir</span>
       </button>
-      <button class="service-card" onclick="openBooking('tulung', 'Tulung Apa Bae', '🤝', 0)">
+      <button class="service-card" data-service="tulung" onclick="openBooking('tulung', 'Tulung Apa Bae', '🤝', 0)">
         <span class="service-icon">🤝</span>
         <span class="service-name">Tulung Apa Bae</span>
         <span class="service-desc">Belanja, antar, titip</span>
+        <span class="service-availability loading" data-avail="tulung">Memuat…</span>
       </button>
-      <button class="service-card" onclick="openBooking('tambal', 'Tambal Ban', '🔧', 0)">
+      <button class="service-card" data-service="tambal" onclick="openBooking('tambal', 'Tambal Ban', '🔧', 0)">
         <span class="service-icon">🔧</span>
         <span class="service-name">Tambal Ban</span>
         <span class="service-desc">Datang ke lokasi</span>
+        <span class="service-availability loading" data-avail="tambal">Memuat…</span>
       </button>
     </div>
   </div>
@@ -410,6 +471,12 @@
           <h2 id="bookTitle">Ojek Online</h2>
           <small id="bookSub">Isi detail pesanan kamu</small>
         </div>
+      </div>
+
+      <!-- Warning kalau layanan ini tidak ada driver -->
+      <div class="booking-warning" id="bookingWarning" hidden>
+        <div class="bw-ico">⚠️</div>
+        <div class="bw-body" id="bookingWarningText"></div>
       </div>
 
       <form id="bookingForm" onsubmit="submitOrder(event)">
@@ -573,7 +640,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getFirestore, doc, getDoc, updateDoc, collection, addDoc, serverTimestamp,
+  getFirestore, doc, getDoc, getDocs, updateDoc, collection, addDoc, serverTimestamp,
   query, where, onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -638,6 +705,10 @@ let tambalMapInstance = null, tambalMarker = null, tambalCoords = null;
 let ordersUnsubscribe = null;
 let settingsLoaded = false;
 
+// Availability cache
+let serviceAvailability = {}; // { ojek: 3, taxi: 2, food: 0, tulung: 1, tambal: 0 }
+let totalActiveDrivers = 0;
+
 const rawSession = localStorage.getItem('tulungiyong.session');
 if (!rawSession) {
   window.location.href = 'index.html';
@@ -650,6 +721,104 @@ if (!rawSession) {
 if (session) {
   document.getElementById('userName').textContent = (session.name || 'Pengguna').split(' ')[0];
   document.getElementById('topAvatar').textContent = (session.name || '?').charAt(0).toUpperCase();
+}
+
+// Normalisasi service ID (bantu ↔ tulung)
+function normalizeServiceId(id) {
+  const s = String(id || '').toLowerCase();
+  if (s === 'bantu') return 'tulung';
+  return s;
+}
+
+// Cek ketersediaan driver untuk tiap layanan
+async function loadDriverAvailability() {
+  try {
+    const snap = await getDocs(query(
+      collection(db, 'password'),
+      where('role', '==', 'driver'),
+      where('status', '==', 'active')
+    ));
+
+    const drivers = snap.docs.map(d => d.data());
+    totalActiveDrivers = drivers.length;
+
+    const services = ['ojek', 'taxi', 'food', 'tulung', 'tambal'];
+    serviceAvailability = {};
+
+    services.forEach(sid => {
+      serviceAvailability[sid] = drivers.filter(d => {
+        const raw = d.services;
+        // Kalau belum diatur → semua layanan (backward compat)
+        if (!Array.isArray(raw)) return true;
+        const normalized = raw.map(normalizeServiceId);
+        return normalized.includes(sid);
+      }).length;
+    });
+
+    renderServiceAvailability();
+  } catch (err) {
+    console.warn('[Availability]', err);
+    // Fail silently — jangan blokir user
+    renderServiceAvailabilityError();
+  }
+}
+
+function renderServiceAvailability() {
+  // Per-service badge
+  document.querySelectorAll('[data-avail]').forEach(el => {
+    const sid = el.dataset.avail;
+    const count = serviceAvailability[sid];
+    const card = el.closest('.service-card');
+
+    el.classList.remove('loading', 'available', 'no-driver');
+
+    if (count === undefined) {
+      el.classList.add('loading');
+      el.textContent = 'Memuat…';
+      if (card) card.classList.remove('no-driver-avail');
+    } else if (count === 0) {
+      el.classList.add('no-driver');
+      el.textContent = '⚠️ Belum ada driver';
+      if (card) card.classList.add('no-driver-avail');
+    } else {
+      el.classList.add('available');
+      el.textContent = `✓ ${count} driver aktif`;
+      if (card) card.classList.remove('no-driver-avail');
+    }
+  });
+
+  // Global banner
+  const banner = document.getElementById('globalDriverBanner');
+  if (banner) {
+    banner.hidden = totalActiveDrivers > 0;
+  }
+}
+
+function renderServiceAvailabilityError() {
+  document.querySelectorAll('[data-avail]').forEach(el => {
+    el.classList.remove('loading', 'available', 'no-driver');
+    el.classList.add('loading');
+    el.textContent = '—';
+  });
+}
+
+// Tampilkan warning di form booking kalau layanan tidak ada driver
+function updateBookingWarning(serviceId) {
+  const warningEl = document.getElementById('bookingWarning');
+  const textEl = document.getElementById('bookingWarningText');
+  if (!warningEl || !textEl) return;
+
+  const count = serviceAvailability[serviceId];
+
+  if (count === 0) {
+    warningEl.hidden = false;
+    textEl.innerHTML = `⚠️ <strong>Belum ada driver aktif untuk layanan ini saat ini.</strong> Pesanan Anda akan tetap tercatat, dan admin akan berusaha menugaskan driver. Mohon tunggu lebih lama dari biasanya.`;
+  } else if (count !== undefined && count > 0) {
+    warningEl.hidden = true;
+  } else {
+    // Unknown (belum loading) — sembunyikan
+    warningEl.hidden = true;
+  }
 }
 
 async function fetchSettings() {
@@ -665,6 +834,7 @@ async function fetchSettings() {
   }
 }
 fetchSettings();
+loadDriverAvailability();
 
 function switchView(view) {
   document.getElementById('viewHome').hidden = view !== 'home';
@@ -675,6 +845,10 @@ function switchView(view) {
   });
   if (view === 'orders') subscribeOrders();
   else if (ordersUnsubscribe) { ordersUnsubscribe(); ordersUnsubscribe = null; }
+  if (view === 'home') {
+    // Refresh availability saat kembali ke beranda
+    loadDriverAvailability();
+  }
 }
 document.querySelectorAll('[data-nav]').forEach(el => {
   el.addEventListener('click', (e) => { e.preventDefault(); switchView(el.dataset.nav); });
@@ -819,9 +993,6 @@ function formatDate(ts) {
   return `${pad(d.getDate())} ${['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][d.getMonth()]} ${d.getFullYear()} · ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-/* ============================================================
-   USER SELESAIKAN PESANAN
-   ============================================================ */
 window.userCompleteOrder = async function(orderId, btn){
   const konfirmasi = confirm(
     '✓ Tandai pesanan ini sebagai selesai?\n\n' +
@@ -841,7 +1012,6 @@ window.userCompleteOrder = async function(orderId, btn){
       completedBy: 'User: ' + (session?.name || 'user'),
       userMarkedComplete: true
     });
-    // onSnapshot akan refresh UI otomatis
   } catch (err) {
     console.error('[userCompleteOrder]', err);
     alert('❌ Gagal menyelesaikan pesanan:\n' + (err.message || err));
@@ -881,6 +1051,9 @@ window.openBooking = function(id, name, icon, baseFare) {
   if (mainMap) { mainMap.remove(); mainMap = null; }
   if (tambalMapInstance) { tambalMapInstance.remove(); tambalMapInstance = null; }
   pickupMarker = destMarker = routeLine = tambalMarker = null;
+
+  // Update warning ketersediaan driver
+  updateBookingWarning(id);
 
   if (id === 'ojek' || id === 'taxi') {
     document.getElementById('mapSection').hidden = false;
