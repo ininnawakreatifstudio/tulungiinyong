@@ -797,10 +797,10 @@
         </div>
       </div>
 
-      <div id="viewVerify" hidden>
+           <div id="viewVerify" hidden>
         <div class="card-head">
           <h2>Verifikasi Nomor WhatsApp</h2>
-          <p>Minta kode verifikasi dari admin, lalu masukkan kode 6 digit di bawah ini.</p>
+          <p>Masukkan nomor WA, password, dan kode 6 digit dari admin.</p>
         </div>
 
         <div class="alert" id="verAlert" role="status" aria-live="polite"></div>
@@ -810,6 +810,13 @@
             <label for="verWa">Nomor WhatsApp terdaftar</label>
             <div class="input-wrap no-lead">
               <input id="verWa" name="verWa" type="tel" inputmode="numeric" maxlength="20" placeholder="08xxxxxxxxxx" required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="verPassword">Password</label>
+            <div class="input-wrap no-lead">
+              <input id="verPassword" name="verPassword" type="password" autocomplete="current-password" placeholder="••••••••" required />
             </div>
           </div>
 
@@ -827,6 +834,7 @@
           <p>Sudah terverifikasi? <a href="#" id="showLoginFromVerify">Masuk di sini</a></p>
         </div>
       </div>
+
 
       <div class="version">INYONG_JEK · v2.0</div>
     </div>
