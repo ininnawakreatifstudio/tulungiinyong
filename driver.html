@@ -1939,7 +1939,7 @@ setInterval(() => { if (driverData) updateLocationBar(); }, 60000);
 boot();
 </script>
 
- <!-- ================== FITUR TOP UP ================== -->
+<!-- ================== FITUR TOP UP (driver.html) ================== -->
 <style>
   .topup-fab{
     position:fixed;right:16px;bottom:18px;z-index:120;
@@ -2049,7 +2049,7 @@ boot();
 
 <script type="module">
 import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAXWxcWYhvEKlXC414ECmv0vG0jZAr_Ecc",
@@ -2153,13 +2153,26 @@ window.onTopupNominalInput = function(){
   }
 };
 
-window.confirmTopupWA = function(){
+window.confirmTopupWA = async function(){
   if (!nominal || nominal < 50000 || nominal % 1000 !== 0) {
     return alert('Nominal minimal Rp 50.000 dan 3 digit akhir harus 000 (contoh: 50.000, 55.000, 60.000).');
   }
   const name = session.name || 'Driver';
   const wa = session.wa || '';
   const total = nominal + Number(code);
+  // simpan permintaan top up supaya muncul di halaman admin
+  try {
+    await updateDoc(doc(db, 'users', session.uid), {
+      pendingTopup: {
+        nominal: nominal,
+        code: code,
+        total: total,
+        requestedAt: serverTimestamp()
+      }
+    });
+  } catch (e) {
+    return alert('Gagal mengajukan top up: ' + (e.message || e));
+  }
   const msg = encodeURIComponent(
     'Halo Admin INYONG_JEK,\n\n' +
     'Saya (' + name + ') konfirmasi TOP UP saldo.\n' +
@@ -2170,11 +2183,13 @@ window.confirmTopupWA = function(){
     'Mohon dicek dan disetujui. Terima kasih 🙏'
   );
   window.open('https://wa.me/' + adminWa + '?text=' + msg, '_blank');
+  alert('✅ Permintaan top up terkirim. Admin akan konfirmasi.');
 };
 
 readSession();
 setTopupNominal(50000);
 </script>
+
 
 
 </body>
