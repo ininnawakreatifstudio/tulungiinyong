@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#0b7a44" />
-<title>Masuk • Tulung Inyong</title>
+<title>Masuk • INYONG_JEK</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -519,7 +519,7 @@
     padding: 6px 0;
     font-size: 12.5px;
   }
-  .fin-row span { color: var(--muted); font-weight: 600; }
+  .fin-row span { color: var(--muted); font-weight:600; }
   .fin-row strong { font-weight: 800; color: var(--ink); }
 
   .fin-driver-actions {
@@ -654,13 +654,13 @@
     <div class="brand-hero">
       <div class="brand-hero-content">
         <div class="brand-logo-wrap">
-          <img id="brandLogo" src="logo1.png" alt="Tulung Inyong" class="brand-logo"
+          <img id="brandLogo" src="logo1.png" alt="INYONG_JEK" class="brand-logo"
                onerror="this.hidden=true;document.getElementById('logoFallback').hidden=false;" />
           <div id="logoFallback" class="brand-logo-fallback" hidden>🛵</div>
         </div>
         <div class="brand-text">
-          <strong class="brand-title">Tulung Inyong</strong>
-          <small class="brand-tagline">Aplikasi layanan harian</small>
+          <strong class="brand-title"><span style="color:#05472a">INYONG_</span><span style="color:#f59e0b">JEK</span></strong>
+          <small class="brand-tagline" style="color:#05472a">Ojeke Wong Kebumen</small>
         </div>
       </div>
     </div>
@@ -680,7 +680,7 @@
       </ul>
     </div>
 
-    <div class="brand-foot">© 2025 Tulung Inyong · Dibuat untuk UMKM lokal</div>
+    <div class="brand-foot">© 2025 INYONG_JEK · Ojeke Wong Kebumen</div>
   </section>
 
   <section class="form-panel">
@@ -828,7 +828,7 @@
         </div>
       </div>
 
-      <div class="version">Tulung Inyong · v2.0</div>
+      <div class="version">INYONG_JEK · v2.0</div>
     </div>
   </section>
 </main>
@@ -840,11 +840,11 @@
     <div class="admin-header-inner">
       <div class="admin-brand">
         <div class="admin-logo-wrap">
-          <img src="logo1.png" alt="Tulung Inyong" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=&quot;ico-fallback&quot;>🛵</span>'" />
+          <img src="logo1.png" alt="INYONG_JEK" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=&quot;ico-fallback&quot;>🛵</span>'" />
         </div>
         <div class="admin-brand-text">
-          <strong>Tulung Inyong</strong>
-          <small>Admin Panel</small>
+          <strong><span style="color:#05472a">INYONG_</span><span style="color:#f59e0b">JEK</span></strong>
+          <small>Admin Panel · Ojeke Wong Kebumen</small>
         </div>
       </div>
       <button class="admin-logout" id="adminLogout">Keluar</button>
@@ -1138,7 +1138,7 @@ const firebaseConfig = {
 };
 
 const CONFIG = {
-  brand: 'Tulung Inyong',
+  brand: 'INYONG_JEK',
   usersCollection: 'users',
   ordersCollection: 'orders',
   settingsDoc: { collection: 'settings', doc: 'app' },
@@ -1659,7 +1659,7 @@ function renderPendingList(list){
     const code = String(acc.verificationCode || '------');
     const waClean = String(acc.wa || '').replace(/\D/g,'');
     const waHref = waClean.startsWith('0') ? '62' + waClean.slice(1) : waClean;
-    const msg = encodeURIComponent(`Halo ${acc.name || 'kak'}, dari Admin Tulung Inyong.\n\nKode verifikasi WhatsApp Anda:\n\n*${code}*\n\nMasukkan kode ini di halaman Verifikasi untuk mengaktifkan akun.\n\nTerima kasih 🙏`);
+    const msg = encodeURIComponent(`Halo ${acc.name || 'kak'}, dari Admin INYONG_JEK.\n\nKode verifikasi WhatsApp Anda:\n\n*${code}*\n\nMasukkan kode ini di halaman Verifikasi untuk mengaktifkan akun.\n\nTerima kasih 🙏`);
     return `
       <div class="pending-item" data-id="${escapeHtml(acc.id)}">
         <div class="pending-avatar ${role}">${initial}</div>
@@ -1858,7 +1858,7 @@ function renderOrderItem(order){
   const userWaClean = String(order.userWa || '').replace(/\D/g, '');
   const userWaHref = userWaClean ? (userWaClean.startsWith('0') ? '62' + userWaClean.slice(1) : userWaClean) : '';
   const waMsgUser = encodeURIComponent(
-    `Halo ${order.userName || 'kak'}, kami dari Admin Tulung Inyong.\n\n` +
+    `Halo ${order.userName || 'kak'}, kami dari Admin INYONG_JEK.\n\n` +
     `Mohon konfirmasi: apakah pesanan *${order.serviceName || ''}* sudah selesai dan diterima dengan baik?\n\n` +
     `Terima kasih 🙏`
   );
@@ -1910,7 +1910,7 @@ async function assignDriver(orderId, driverId, btn){
   try {
     await updateDoc(doc(db, CONFIG.ordersCollection, orderId), {
       driverId: driver.id, driverName: driver.name, driverWa: driver.wa,
-      driverPhotoUrl: driver.photoUrl || '', driverVehicle: driver.vehicle || 'Mitra Tulung Inyong',
+      driverPhotoUrl: driver.photoUrl || '', driverVehicle: driver.vehicle || 'Mitra INYONG_JEK',
       status: 'accepted', assignedAt: serverTimestamp()
     });
     await loadOrders();
@@ -1940,7 +1940,7 @@ async function autoAssignDriver(orderId, btn){
     if (!best) throw new Error('Tidak ada driver dengan lokasi geohash terdaftar untuk layanan ini.');
     await updateDoc(doc(db, CONFIG.ordersCollection, orderId), {
       driverId: best.id, driverName: best.name, driverWa: best.wa,
-      driverPhotoUrl: best.photoUrl || '', driverVehicle: best.vehicle || 'Mitra Tulung Inyong',
+      driverPhotoUrl: best.photoUrl || '', driverVehicle: best.vehicle || 'Mitra INYONG_JEK',
       status: 'accepted', assignedAt: serverTimestamp(),
       autoAssigned: true, autoAssignScore: bestScore
     });
@@ -2310,7 +2310,6 @@ async function loadSettings(){
   try {
     const snap = await getDoc(doc(db, CONFIG.settingsDoc.collection, CONFIG.settingsDoc.doc));
     const data = snap.exists() ? { ...DEFAULT_SETTINGS, ...snap.data() } : { ...DEFAULT_SETTINGS };
-    // Ensure nested defaults
     if (!data.commissions || typeof data.commissions !== 'object') data.commissions = { ...DEFAULT_SETTINGS.commissions };
     data.commissions = { ...DEFAULT_SETTINGS.commissions, ...data.commissions };
     appSettings = data;
@@ -2425,7 +2424,7 @@ async function loadCommissionDrivers() {
       const isApproved = accepted >= currentVersion;
       const waClean = String(d.wa || '').replace(/\D/g,'');
       const waHref = waClean.startsWith('0') ? '62' + waClean.slice(1) : waClean;
-      const msg = encodeURIComponent(`Halo ${d.name || 'kak'}, admin Tulung Inyong mengingatkan:\n\nAda pembaruan komisi (versi v${currentVersion}).\n\nSilakan buka aplikasi driver dan setujui komisi baru agar bisa menerima order kembali.\n\nTerima kasih 🙏`);
+      const msg = encodeURIComponent(`Halo ${d.name || 'kak'}, admin INYONG_JEK mengingatkan:\n\nAda pembaruan komisi (versi v${currentVersion}).\n\nSilakan buka aplikasi driver dan setujui komisi baru agar bisa menerima order kembali.\n\nTerima kasih 🙏`);
       return `
         <div class="commission-driver-item ${isApproved ? 'approved' : 'pending'}">
           <div class="cd-avatar">${escapeHtml(String(d.name || '?').charAt(0).toUpperCase())}</div>
