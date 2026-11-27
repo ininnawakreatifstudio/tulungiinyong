@@ -559,7 +559,7 @@
           </div>
         </div>
         <div>
-          <strong><span style="color:#05472a">INYONG_</span><span style="color:#f59e0b">JEK</span></strong>
+          <strong>INYONG_JEK</strong>
           <small>Ojeke Wong Kebumen</small>
         </div>
       </div>
@@ -1938,7 +1938,8 @@ setInterval(() => { if (driverData) updateLocationBar(); }, 60000);
 
 boot();
 </script>
-<!-- ================== FITUR TOP UP (tempel sekali sebelum </body>) ================== -->
+
+ <!-- ================== FITUR TOP UP ================== -->
 <style>
   .topup-fab{
     position:fixed;right:16px;bottom:18px;z-index:120;
@@ -1962,58 +1963,50 @@ boot();
   @keyframes tuUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
   .topup-head{
     display:flex;align-items:center;justify-content:space-between;
-    padding:16px 18px;border-bottom:1px solid var(--line);
+    padding:14px 16px;border-bottom:1px solid var(--line);
     position:sticky;top:0;background:#fff;z-index:1;
   }
-  .topup-head h3{margin:0;font-size:17px}
-  .topup-close{width:32px;height:32px;border-radius:10px;background:#f1f5f9;font-size:15px;font-weight:800;color:var(--muted);cursor:pointer}
-  .topup-body{padding:16px 18px 22px}
+  .topup-head h3{margin:0;font-size:16px}
+  .topup-close{width:30px;height:30px;border-radius:9px;background:#f1f5f9;font-size:14px;font-weight:800;color:var(--muted);cursor:pointer}
+  .topup-body{padding:14px 16px 18px}
   .topup-balance{
     background:linear-gradient(135deg,var(--green-700),var(--green-500));
-    color:#fff;border-radius:14px;padding:16px;margin-bottom:16px;
+    color:#fff;border-radius:13px;padding:14px;margin-bottom:14px;
   }
-  .topup-balance span{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;opacity:.9}
-  .topup-balance strong{display:block;font-size:26px;font-weight:800;margin-top:4px}
-  .topup-label{display:block;font-size:12px;font-weight:700;color:var(--ink-2);margin:14px 0 8px}
+  .topup-balance span{display:block;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;opacity:.9}
+  .topup-balance strong{display:block;font-size:23px;font-weight:800;margin-top:3px}
+  .topup-label{display:block;font-size:12px;font-weight:700;color:var(--ink-2);margin:12px 0 7px}
   .topup-nominals{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
   .topup-nominals button{
-    padding:12px;border-radius:11px;border:1.5px solid var(--line);
-    background:#fff;font-size:13.5px;font-weight:800;color:var(--ink);transition:.16s;cursor:pointer;
+    padding:11px;border-radius:11px;border:1.5px solid var(--line);
+    background:#fff;font-size:13px;font-weight:800;color:var(--ink);transition:.16s;cursor:pointer;
   }
   .topup-nominals button.active{border-color:var(--green-600);background:var(--green-50);color:var(--green-800)}
   .topup-body input{
-    width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;
-    font-size:15px;font-weight:700;outline:none;background:#fbfcfd;
+    width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:11px;
+    font-size:14px;font-weight:700;outline:none;background:#fbfcfd;
   }
   .topup-body input:focus{border-color:var(--green-600);box-shadow:0 0 0 4px rgba(15,157,88,.13)}
-  .topup-code{
-    display:flex;align-items:center;justify-content:space-between;
-    background:var(--yellow-50);border:1.5px dashed #e8ad00;border-radius:12px;
-    padding:12px 14px;margin:14px 0;
+  .topup-invoice{
+    border:1.5px solid var(--line);border-radius:12px;padding:13px 14px;margin:14px 0;background:#fff;
   }
-  .topup-code span{font-size:12px;font-weight:700;color:#8a6d00}
-  .topup-code strong{font-size:22px;font-weight:800;letter-spacing:4px;color:#0b3d22;font-family:monospace}
-  .topup-total{
-    display:flex;align-items:center;justify-content:space-between;
-    background:#0f172a;color:#fff;border-radius:12px;padding:14px;
-  }
-  .topup-total span{font-size:12px;font-weight:700;opacity:.85}
-  .topup-total strong{font-size:22px;font-weight:800;color:var(--yellow-400)}
+  .topup-invoice .ti-title{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:8px}
+  .topup-invoice .ti-row{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;padding:3px 0;color:var(--ink-2)}
+  .topup-invoice .ti-row strong{font-weight:800;color:var(--ink)}
+  .topup-invoice .ti-divider{height:1px;background:var(--line);margin:7px 0}
+  .topup-invoice .ti-row.total{font-size:14.5px}
+  .topup-invoice .ti-row.total strong{color:var(--green-700);font-size:18px}
   .topup-bank{
     background:#f8fafc;border:1px solid var(--line);border-radius:12px;
-    padding:12px 14px;margin:14px 0;font-size:12px;line-height:1.6;color:var(--muted);
+    padding:11px 13px;margin:12px 0;font-size:12px;line-height:1.55;color:var(--muted);
   }
-  .topup-bank span{display:block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#8a6d00;margin-bottom:4px}
-  .topup-bank strong{display:block;font-size:14px;color:var(--ink)}
-  .topup-bank b{display:block;font-size:16px;font-family:monospace;color:var(--green-800);letter-spacing:.05em;margin:2px 0}
-  .topup-bank em{font-style:normal;font-size:12px;color:var(--muted)}
-  .topup-note{
-    background:#fef2f2;border:1px solid #fecaca;border-radius:11px;
-    padding:11px 13px;font-size:11.5px;color:#991b1b;line-height:1.5;margin:12px 0;
-  }
+  .topup-bank span{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#8a6d00;margin-bottom:3px}
+  .topup-bank strong{display:block;font-size:13.5px;color:var(--ink)}
+  .topup-bank b{display:block;font-size:15px;font-family:monospace;color:var(--green-800);letter-spacing:.05em;margin:2px 0}
+  .topup-bank em{font-style:normal;font-size:11.5px;color:var(--muted)}
   .topup-wa{
-    width:100%;padding:14px;border-radius:12px;background:#25d366;color:#fff;
-    font-size:14.5px;font-weight:800;transition:.16s;cursor:pointer;
+    width:100%;padding:13px;border-radius:12px;background:#25d366;color:#fff;
+    font-size:14px;font-weight:800;transition:.16s;cursor:pointer;margin-top:6px;
   }
   .topup-wa:hover{background:#128c7e}
 </style>
@@ -2029,7 +2022,7 @@ boot();
     <div class="topup-body">
       <div class="topup-balance"><span>Saldo Anda</span><strong id="topupBalance">Rp 0</strong></div>
 
-      <div class="topup-label">Pilih Nominal</div>
+      <div class="topup-label">Nominal Top Up</div>
       <div class="topup-nominals">
         <button data-n="50000" onclick="setTopupNominal(50000)">Rp 50.000</button>
         <button data-n="100000" onclick="setTopupNominal(100000)">Rp 100.000</button>
@@ -2037,22 +2030,17 @@ boot();
         <button data-n="200000" onclick="setTopupNominal(200000)">Rp 200.000</button>
       </div>
 
-      <label class="topup-label" for="topupNominal">Nominal lain (min 50.000, kelipatan 50.000)</label>
-      <input type="number" id="topupNominal" min="50000" step="50000" placeholder="50000" oninput="onTopupNominalInput()" />
+      <input type="number" id="topupNominal" min="50000" step="1000" placeholder="Nominal lain (min 50.000)" oninput="onTopupNominalInput()" style="margin-top:8px" />
 
-      <div class="topup-code">
-        <span>Kode Unik (3 digit terakhir)</span>
-        <strong id="topupCode">-</strong>
-      </div>
-
-      <div class="topup-total">
-        <span>Total Transfer</span>
-        <strong id="topupTotal">Rp 0</strong>
+      <div class="topup-invoice">
+        <div class="ti-title">Rincian Biaya</div>
+        <div class="ti-row"><span>Top Up</span><strong id="invNominal">Rp 50.000</strong></div>
+        <div class="ti-row"><span>Kode Unik</span><strong id="invCode">Rp 0</strong></div>
+        <div class="ti-divider"></div>
+        <div class="ti-row total"><span>Total</span><strong id="invTotal">Rp 50.000</strong></div>
       </div>
 
       <div class="topup-bank" id="topupBank"></div>
-
-      <div class="topup-note">⚠️ Transfer sesuai <b>Total Transfer</b> (nominal + 3 digit kode unik), lalu konfirmasi ke admin via WhatsApp. Nominal selalu kelipatan 50.000 dan kode unik 3 digit di belakang.</div>
 
       <button class="topup-wa" onclick="confirmTopupWA()">📱 Konfirmasi via WhatsApp</button>
     </div>
@@ -2119,17 +2107,18 @@ async function loadBank(){
       '<b>' + esc(bank.accountNumber) + '</b>' +
       '<em>a.n. ' + esc(bank.accountName) + '</em>';
   } else {
-    el.innerHTML = '<span style="color:#991b1b">⚠️ Rekening admin belum diatur. Hubungi admin.</span>';
+    el.innerHTML = '<span style="color:#991b1b">⚠️ Rekening admin belum diatur.</span>';
   }
 }
 
 function newCode(){
   code = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
-  document.getElementById('topupCode').textContent = code;
 }
 
 function updateTotal(){
-  document.getElementById('topupTotal').textContent = fmt(nominal + Number(code));
+  document.getElementById('invNominal').textContent = fmt(nominal);
+  document.getElementById('invCode').textContent = fmt(Number(code));
+  document.getElementById('invTotal').textContent = fmt(nominal + Number(code));
 }
 
 window.openTopup = async function(){
@@ -2157,7 +2146,7 @@ window.setTopupNominal = function(n){
 window.onTopupNominalInput = function(){
   const v = Number(document.getElementById('topupNominal').value);
   document.querySelectorAll('.topup-nominals button').forEach(b => b.classList.remove('active'));
-  if (v >= 50000 && v % 50000 === 0) {
+  if (v >= 50000 && v % 1000 === 0) {
     nominal = v;
     newCode();
     updateTotal();
@@ -2165,8 +2154,8 @@ window.onTopupNominalInput = function(){
 };
 
 window.confirmTopupWA = function(){
-  if (!nominal || nominal < 50000 || nominal % 50000 !== 0) {
-    return alert('Nominal minimal Rp 50.000 dan harus kelipatan 50.000.');
+  if (!nominal || nominal < 50000 || nominal % 1000 !== 0) {
+    return alert('Nominal minimal Rp 50.000 dan 3 digit akhir harus 000 (contoh: 50.000, 55.000, 60.000).');
   }
   const name = session.name || 'Driver';
   const wa = session.wa || '';
@@ -2186,6 +2175,7 @@ window.confirmTopupWA = function(){
 readSession();
 setTopupNominal(50000);
 </script>
+
 
 </body>
 </html>
