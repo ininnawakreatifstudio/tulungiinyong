@@ -601,6 +601,7 @@ import {
   getFirestore, doc, getDoc, getDocs, updateDoc, collection, addDoc, serverTimestamp,
   query, where, onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAXWxcWYhvEKlXC414ECmv0vG0jZAr_Ecc",
@@ -613,6 +614,8 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
+
 
 function geohashForLocation([lat, lng], precision = 9) {
   const B32 = '0123456789bcdefghjkmnpqrstuvwxyz';
