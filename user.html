@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#0b7a44" />
-<title>Beranda • Tulung Inyong</title>
+<title>Beranda • INYONG_JEK</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -35,49 +35,47 @@
   a{color:inherit;text-decoration:none}
   small{font-size:11px;color:var(--muted);display:block;line-height:1.4}
 
-  /* ---------- TOPBAR ---------- */
+  /* ---------- TOPBAR (HEADER HIJAU) ---------- */
   .topbar{
-    display:none; position:sticky; top:0; z-index:50;
-    background:#ffffff;
-    border-bottom:1px solid var(--line);
+    position:sticky; top:0; z-index:50;
+    background:linear-gradient(135deg,#075c36 0%,#0f9d58 100%);
+    color:#fff;
+    box-shadow:0 4px 12px -8px rgba(0,0,0,.2);
   }
-  @media(min-width:768px){
-    .topbar{display:block}
-    .topbar-inner{
-      max-width:1000px; margin:0 auto; height:64px; padding:0 24px;
-      display:flex; align-items:center; gap:20px;
-      isolation:isolate;
-    }
-    .brand{display:flex; align-items:center; gap:10px; font-weight:800; font-size:18px; color:var(--green-800);}
-
-    .brand-logo-wrap{
-      display:inline-flex; align-items:center;
-      background:linear-gradient(135deg, var(--green-700), var(--green-600));
-      padding:5px 10px;
-      border-radius:8px;
-      isolation:isolate;
-      box-shadow:0 2px 6px -2px rgba(5,71,42,.35);
-    }
-    .brand-logo-wrap img{
-      height:22px; width:auto; max-width:100px; object-fit:contain;
-      display:block; background:transparent !important;
-      mix-blend-mode:screen;
-      -webkit-mix-blend-mode:screen;
-    }
-    .brand-fallback{display:none; font-size:18px; line-height:1; color:#fff}
-
-    .nav-menu{display:flex; gap:4px; margin-left:20px}
-    .nav-menu a{padding:8px 16px; border-radius:10px; font-size:14px; font-weight:700; color:var(--muted); transition:.2s}
-    .nav-menu a.active{background:var(--green-50); color:var(--green-700)}
-    .topbar-user{margin-left:auto; display:flex; align-items:center; gap:12px}
-    .avatar{width:40px; height:40px; border-radius:50%; background:var(--yellow-500); color:#4a3400; display:grid; place-items:center; font-weight:800; font-size:16px;}
-    .btn-logout{padding:8px 12px; border-radius:8px; font-size:12px; font-weight:700; background:#fef2f2; color:#b91c1c}
+  .topbar-inner{
+    max-width:1000px; margin:0 auto; padding:10px 16px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .brand{display:flex; align-items:center; gap:10px; min-width:0;}
+  .brand-logo-wrap{
+    flex:none; display:inline-flex; align-items:center; justify-content:center;
+    background:#ffffff; padding:3px; border-radius:12px;
+  }
+  .brand-logo-wrap img{
+    width:36px; height:36px; object-fit:contain; display:block; border-radius:9px; background:#fff;
+  }
+  .brand-fallback{display:none; font-size:20px; line-height:1;}
+  .brand-text{display:flex; flex-direction:column; gap:1px; min-width:0; line-height:1.15;}
+  .brand-text strong{font-size:15px; font-weight:800; letter-spacing:-.02em; color:#fff; white-space:nowrap;}
+  .brand-text small{font-size:10px; font-weight:600; color:rgba(255,255,255,.85); white-space:nowrap;}
+  .nav-menu{display:flex; gap:4px; margin-left:14px;}
+  .nav-menu a{padding:7px 12px; border-radius:9px; font-size:13px; font-weight:700; color:rgba(255,255,255,.85); transition:.2s; white-space:nowrap;}
+  .nav-menu a.active{background:rgba(255,255,255,.18); color:#fff;}
+  .topbar-user{margin-left:auto; display:flex; align-items:center; gap:10px;}
+  .avatar{width:36px; height:36px; border-radius:50%; background:var(--yellow-500); color:#4a3400; display:grid; place-items:center; font-weight:800; font-size:15px; flex-shrink:0;}
+  .btn-logout{padding:7px 12px; border-radius:9px; font-size:12px; font-weight:700; background:rgba(255,255,255,.2); color:#fff; border:1px solid rgba(255,255,255,.3);}
+  @media(max-width:600px){
+    .brand-text strong{font-size:13px;}
+    .brand-text small{font-size:9px;}
+    .brand-logo-wrap img{width:30px; height:30px;}
+    .nav-menu{display:none;}
+    .btn-logout{font-size:11px; padding:6px 10px;}
   }
 
   /* ---------- MAIN ---------- */
   .main{max-width:1000px; margin:0 auto; padding:20px 16px; animation:fadeUp .3s ease}
   @keyframes fadeUp{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)}}
-  
+
   .page-header{margin-bottom:24px}
   .page-header h1{font-size:24px; margin:0 0 6px; letter-spacing:-.03em}
   .page-header p{margin:0; font-size:14px; color:var(--muted)}
@@ -93,12 +91,8 @@
   }
   .global-banner .gb-ico{font-size:22px; line-height:1; flex-shrink:0}
   .global-banner .gb-body{flex:1; min-width:0}
-  .global-banner strong{
-    display:block; font-size:13.5px; font-weight:800; color:#991b1b; margin-bottom:3px;
-  }
-  .global-banner p{
-    margin:0; font-size:12px; color:#7f1d1d; line-height:1.5;
-  }
+  .global-banner strong{display:block; font-size:13.5px; font-weight:800; color:#991b1b; margin-bottom:3px;}
+  .global-banner p{margin:0; font-size:12px; color:#7f1d1d; line-height:1.5;}
 
   /* ---------- SERVICE GRID ---------- */
   .services-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px}
@@ -123,7 +117,6 @@
     letter-spacing:.02em;
   }
 
-  /* Availability badge */
   .service-availability{
     display:inline-flex; align-items:center; gap:4px;
     font-size:10px; font-weight:800;
@@ -131,26 +124,19 @@
     letter-spacing:.02em; margin-top:2px;
     line-height:1.2;
   }
-  .service-availability.available{
-    background:var(--green-50); color:var(--green-800); border:1px solid #a7e3c4;
-  }
-  .service-availability.no-driver{
-    background:#fef2f2; color:#991b1b; border:1px solid #fecaca;
-  }
-  .service-availability.loading{
-    background:#f1f5f9; color:#94a3b8; border:1px solid var(--line);
-  }
+  .service-availability.available{background:var(--green-50); color:var(--green-800); border:1px solid #a7e3c4;}
+  .service-availability.no-driver{background:#fef2f2; color:#991b1b; border:1px solid #fecaca;}
+  .service-availability.loading{background:#f1f5f9; color:#94a3b8; border:1px solid var(--line);}
 
   /* ---------- BOOKING ---------- */
   .booking-section{margin-top:24px; animation:fadeUp .3s ease}
   .card{background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:24px; box-shadow:var(--shadow)}
-  
+
   .card-head{display:flex; align-items:center; gap:12px; margin-bottom:20px; border-bottom:1px solid var(--line); padding-bottom:16px}
   .card-head .icon{font-size:32px}
   .card-head h2{margin:0; font-size:18px}
   .btn-back{padding:6px 12px; background:#f1f5f9; border-radius:8px; font-size:12px; font-weight:700; color:var(--muted); margin-bottom:16px; display:inline-block}
 
-  /* Booking availability warning */
   .booking-warning{
     display:flex; gap:10px; align-items:flex-start;
     padding:12px 14px; border-radius:11px;
@@ -210,7 +196,7 @@
   .btn-wa:disabled{opacity:.6; cursor:not-allowed}
 
   /* ---------- MAP ---------- */
-  #map, #tambalMap{
+  #map{
     height:300px; border-radius:12px; margin-bottom:16px;
     border:1.5px solid var(--line); z-index:1;
     background:transparent;
@@ -266,16 +252,21 @@
     display:flex; gap:8px; align-items:flex-start;
   }
 
+  .transfer-invoice{
+    border:1.5px solid var(--line); border-radius:12px; padding:13px 14px; margin-top:14px; background:#fff;
+  }
+  .transfer-invoice .ti-title{font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin-bottom:8px;}
+  .transfer-invoice .ti-row{display:flex; justify-content:space-between; align-items:center; font-size:13.5px; padding:3px 0; color:var(--ink-2);}
+  .transfer-invoice .ti-row strong{font-weight:800; color:var(--ink);}
+  .transfer-invoice .ti-divider{height:1px; background:var(--line); margin:7px 0;}
+  .transfer-invoice .ti-row.total{font-size:14.5px;}
+  .transfer-invoice .ti-row.total strong{color:var(--green-700); font-size:18px;}
+
   .transfer-note{
     background:#fef2f2; border:1px solid #fecaca; border-radius:10px;
-    padding:11px 13px; margin-top:12px; font-size:12px; color:#991b1b; line-height:1.5;
+    padding:10px 12px; margin-top:12px; font-size:11.5px; color:#991b1b; line-height:1.5;
   }
   .transfer-note strong{color:#7f1d1d}
-
-  .upload-area{margin-top:12px; border:2px dashed var(--line); border-radius:12px; padding:20px; text-align:center; cursor:pointer; transition:.2s}
-  .upload-area:hover{border-color:var(--green-500); background:var(--green-50)}
-  .upload-area .up-icon{font-size:24px; margin-bottom:6px}
-  .upload-area p{margin:0; font-size:12px; color:var(--muted)}
 
   .info-box{padding:12px 14px; border-radius:10px; background:var(--yellow-50); border-left:3px solid var(--yellow-500); font-size:12px; color:#8a6d00; line-height:1.5; margin-top:12px}
 
@@ -337,7 +328,6 @@
   .oc-total{text-align:right}
   .oc-total strong{color:var(--green-800); font-size:17px}
 
-  /* ===== TOMBOL USER SELESAIKAN ===== */
   .oc-user-complete{
     width:100%; margin-top:14px; padding:13px 16px;
     border-radius:11px; font-size:13.5px; font-weight:800; letter-spacing:-.01em;
@@ -393,11 +383,13 @@
   <div class="topbar-inner">
     <div class="brand">
       <span class="brand-logo-wrap">
-        <img src="logo1.png" alt="Tulung Inyong"
-             onerror="this.style.display='none'; this.parentElement.nextElementSibling.style.display='inline-block';" />
-        <span class="brand-fallback">🛵</span>
+        <img src="logo1.png" alt="INYONG_JEK" onerror="this.hidden=true; document.getElementById('brandFallback').hidden=false;" />
+        <span class="brand-fallback" id="brandFallback" hidden>🛵</span>
       </span>
-      Tulung Inyong
+      <span class="brand-text">
+        <strong>INYONG_JEK</strong>
+        <small>Ojeke Wong Kebumen</small>
+      </span>
     </div>
     <nav class="nav-menu">
       <a href="#" class="active" data-nav="home">Beranda</a>
@@ -418,7 +410,6 @@
       <p>Mau pakai layanan apa hari ini?</p>
     </div>
 
-    <!-- Global banner kalau tidak ada driver aktif sama sekali -->
     <div class="global-banner" id="globalDriverBanner" hidden>
       <div class="gb-ico">⚠️</div>
       <div class="gb-body">
@@ -452,18 +443,18 @@
         <span class="service-desc">Belanja, antar, titip</span>
         <span class="service-availability loading" data-avail="tulung">Memuat…</span>
       </button>
-      <button class="service-card" data-service="tambal" onclick="openBooking('tambal', 'Tambal Ban', '🔧', 0)">
-        <span class="service-icon">🔧</span>
-        <span class="service-name">Tambal Ban</span>
-        <span class="service-desc">Datang ke lokasi</span>
-        <span class="service-availability loading" data-avail="tambal">Memuat…</span>
+      <button class="service-card" data-service="becak" onclick="openBooking('becak', 'Becak Online', '🛺', 5000)">
+        <span class="service-icon">🛺</span>
+        <span class="service-name">Becak Online</span>
+        <span class="service-desc">Antar dengan becak</span>
+        <span class="service-availability loading" data-avail="becak">Memuat…</span>
       </button>
     </div>
   </div>
 
   <div id="viewBooking" class="booking-section" hidden>
     <button class="btn-back" onclick="closeBooking()">← Kembali</button>
-    
+
     <div class="card">
       <div class="card-head">
         <span class="icon" id="bookIcon">🛵</span>
@@ -473,14 +464,13 @@
         </div>
       </div>
 
-      <!-- Warning kalau layanan ini tidak ada driver -->
       <div class="booking-warning" id="bookingWarning" hidden>
         <div class="bw-ico">⚠️</div>
         <div class="bw-body" id="bookingWarningText"></div>
       </div>
 
       <form id="bookingForm" onsubmit="submitOrder(event)">
-        
+
         <div id="mapSection" hidden>
           <div class="field">
             <label>Lokasi Jemput</label>
@@ -528,39 +518,6 @@
           </div>
         </div>
 
-        <div id="tambalSection" hidden>
-          <div class="field">
-            <label>Lokasi Anda</label>
-            <div class="input-with-btn">
-              <input type="text" id="tambalAddress" placeholder="Klik peta / ketik alamat" />
-              <button type="button" class="loc-btn-map" onclick="detectTambalLocation()" title="Gunakan lokasi saat ini" aria-label="Lokasi saya">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
-                  <circle cx="12" cy="12" r="3.5" fill="currentColor"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-          <div id="tambalMap"></div>
-          <p class="map-hint">Klik pada peta untuk menandai lokasi ban bocor Anda.</p>
-          <div class="field">
-            <label>Jenis Ban</label>
-            <select id="tireType" onchange="calculateTambalFare()">
-              <option value="motor">Ban Motor</option>
-              <option value="mobil">Ban Mobil</option>
-              <option value="truk">Ban Truk</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Jumlah Ban</label>
-            <input type="number" id="tireQty" min="1" value="1" oninput="calculateTambalFare()" />
-          </div>
-          <div class="field">
-            <label>Catatan (Opsional)</label>
-            <textarea id="tambalNotes" rows="2" placeholder="Contoh: Ban depan bocor"></textarea>
-          </div>
-        </div>
-
         <div class="fare-box" id="fareBox">
           <div class="fare-row"><span>Tarif Dasar</span><strong id="baseFareLabel">Rp 0</strong></div>
           <div class="fare-row" id="perKmRow"><span>Tarif per km</span><strong id="perKmLabel">Rp 0</strong></div>
@@ -581,7 +538,7 @@
             <input type="radio" name="paymentMethod" value="transfer" onchange="updatePaymentUI()" />
             <div>
               <div class="po-text">🏦 Transfer Bank</div>
-              <div class="po-sub">Nominal sudah termasuk kode unik</div>
+              <div class="po-sub">Transfer ke rekening admin</div>
             </div>
           </label>
         </div>
@@ -589,15 +546,16 @@
         <div id="transferSection" hidden>
           <div id="bankInfoCard"></div>
 
-          <div class="transfer-note">
-            <strong>ℹ️ Nominal Transfer Sudah Final</strong><br>
-            Transfer tepat sejumlah <strong id="transferAmountLabel">Rp 0</strong> — kode unik sudah termasuk dalam nominal ini.
-            Admin/driver akan mencocokkan 3 digit terakhir nominal Anda.
+          <div class="transfer-invoice">
+            <div class="ti-title">Rincian Transfer</div>
+            <div class="ti-row"><span>Total Pesanan</span><strong id="invBaseLabel">Rp 0</strong></div>
+            <div class="ti-row"><span>Kode Unik</span><strong id="invCodeLabel">Rp 0</strong></div>
+            <div class="ti-divider"></div>
+            <div class="ti-row total"><span>Total Transfer</span><strong id="invTotalLabel">Rp 0</strong></div>
           </div>
-          <div class="upload-area" onclick="alert('Fitur upload bukti transfer akan segera tersedia.')">
-            <div class="up-icon">📤</div>
-            <p>Upload Bukti Transfer</p>
-            <p style="font-size:10px; color:#94a3b8">(Segera hadir)</p>
+
+          <div class="transfer-note">
+            <strong>ℹ️ Transfer tepat sejumlah Total Transfer di atas.</strong> Admin akan mencocokkan 3 digit terakhir nominal.
           </div>
         </div>
 
@@ -682,11 +640,9 @@ let session = null;
 let appSettings = {
   ojekPricePerKm: 2500,
   taxiPricePerKm: 4000,
+  becakPricePerKm: 2000,
   driverBonus: 5000,
   userBonus: 2000,
-  tambalMotor: 15000,
-  tambalMobil: 25000,
-  tambalTruk: 50000,
   adminWa: '6281234567890',
   bankName: '',
   bankAccountName: '',
@@ -700,13 +656,10 @@ let currentService = {
 let mainMap = null, pickupMarker = null, destMarker = null, routeLine = null;
 let pickupCoords = null, destCoords = null;
 
-let tambalMapInstance = null, tambalMarker = null, tambalCoords = null;
-
 let ordersUnsubscribe = null;
 let settingsLoaded = false;
 
-// Availability cache
-let serviceAvailability = {}; // { ojek: 3, taxi: 2, food: 0, tulung: 1, tambal: 0 }
+let serviceAvailability = {};
 let totalActiveDrivers = 0;
 
 const rawSession = localStorage.getItem('tulungiyong.session');
@@ -723,18 +676,16 @@ if (session) {
   document.getElementById('topAvatar').textContent = (session.name || '?').charAt(0).toUpperCase();
 }
 
-// Normalisasi service ID (bantu ↔ tulung)
 function normalizeServiceId(id) {
   const s = String(id || '').toLowerCase();
   if (s === 'bantu') return 'tulung';
   return s;
 }
 
-// Cek ketersediaan driver untuk tiap layanan
 async function loadDriverAvailability() {
   try {
     const snap = await getDocs(query(
-      collection(db, 'password'),
+      collection(db, 'users'),
       where('role', '==', 'driver'),
       where('status', '==', 'active')
     ));
@@ -742,13 +693,12 @@ async function loadDriverAvailability() {
     const drivers = snap.docs.map(d => d.data());
     totalActiveDrivers = drivers.length;
 
-    const services = ['ojek', 'taxi', 'food', 'tulung', 'tambal'];
+    const services = ['ojek', 'taxi', 'food', 'tulung', 'becak'];
     serviceAvailability = {};
 
     services.forEach(sid => {
       serviceAvailability[sid] = drivers.filter(d => {
         const raw = d.services;
-        // Kalau belum diatur → semua layanan (backward compat)
         if (!Array.isArray(raw)) return true;
         const normalized = raw.map(normalizeServiceId);
         return normalized.includes(sid);
@@ -758,13 +708,11 @@ async function loadDriverAvailability() {
     renderServiceAvailability();
   } catch (err) {
     console.warn('[Availability]', err);
-    // Fail silently — jangan blokir user
     renderServiceAvailabilityError();
   }
 }
 
 function renderServiceAvailability() {
-  // Per-service badge
   document.querySelectorAll('[data-avail]').forEach(el => {
     const sid = el.dataset.avail;
     const count = serviceAvailability[sid];
@@ -787,7 +735,6 @@ function renderServiceAvailability() {
     }
   });
 
-  // Global banner
   const banner = document.getElementById('globalDriverBanner');
   if (banner) {
     banner.hidden = totalActiveDrivers > 0;
@@ -802,7 +749,6 @@ function renderServiceAvailabilityError() {
   });
 }
 
-// Tampilkan warning di form booking kalau layanan tidak ada driver
 function updateBookingWarning(serviceId) {
   const warningEl = document.getElementById('bookingWarning');
   const textEl = document.getElementById('bookingWarningText');
@@ -816,7 +762,6 @@ function updateBookingWarning(serviceId) {
   } else if (count !== undefined && count > 0) {
     warningEl.hidden = true;
   } else {
-    // Unknown (belum loading) — sembunyikan
     warningEl.hidden = true;
   }
 }
@@ -846,7 +791,6 @@ function switchView(view) {
   if (view === 'orders') subscribeOrders();
   else if (ordersUnsubscribe) { ordersUnsubscribe(); ordersUnsubscribe = null; }
   if (view === 'home') {
-    // Refresh availability saat kembali ke beranda
     loadDriverAvailability();
   }
 }
@@ -866,7 +810,7 @@ function subscribeOrders() {
       <p style="margin:0; font-size:12px; color:var(--muted);">Sebentar ya.</p>
     </div>`;
 
-  const q = query(collection(db, 'orders'), where('userId', '==', session.id));
+  const q = query(collection(db, 'orders'), where('userId', '==', session.uid || session.id));
 
   ordersUnsubscribe = onSnapshot(q, (snap) => {
     if (snap.empty) {
@@ -899,7 +843,7 @@ function renderOrderCard(order) {
     cancelled: 'Dibatalkan', completed: 'Selesai'
   }[status] || status;
 
-  const icon = { ojek: '🛵', taxi: '🚕', food: '🍜', tulung: '🤝', tambal: '🔧' }[order.serviceId] || '📦';
+  const icon = { ojek: '🛵', taxi: '🚕', food: '🍜', tulung: '🤝', becak: '🛺' }[order.serviceId] || '📦';
   const dateStr = formatDate(order.createdAt);
 
   const hasDriver = order.driverName && String(order.driverName).trim();
@@ -908,17 +852,11 @@ function renderOrderCard(order) {
   const avatarStyle = photoUrl ? `background-image:url('${escapeHtml(photoUrl)}');color:transparent;` : '';
 
   let routeHtml = '';
-  if (order.serviceId === 'ojek' || order.serviceId === 'taxi') {
+  if (order.serviceId === 'ojek' || order.serviceId === 'taxi' || order.serviceId === 'becak') {
     routeHtml = `
       <div class="oc-route">
         <div class="oc-route-item"><span class="oc-route-dot green"></span><span><strong>Jemput:</strong> ${escapeHtml(order.pickup || '-')}</span></div>
         <div class="oc-route-item"><span class="oc-route-dot red"></span><span><strong>Tujuan:</strong> ${escapeHtml(order.dest || '-')}</span></div>
-      </div>`;
-  } else if (order.serviceId === 'tambal') {
-    routeHtml = `
-      <div class="oc-route">
-        <div class="oc-route-item"><span class="oc-route-dot green"></span><span><strong>Lokasi:</strong> ${escapeHtml(order.address || '-')}</span></div>
-        <div class="oc-route-item"><span class="oc-route-dot red"></span><span><strong>Ban:</strong> ${escapeHtml((order.tireType || '-') + ' × ' + (order.tireQty || 1))}</span></div>
       </div>`;
   } else if (order.serviceId === 'tulung') {
     routeHtml = `
@@ -954,7 +892,7 @@ function renderOrderCard(order) {
           <div class="oc-driver-avatar" style="${avatarStyle}">${driverInitial}</div>
           <div class="oc-driver-info">
             <strong>${escapeHtml(order.driverName)}</strong>
-            <small>${escapeHtml(order.driverVehicle || 'Mitra Tulung Inyong')}</small>
+            <small>${escapeHtml(order.driverVehicle || 'Mitra INYONG_JEK')}</small>
           </div>
         </div>
       ` : `
@@ -1030,7 +968,7 @@ window.openBooking = function(id, name, icon, baseFare) {
   document.getElementById('bookTitle').textContent = name;
   document.getElementById('baseFareLabel').textContent = formatRp(baseFare);
 
-  ['mapSection', 'foodSection', 'tulungSection', 'tambalSection'].forEach(sid => {
+  ['mapSection', 'foodSection', 'tulungSection'].forEach(sid => {
     document.getElementById(sid).hidden = true;
   });
   document.getElementById('fareBox').hidden = false;
@@ -1043,24 +981,20 @@ window.openBooking = function(id, name, icon, baseFare) {
   document.getElementById('distRow').hidden = true;
 
   document.getElementById('bookingForm').reset();
-  foodCart = [];
   pickupCoords = null;
   destCoords = null;
-  tambalCoords = null;
 
   if (mainMap) { mainMap.remove(); mainMap = null; }
-  if (tambalMapInstance) { tambalMapInstance.remove(); tambalMapInstance = null; }
-  pickupMarker = destMarker = routeLine = tambalMarker = null;
+  pickupMarker = destMarker = routeLine = null;
 
-  // Update warning ketersediaan driver
   updateBookingWarning(id);
 
-  if (id === 'ojek' || id === 'taxi') {
+  if (id === 'ojek' || id === 'taxi' || id === 'becak') {
     document.getElementById('mapSection').hidden = false;
     document.getElementById('perKmRow').hidden = false;
     document.getElementById('distRow').hidden = false;
-    document.getElementById('perKmLabel').textContent =
-      formatRp(id === 'ojek' ? appSettings.ojekPricePerKm : appSettings.taxiPricePerKm);
+    const perKm = id === 'ojek' ? appSettings.ojekPricePerKm : id === 'taxi' ? appSettings.taxiPricePerKm : appSettings.becakPricePerKm;
+    document.getElementById('perKmLabel').textContent = formatRp(perKm);
     document.getElementById('pickupAddress').required = true;
     document.getElementById('destAddress').required = true;
     setTimeout(initMap, 250);
@@ -1079,13 +1013,6 @@ window.openBooking = function(id, name, icon, baseFare) {
     document.getElementById('waBtn').hidden = false;
     document.getElementById('tulungAddress').required = true;
     document.getElementById('tulungDetail').required = true;
-
-  } else if (id === 'tambal') {
-    document.getElementById('tambalSection').hidden = false;
-    document.getElementById('tambalAddress').required = true;
-    document.getElementById('tireQty').value = 1;
-    setTimeout(initTambalMap, 250);
-    calculateTambalFare();
   }
 
   document.getElementById('viewHome').hidden = true;
@@ -1097,9 +1024,8 @@ window.openBooking = function(id, name, icon, baseFare) {
 window.closeBooking = function() {
   switchView('home');
   if (mainMap) { mainMap.remove(); mainMap = null; }
-  if (tambalMapInstance) { tambalMapInstance.remove(); tambalMapInstance = null; }
-  pickupMarker = destMarker = routeLine = tambalMarker = null;
-  pickupCoords = destCoords = tambalCoords = null;
+  pickupMarker = destMarker = routeLine = null;
+  pickupCoords = destCoords = null;
 };
 
 function initMap() {
@@ -1217,7 +1143,9 @@ async function calculateRoute() {
     routeLine = L.geoJSON(route.geometry, { style: { color: '#0b7a44', weight: 4, opacity: 0.8 } }).addTo(mainMap);
     mainMap.fitBounds(routeLine.getBounds(), { padding: [30, 30] });
 
-    const pricePerKm = currentService.id === 'ojek' ? appSettings.ojekPricePerKm : appSettings.taxiPricePerKm;
+    const pricePerKm = currentService.id === 'ojek' ? appSettings.ojekPricePerKm
+      : currentService.id === 'taxi' ? appSettings.taxiPricePerKm
+      : appSettings.becakPricePerKm;
     const total = currentService.baseFare + (distanceKm * pricePerKm);
 
     document.getElementById('distLabel').textContent = distanceKm.toFixed(1) + ' km';
@@ -1230,76 +1158,7 @@ async function calculateRoute() {
   }
 }
 
-function initTambalMap() {
-  if (typeof L === 'undefined') return;
-  if (tambalMapInstance) { tambalMapInstance.remove(); tambalMapInstance = null; }
-  const mapEl = document.getElementById('tambalMap');
-  if (!mapEl) return;
-
-  tambalMapInstance = L.map('tambalMap').setView([-7.7956, 110.3695], 13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap', maxZoom: 19
-  }).addTo(tambalMapInstance);
-
-  setTimeout(() => { if (tambalMapInstance) tambalMapInstance.invalidateSize(); }, 120);
-
-  tambalMapInstance.on('click', async (e) => {
-    const lat = e.latlng.lat, lng = e.latlng.lng;
-    tambalCoords = [lat, lng];
-    if (tambalMarker) tambalMapInstance.removeLayer(tambalMarker);
-    tambalMarker = L.marker([lat, lng], { icon: redIcon() }).addTo(tambalMapInstance).bindPopup('Lokasi Anda').openPopup();
-    document.getElementById('tambalAddress').value = await reverseGeocode(lat, lng);
-  });
-
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        if (tambalMapInstance) {
-          tambalMapInstance.setView([pos.coords.latitude, pos.coords.longitude], 15);
-          tambalCoords = [pos.coords.latitude, pos.coords.longitude];
-          tambalMarker = L.marker([pos.coords.latitude, pos.coords.longitude], { icon: redIcon() })
-            .addTo(tambalMapInstance).bindPopup('Lokasi Anda');
-        }
-      },
-      () => {}
-    );
-  }
-}
-
-window.detectTambalLocation = function() {
-  if (!navigator.geolocation) return alert('Browser tidak mendukung geolokasi.');
-  if (!tambalMapInstance) return alert('Peta belum siap. Coba lagi sebentar.');
-
-  navigator.geolocation.getCurrentPosition(
-    async (pos) => {
-      const lat = pos.coords.latitude, lng = pos.coords.longitude;
-      tambalCoords = [lat, lng];
-      if (tambalMarker) tambalMapInstance.removeLayer(tambalMarker);
-      tambalMarker = L.marker([lat, lng], { icon: redIcon() }).addTo(tambalMapInstance).bindPopup('Lokasi Anda').openPopup();
-      document.getElementById('tambalAddress').value = await reverseGeocode(lat, lng);
-      tambalMapInstance.setView([lat, lng], 16);
-    },
-    (err) => alert('Gagal mendapatkan lokasi: ' + err.message)
-  );
-};
-
 let foodCart = [];
-
-window.calculateTambalFare = function() {
-  const type = document.getElementById('tireType').value;
-  const qty = Math.max(1, parseInt(document.getElementById('tireQty').value) || 1);
-  let pricePerUnit = appSettings.tambalMotor;
-  if (type === 'mobil') pricePerUnit = appSettings.tambalMobil;
-  if (type === 'truk') pricePerUnit = appSettings.tambalTruk;
-
-  const total = pricePerUnit * qty;
-
-  document.getElementById('baseFareLabel').textContent = formatRp(pricePerUnit) + ' × ' + qty;
-  currentService.calculatedFare = total;
-  currentService.tireType = type;
-  currentService.tireQty = qty;
-  updateTotalDisplay();
-};
 
 function renderBankInfo() {
   const card = document.getElementById('bankInfoCard');
@@ -1364,13 +1223,16 @@ function updateTotalDisplay() {
   const method = document.querySelector('input[name="paymentMethod"]:checked')?.value;
 
   let displayTotal = fare;
+  let base = fare;
+  let code = 0;
 
   if (method === 'transfer' && fare > 0) {
-    const base = Math.floor(fare / 1000) * 1000;
+    base = Math.floor(fare / 1000) * 1000;
     if (currentService.uniqueCode != null && currentService.codeBase === base) {
-      displayTotal = base + currentService.uniqueCode;
+      code = currentService.uniqueCode;
+      displayTotal = base + code;
     } else {
-      const code = Math.floor(100 + Math.random() * 900);
+      code = Math.floor(100 + Math.random() * 900);
       currentService.codeBase = base;
       currentService.uniqueCode = code;
       displayTotal = base + code;
@@ -1382,7 +1244,9 @@ function updateTotalDisplay() {
 
   currentService.displayTotal = displayTotal;
   document.getElementById('totalFareLabel').textContent = formatRp(displayTotal);
-  document.getElementById('transferAmountLabel').textContent = formatRp(displayTotal);
+  document.getElementById('invBaseLabel').textContent = formatRp(base);
+  document.getElementById('invCodeLabel').textContent = formatRp(code);
+  document.getElementById('invTotalLabel').textContent = formatRp(displayTotal);
 }
 
 window.updatePaymentUI = function() {
@@ -1402,7 +1266,7 @@ window.submitOrder = async function(e) {
   try {
     const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'cash';
     const orderData = {
-      userId: session.id,
+      userId: session.uid || session.id,
       userName: session.name,
       userWa: session.wa,
       serviceId: currentService.id,
@@ -1412,7 +1276,7 @@ window.submitOrder = async function(e) {
       paymentMethod
     };
 
-    if (currentService.id === 'ojek' || currentService.id === 'taxi') {
+    if (currentService.id === 'ojek' || currentService.id === 'taxi' || currentService.id === 'becak') {
       if (!pickupCoords || !destCoords) throw new Error('Tentukan titik jemput dan tujuan di peta.');
       orderData.pickup = document.getElementById('pickupAddress').value;
       orderData.dest = document.getElementById('destAddress').value;
@@ -1421,17 +1285,9 @@ window.submitOrder = async function(e) {
       orderData.pickupGeohash = geohashForLocation(pickupCoords);
       orderData.distance = currentService.distance || 0;
       orderData.fare = currentService.calculatedFare || 0;
-      orderData.pricePerKm = currentService.id === 'ojek' ? appSettings.ojekPricePerKm : appSettings.taxiPricePerKm;
-
-    } else if (currentService.id === 'tambal') {
-      if (!tambalCoords) throw new Error('Tandai lokasi Anda di peta.');
-      orderData.address = document.getElementById('tambalAddress').value;
-      orderData.coords = tambalCoords;
-      orderData.geohash = geohashForLocation(tambalCoords);
-      orderData.tireType = currentService.tireType || document.getElementById('tireType').value;
-      orderData.tireQty = currentService.tireQty || 1;
-      orderData.notes = document.getElementById('tambalNotes').value;
-      orderData.fare = currentService.calculatedFare || 0;
+      orderData.pricePerKm = currentService.id === 'ojek' ? appSettings.ojekPricePerKm
+        : currentService.id === 'taxi' ? appSettings.taxiPricePerKm
+        : appSettings.becakPricePerKm;
     }
 
     orderData.fare = currentService.calculatedFare || 0;
@@ -1464,7 +1320,7 @@ window.chatAdminWA = async function() {
 
   try {
     await addDoc(collection(db, 'orders'), {
-      userId: session.id,
+      userId: session.uid || session.id,
       userName: session.name,
       userWa: session.wa,
       serviceId: 'tulung',
@@ -1480,7 +1336,7 @@ window.chatAdminWA = async function() {
 
     const adminWa = String(appSettings.adminWa || '6281234567890').replace(/\D/g, '');
     const msg = encodeURIComponent(
-      `Halo Admin Tulung Inyong 👋\n\n` +
+      `Halo Admin INYONG_JEK 👋\n\n` +
       `Saya *${session.name}* (${session.wa}) ingin request *Tulung Apa Bae*:\n\n` +
       `📍 Alamat: ${address}\n` +
       `📝 Detail: ${detail}\n\n` +
@@ -1514,7 +1370,6 @@ window.logout = function() {
 
 window.addEventListener('resize', () => {
   if (mainMap) mainMap.invalidateSize();
-  if (tambalMapInstance) tambalMapInstance.invalidateSize();
 });
 </script>
 
