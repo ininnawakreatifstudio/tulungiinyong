@@ -1545,15 +1545,22 @@ el.registerForm.addEventListener('submit', async (e) => {
 // ===== VERIFY =====
 el.verifyForm.addEventListener('submit', async (e) => {
   e.preventDefault(); if (verBusy) return; hideVerAlert();
-  if (!db) return showVerAlert('err', 'Koneksi gagal.');
+  if (!auth || !db) return showVerAlert('err', 'Koneksi gagal.');
 
+  const verPw = document.getElementById('verPassword');
   const waDigits = normalizeWa(el.verWa.value);
+  const pass = verPw.value;
   const code = el.verCode.value.trim();
   if (!/^0\d{8,14}$/.test(waDigits)) return showVerAlert('err', 'Nomor WhatsApp tidak valid.');
+  if (pass.length < 6) return showVerAlert('err', 'Password minimal 6 karakter.');
   if (!/^\d{6}$/.test(code)) return showVerAlert('err', 'Kode harus 6 digit angka.');
 
   setVerBusy(true);
+  verPw.disabled = true;
   try {
+    // Login dulu (email tersembunyi dibuat otomatis dari nomor WA)
+    const cred = await signInWithEmailAndPassword(auth, waToEmail(waDigits), pass);
+
     const snap = await getDocs(query(
       collection(db, CONFIG.usersCollection),
       where('wa', '==', waDigits),
@@ -1561,29 +1568,30 @@ el.verifyForm.addEventListener('submit', async (e) => {
       limit(1)
     ));
     if (snap.empty) {
-      setVerBusy(false);
+      setVerBusy(false); verPw.disabled = false;
       return showVerAlert('err', 'Tidak ada pendaftaran pending dengan nomor ini.');
     }
     const userDoc = snap.docs[0];
     const data = userDoc.data();
     if (String(data.verificationCode || '') !== code) {
-      setVerBusy(false);
+      setVerBusy(false); verPw.disabled = false;
       return showVerAlert('err', 'Kode verifikasi salah. Periksa kembali atau minta ulang ke admin.');
     }
-    await updateDoc(doc(db, CONFIG.usersCollection, userDoc.id), {
+    await updateDoc(doc(db, CONFIG.usersCollection, cred.user.uid), {
       status: 'active',
       verifiedAt: serverTimestamp(),
       verificationCode: null
     });
-    setVerBusy(false);
+    setVerBusy(false); verPw.disabled = false;
     el.verifyForm.reset();
     showVerAlert('ok', 'Akun berhasil diverifikasi! Silakan masuk.');
     setTimeout(() => { showLoginViewInternal(); showAlert('ok', 'Akun aktif. Silakan masuk dengan WA & password.'); }, 1500);
   } catch (err) {
-    setVerBusy(false);
+    setVerBusy(false); verPw.disabled = false;
     showVerAlert('err', firebaseError(err));
   }
 });
+
 
 // ===== ADMIN DASHBOARD =====
 function showAdminDashboard(){
