@@ -1938,6 +1938,254 @@ setInterval(() => { if (driverData) updateLocationBar(); }, 60000);
 
 boot();
 </script>
+<!-- ================== FITUR TOP UP (tempel sekali sebelum </body>) ================== -->
+<style>
+  .topup-fab{
+    position:fixed;right:16px;bottom:18px;z-index:120;
+    padding:14px 18px;border-radius:99px;
+    background:linear-gradient(135deg,var(--yellow-400),var(--yellow-500));
+    color:#0b3d22;font-weight:800;font-size:14px;
+    box-shadow:0 10px 24px -8px rgba(255,199,44,.9);
+    border:0;cursor:pointer;display:flex;align-items:center;gap:7px;
+  }
+  .topup-overlay{
+    position:fixed;inset:0;z-index:150;
+    background:rgba(15,23,42,.5);
+    display:flex;align-items:flex-end;justify-content:center;
+    padding:16px;
+  }
+  .topup-modal{
+    width:100%;max-width:440px;background:#fff;border-radius:20px;
+    max-height:92vh;overflow:auto;box-shadow:0 20px 50px -12px rgba(0,0,0,.35);
+    animation:tuUp .25s ease;
+  }
+  @keyframes tuUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+  .topup-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 18px;border-bottom:1px solid var(--line);
+    position:sticky;top:0;background:#fff;z-index:1;
+  }
+  .topup-head h3{margin:0;font-size:17px}
+  .topup-close{width:32px;height:32px;border-radius:10px;background:#f1f5f9;font-size:15px;font-weight:800;color:var(--muted);cursor:pointer}
+  .topup-body{padding:16px 18px 22px}
+  .topup-balance{
+    background:linear-gradient(135deg,var(--green-700),var(--green-500));
+    color:#fff;border-radius:14px;padding:16px;margin-bottom:16px;
+  }
+  .topup-balance span{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;opacity:.9}
+  .topup-balance strong{display:block;font-size:26px;font-weight:800;margin-top:4px}
+  .topup-label{display:block;font-size:12px;font-weight:700;color:var(--ink-2);margin:14px 0 8px}
+  .topup-nominals{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .topup-nominals button{
+    padding:12px;border-radius:11px;border:1.5px solid var(--line);
+    background:#fff;font-size:13.5px;font-weight:800;color:var(--ink);transition:.16s;cursor:pointer;
+  }
+  .topup-nominals button.active{border-color:var(--green-600);background:var(--green-50);color:var(--green-800)}
+  .topup-body input{
+    width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;
+    font-size:15px;font-weight:700;outline:none;background:#fbfcfd;
+  }
+  .topup-body input:focus{border-color:var(--green-600);box-shadow:0 0 0 4px rgba(15,157,88,.13)}
+  .topup-code{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--yellow-50);border:1.5px dashed #e8ad00;border-radius:12px;
+    padding:12px 14px;margin:14px 0;
+  }
+  .topup-code span{font-size:12px;font-weight:700;color:#8a6d00}
+  .topup-code strong{font-size:22px;font-weight:800;letter-spacing:4px;color:#0b3d22;font-family:monospace}
+  .topup-total{
+    display:flex;align-items:center;justify-content:space-between;
+    background:#0f172a;color:#fff;border-radius:12px;padding:14px;
+  }
+  .topup-total span{font-size:12px;font-weight:700;opacity:.85}
+  .topup-total strong{font-size:22px;font-weight:800;color:var(--yellow-400)}
+  .topup-bank{
+    background:#f8fafc;border:1px solid var(--line);border-radius:12px;
+    padding:12px 14px;margin:14px 0;font-size:12px;line-height:1.6;color:var(--muted);
+  }
+  .topup-bank span{display:block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#8a6d00;margin-bottom:4px}
+  .topup-bank strong{display:block;font-size:14px;color:var(--ink)}
+  .topup-bank b{display:block;font-size:16px;font-family:monospace;color:var(--green-800);letter-spacing:.05em;margin:2px 0}
+  .topup-bank em{font-style:normal;font-size:12px;color:var(--muted)}
+  .topup-note{
+    background:#fef2f2;border:1px solid #fecaca;border-radius:11px;
+    padding:11px 13px;font-size:11.5px;color:#991b1b;line-height:1.5;margin:12px 0;
+  }
+  .topup-wa{
+    width:100%;padding:14px;border-radius:12px;background:#25d366;color:#fff;
+    font-size:14.5px;font-weight:800;transition:.16s;cursor:pointer;
+  }
+  .topup-wa:hover{background:#128c7e}
+</style>
+
+<button class="topup-fab" onclick="openTopup()">💳 Top Up</button>
+
+<div class="topup-overlay" id="topupOverlay" hidden onclick="if(event.target===this)closeTopup()">
+  <div class="topup-modal">
+    <div class="topup-head">
+      <h3>💳 Top Up Saldo</h3>
+      <button class="topup-close" onclick="closeTopup()">✕</button>
+    </div>
+    <div class="topup-body">
+      <div class="topup-balance"><span>Saldo Anda</span><strong id="topupBalance">Rp 0</strong></div>
+
+      <div class="topup-label">Pilih Nominal</div>
+      <div class="topup-nominals">
+        <button data-n="50000" onclick="setTopupNominal(50000)">Rp 50.000</button>
+        <button data-n="100000" onclick="setTopupNominal(100000)">Rp 100.000</button>
+        <button data-n="150000" onclick="setTopupNominal(150000)">Rp 150.000</button>
+        <button data-n="200000" onclick="setTopupNominal(200000)">Rp 200.000</button>
+      </div>
+
+      <label class="topup-label" for="topupNominal">Nominal lain (min 50.000, kelipatan 50.000)</label>
+      <input type="number" id="topupNominal" min="50000" step="50000" placeholder="50000" oninput="onTopupNominalInput()" />
+
+      <div class="topup-code">
+        <span>Kode Unik (3 digit terakhir)</span>
+        <strong id="topupCode">-</strong>
+      </div>
+
+      <div class="topup-total">
+        <span>Total Transfer</span>
+        <strong id="topupTotal">Rp 0</strong>
+      </div>
+
+      <div class="topup-bank" id="topupBank"></div>
+
+      <div class="topup-note">⚠️ Transfer sesuai <b>Total Transfer</b> (nominal + 3 digit kode unik), lalu konfirmasi ke admin via WhatsApp. Nominal selalu kelipatan 50.000 dan kode unik 3 digit di belakang.</div>
+
+      <button class="topup-wa" onclick="confirmTopupWA()">📱 Konfirmasi via WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAXWxcWYhvEKlXC414ECmv0vG0jZAr_Ecc",
+  authDomain: "tulungiiyong.firebaseapp.com",
+  projectId: "tulungiiyong",
+  storageBucket: "tulungiiyong.firebasestorage.app",
+  messagingSenderId: "892623147541",
+  appId: "1:892623147541:web:47812250f6498efad7b41c"
+};
+
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const SESSION_KEY = 'tulungiyong.session';
+
+let session = {};
+let balance = 0;
+let nominal = 50000;
+let code = '000';
+let bank = { name: '', accountName: '', accountNumber: '' };
+let adminWa = '6281234567890';
+
+function fmt(n){ return 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(n || 0)); }
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function readSession(){
+  try { session = JSON.parse(localStorage.getItem(SESSION_KEY)) || {}; } catch { session = {}; }
+  session.uid = session.uid || session.id;
+}
+
+async function loadBalance(){
+  if (!session.uid) return;
+  try {
+    const snap = await getDoc(doc(db, 'users', session.uid));
+    if (snap.exists()) balance = Number(snap.data().balance) || 0;
+  } catch (e) { console.warn('[Topup balance]', e); }
+  document.getElementById('topupBalance').textContent = fmt(balance);
+}
+
+async function loadBank(){
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'app'));
+    if (snap.exists()) {
+      const d = snap.data();
+      bank.name = d.bankName || '';
+      bank.accountName = d.bankAccountName || '';
+      bank.accountNumber = d.bankAccountNumber || '';
+      adminWa = String(d.adminWa || '6281234567890').replace(/\D/g, '');
+    }
+  } catch (e) { console.warn('[Topup bank]', e); }
+  const el = document.getElementById('topupBank');
+  if (bank.name && bank.accountNumber && bank.accountName) {
+    el.innerHTML = '<span>Transfer ke:</span>' +
+      '<strong>' + esc(bank.name) + '</strong>' +
+      '<b>' + esc(bank.accountNumber) + '</b>' +
+      '<em>a.n. ' + esc(bank.accountName) + '</em>';
+  } else {
+    el.innerHTML = '<span style="color:#991b1b">⚠️ Rekening admin belum diatur. Hubungi admin.</span>';
+  }
+}
+
+function newCode(){
+  code = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
+  document.getElementById('topupCode').textContent = code;
+}
+
+function updateTotal(){
+  document.getElementById('topupTotal').textContent = fmt(nominal + Number(code));
+}
+
+window.openTopup = async function(){
+  document.getElementById('topupOverlay').hidden = false;
+  newCode();
+  updateTotal();
+  await loadBalance();
+  await loadBank();
+};
+
+window.closeTopup = function(){
+  document.getElementById('topupOverlay').hidden = true;
+};
+
+window.setTopupNominal = function(n){
+  nominal = n;
+  document.getElementById('topupNominal').value = n;
+  document.querySelectorAll('.topup-nominals button').forEach(b => {
+    b.classList.toggle('active', Number(b.dataset.n) === n);
+  });
+  newCode();
+  updateTotal();
+};
+
+window.onTopupNominalInput = function(){
+  const v = Number(document.getElementById('topupNominal').value);
+  document.querySelectorAll('.topup-nominals button').forEach(b => b.classList.remove('active'));
+  if (v >= 50000 && v % 50000 === 0) {
+    nominal = v;
+    newCode();
+    updateTotal();
+  }
+};
+
+window.confirmTopupWA = function(){
+  if (!nominal || nominal < 50000 || nominal % 50000 !== 0) {
+    return alert('Nominal minimal Rp 50.000 dan harus kelipatan 50.000.');
+  }
+  const name = session.name || 'Driver';
+  const wa = session.wa || '';
+  const total = nominal + Number(code);
+  const msg = encodeURIComponent(
+    'Halo Admin INYONG_JEK,\n\n' +
+    'Saya (' + name + ') konfirmasi TOP UP saldo.\n' +
+    'Nomor WA: ' + wa + '\n' +
+    'Nominal: ' + fmt(nominal) + '\n' +
+    'Kode unik: ' + code + '\n' +
+    'Total transfer: ' + fmt(total) + '\n\n' +
+    'Mohon dicek dan disetujui. Terima kasih 🙏'
+  );
+  window.open('https://wa.me/' + adminWa + '?text=' + msg, '_blank');
+};
+
+readSession();
+setTopupNominal(50000);
+</script>
 
 </body>
 </html>
