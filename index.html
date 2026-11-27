@@ -851,7 +851,7 @@
           <img src="logo1.png" alt="INYONG_JEK" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=&quot;ico-fallback&quot;>🛵</span>'" />
         </div>
         <div class="admin-brand-text">
-          <strong><span style="color:#05472a">INYONG_</span><span style="color:#f59e0b">JEK</span></strong>
+         <strong>INYONG_JEK</strong>
           <small>Admin Panel · Ojeke Wong Kebumen</small>
         </div>
       </div>
@@ -1760,9 +1760,13 @@ async function preloadDrivers(){
   }
 }
 
+let busyDriverIds = new Set();
+
 function driversForService(serviceId) {
   const normalized = normalizeServiceId(serviceId);
   return driverCache.filter(d => {
+    // driver yang masih punya pesanan aktif TIDAK boleh dapat pesanan baru
+    if (busyDriverIds.has(d.id)) return false;
     if (!Array.isArray(d.services)) return true;
     return d.services.map(normalizeServiceId).includes(normalized);
   });
@@ -1783,6 +1787,11 @@ async function loadOrders(){
     const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     const pendingCount = all.filter(o => String(o.status || '').toLowerCase() === 'pending').length;
     updateOrdersBadge(pendingCount);
+    // catat driver yang sedang sibuk (punya pesanan accepted)
+    busyDriverIds = new Set(
+      all.filter(o => String(o.status || '').toLowerCase() === 'accepted' && o.driverId)
+        .map(o => o.driverId)
+    );
     all.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
     renderOrders(all);
   } catch (err) {
@@ -2527,5 +2536,168 @@ window.addEventListener('load', () => {
   if (window.innerWidth >= 980 && el.wa.offsetParent) el.wa.focus({ preventScroll: true });
 });
 </script>
+<!-- ================== TOP UP ADMIN (konfirmasi & tambah saldo driver) ================== -->
+<style>
+  .at-fab{
+    display:none;position:fixed;right:16px;bottom:18px;z-index:120;
+    padding:14px 18px;border-radius:99px;
+    background:linear-gradient(135deg,var(--yellow-400),var(--yellow-500));
+    color:#0b3d22;font-weight:800;font-size:14px;
+    box-shadow:0 10px 24px -8px rgba(255,199,44,.9);
+    border:0;cursor:pointer;align-items:center;gap:7px;
+  }
+  .at-overlay{
+    position:fixed;inset:0;z-index:150;background:rgba(15,23,42,.5);
+    display:flex;align-items:flex-end;justify-content:center;padding:16px;
+  }
+  .at-modal{
+    width:100%;max-width:440px;background:#fff;border-radius:20px;
+    max-height:92vh;overflow:auto;box-shadow:0 20px 50px -12px rgba(0,0,0,.35);
+    animation:tuUp .25s ease;
+  }
+  @keyframes tuUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+  .at-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 16px;border-bottom:1px solid var(--line);
+    position:sticky;top:0;background:#fff;z-index:1;
+  }
+  .at-head h3{margin:0;font-size:16px}
+  .at-close{width:30px;height:30px;border-radius:9px;background:#f1f5f9;font-size:14px;font-weight:800;color:var(--muted);cursor:pointer}
+  .at-body{padding:14px 16px 20px}
+  .at-label{display:block;font-size:12px;font-weight:700;color:var(--ink-2);margin:12px 0 7px}
+  .at-body select,.at-body input{
+    width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:11px;
+    font-size:14px;font-weight:600;outline:none;background:#fbfcfd;color:var(--ink);
+  }
+  .at-body select:focus,.at-body input:focus{border-color:var(--green-600);box-shadow:0 0 0 4px rgba(15,157,88,.13)}
+  .at-balance{
+    background:linear-gradient(135deg,var(--green-700),var(--green-500));
+    color:#fff;border-radius:13px;padding:14px;margin-top:14px;
+  }
+  .at-balance span{display:block;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;opacity:.9}
+  .at-balance strong{display:block;font-size:23px;font-weight:800;margin-top:3px}
+  .at-note{
+    background:var(--yellow-50);border:1px solid #ffe08a;border-radius:11px;
+    padding:11px 13px;font-size:11.5px;color:#8a6d00;line-height:1.5;margin:12px 0;
+  }
+  .at-add{
+    width:100%;padding:13px;border-radius:12px;background:var(--green-600);color:#fff;
+    font-size:14px;font-weight:800;transition:.16s;cursor:pointer;margin-top:6px;
+  }
+  .at-add:hover{background:var(--green-700)}
+  .at-add:disabled{opacity:.6;cursor:not-allowed}
+</style>
+
+<button class="at-fab" id="atFab" onclick="openAdminTopup()">💳 Top Up</button>
+
+<div class="at-overlay" id="atOverlay" hidden onclick="if(event.target===this)closeAdminTopup()">
+  <div class="at-modal">
+    <div class="at-head">
+      <h3>💳 Top Up Saldo Driver</h3>
+      <button class="at-close" onclick="closeAdminTopup()">✕</button>
+    </div>
+    <div class="at-body">
+      <label class="at-label">Pilih Driver</label>
+      <select id="atDriver" onchange="onAdminTopupDriver()">
+        <option value="">— Pilih driver —</option>
+      </select>
+
+      <div class="at-balance"><span>Saldo Driver</span><strong id="atBalance">Rp 0</strong></div>
+
+      <label class="at-label">Nominal Top Up (Rp)</label>
+      <input type="number" id="atAmount" min="1000" step="1000" placeholder="contoh: 50000" />
+
+      <div class="at-note">⚠️ Setelah driver transfer & konfirmasi via WhatsApp, cek mutasi rekening (3 digit kode unik), lalu tambahkan saldo di sini.</div>
+
+      <button class="at-add" id="atAddBtn" onclick="addAdminBalance()">✅ Tambah Saldo</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, updateDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAXWxcWYhvEKlXC414ECmv0vG0jZAr_Ecc",
+  authDomain: "tulungiiyong.firebaseapp.com",
+  projectId: "tulungiiyong",
+  storageBucket: "tulungiiyong.firebasestorage.app",
+  messagingSenderId: "892623147541",
+  appId: "1:892623147541:web:47812250f6498efad7b41c"
+};
+
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let drivers = [];
+
+function fmt(n){ return 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(n || 0)); }
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+async function loadAdminTopupDrivers(){
+  try {
+    const snap = await getDocs(query(collection(db, 'users'), where('role', '==', 'driver'), where('status', '==', 'active')));
+    drivers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (e) { drivers = []; }
+  const sel = document.getElementById('atDriver');
+  sel.innerHTML = '<option value="">— Pilih driver —</option>' +
+    drivers.map(d => `<option value="${esc(d.id)}">${esc(d.name || '(tanpa nama)')} · ${esc(d.wa || '')}</option>`).join('');
+}
+
+window.openAdminTopup = async function(){
+  document.getElementById('atOverlay').hidden = false;
+  await loadAdminTopupDrivers();
+  document.getElementById('atBalance').textContent = 'Rp 0';
+  document.getElementById('atAmount').value = '';
+};
+
+window.closeAdminTopup = function(){
+  document.getElementById('atOverlay').hidden = true;
+};
+
+window.onAdminTopupDriver = function(){
+  const id = document.getElementById('atDriver').value;
+  const d = drivers.find(x => x.id === id);
+  document.getElementById('atBalance').textContent = fmt(d ? (Number(d.balance) || 0) : 0);
+};
+
+window.addAdminBalance = async function(){
+  const id = document.getElementById('atDriver').value;
+  const amount = Number(document.getElementById('atAmount').value);
+  if (!id) return alert('Pilih driver dulu.');
+  if (!amount || amount <= 0) return alert('Nominal tidak valid.');
+  const d = drivers.find(x => x.id === id);
+  const current = Number(d?.balance) || 0;
+  const next = current + amount;
+  if (!confirm('Tambah saldo ' + (d?.name || 'driver') + ' sebesar ' + fmt(amount) + '?\n\nSaldo sekarang: ' + fmt(current) + '\nSaldo baru: ' + fmt(next))) return;
+  const btn = document.getElementById('atAddBtn');
+  btn.disabled = true; btn.textContent = '⏳ Menyimpan…';
+  try {
+    await updateDoc(doc(db, 'users', id), { balance: next });
+    d.balance = next;
+    onAdminTopupDriver();
+    document.getElementById('atAmount').value = '';
+    alert('✅ Saldo berhasil ditambahkan.');
+  } catch (e) {
+    alert('Gagal: ' + (e.message || e));
+  }
+  btn.disabled = false; btn.textContent = '✅ Tambah Saldo';
+};
+
+// Tombol Top Up hanya tampil saat dashboard admin terbuka
+const adminScreenEl = document.getElementById('adminScreen');
+const fabEl = document.getElementById('atFab');
+function syncFab(){
+  const show = adminScreenEl && !adminScreenEl.hidden;
+  if (fabEl) fabEl.style.display = show ? 'flex' : 'none';
+}
+syncFab();
+if (adminScreenEl) {
+  new MutationObserver(syncFab).observe(adminScreenEl, { attributes: true, attributeFilter: ['hidden'] });
+}
+</script>
+
+ 
 </body>
 </html>
