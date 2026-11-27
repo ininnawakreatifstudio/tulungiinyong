@@ -532,9 +532,10 @@
       <div class="fin-stats">
         <div class="fin-stat"><div class="fin-stat-ico">📦</div><div class="fin-stat-lbl">Trip Selesai</div><div class="fin-stat-val" id="finTotalTrips">0</div><div class="fin-stat-sub" id="finPeriodLabel">Minggu ini</div></div>
         <div class="fin-stat"><div class="fin-stat-ico">💵</div><div class="fin-stat-lbl">Total Pendapatan</div><div class="fin-stat-val" id="finTotalRevenue">Rp 0</div><div class="fin-stat-sub">Cash + transfer</div></div>
-        <div class="fin-stat warn"><div class="fin-stat-ico">💰</div><div class="fin-stat-lbl">Komisi dari Driver</div><div class="fin-stat-val" id="finCashOutstanding">Rp 0</div><div class="fin-stat-sub">Cash belum disetor</div></div>
-        <div class="fin-stat info"><div class="fin-stat-ico">🎁</div><div class="fin-stat-lbl">Hak Driver</div><div class="fin-stat-val" id="finEarningOwed">Rp 0</div><div class="fin-stat-sub">Transfer belum dibayar</div></div>
+        <div class="fin-stat warn"><div class="fin-stat-ico">💰</div><div class="fin-stat-lbl">Total Komisi</div><div class="fin-stat-val" id="finTotalCommission">Rp 0</div><div class="fin-stat-sub">Sudah dipotong dari top up</div></div>
+        <div class="fin-stat info"><div class="fin-stat-ico">🎁</div><div class="fin-stat-lbl">Hak Driver (Transfer)</div><div class="fin-stat-val" id="finEarningOwed">Rp 0</div><div class="fin-stat-sub">Belum dibayar admin</div></div>
       </div>
+
 
       <div class="panel-head" style="margin-top:24px"><h3 style="margin:0;font-size:16px">Rincian Per Driver</h3></div>
       <div id="finDriverList"><div class="admin-empty"><span class="ico">⏳</span><h3>Memuat…</h3></div></div>
@@ -1045,8 +1046,8 @@ function renderOrderItem(order){
   const payMethod = order.paymentMethod === 'transfer' ? 'Transfer' : order.paymentMethod === 'wa' ? 'Via WA' : 'Tunai';
   const fare = Number(order.paymentTotal ?? order.fare ?? 0);
   const commission = Number(order.commission ?? appSettings.commissions?.[order.serviceId] ?? 0);
-  const driverEarning = Number(order.driverEarning ?? Math.max(0, fare - commission));
-
+  // Hak driver = full fare (komisi sudah dipotong dari top up, bukan dari pendapatan trip)
+  const driverEarning = Number(order.driverEarning ?? fare);
   const hasDriver = order.driverName && String(order.driverName).trim();
   const driverBox = hasDriver ? `<div class="oi-driver-box assigned">✅ Driver: <strong>${escapeHtml(order.driverName)}</strong>${order.driverWa ? ` · <a href="https://wa.me/${String(order.driverWa).replace(/\D/g,'')}" target="_blank" style="color:inherit;text-decoration:underline">WA driver</a>` : ''}</div>` : `<div class="oi-driver-box">⚠️ Belum ada driver. Assign manual atau klik <strong>Auto</strong>.</div>`;
 
@@ -1089,7 +1090,8 @@ function renderOrderItem(order){
       ${driverBox}${verifiedBox}
       ${actions.length ? `<div class="oi-actions">${actions.join('')}</div>` : ''}
       <div class="oi-total">
-        <div>${escapeHtml(payMethod)} · Komisi ${formatRp(commission)} · Hak driver ${formatRp(driverEarning)}</div>
+                <div>${escapeHtml(payMethod)} · Komisi ${formatRp(commission)} (dari top up) · Hak driver ${formatRp(driverEarning)}</div>
+
         <strong>${formatRp(fare)}</strong>
       </div></div>`;
 }
@@ -1142,11 +1144,19 @@ async function forceCompleteOrder(orderId, btn){
     const s = sessionGet();
     const fare = Number(order.paymentTotal ?? order.fare ?? 0);
     const commission = Number(appSettings.commissions?.[order.serviceId] ?? 0);
-    const driverEarning = Math.max(0, fare - commission) + (Number(appSettings.driverBonus) || 0);
+    // Hak driver = full fare (komisi sudah dipotong dari top up)
+    const driverEarning = fare;
     const updates = { status: 'selesai', completedAt: serverTimestamp(), completedBy: 'Admin: ' + (s?.name || 'admin'), adminForceComplete: true, commission, driverEarning };
     await updateDoc(doc(db, CONFIG.ordersCollection, orderId), updates);
+    // potong komisi dari saldo top up driver
+    if (order.driverId && commission > 0) {
+      const dSnap = await getDoc(doc(db, CONFIG.usersCollection, order.driverId));
+      const bal = dSnap.exists() ? (Number(dSnap.data().balance) || 0) : 0;
+      await updateDoc(doc(db, CONFIG.usersCollection, order.driverId), { balance: Math.max(0, bal - commission) });
+    }
     alert('✅ Pesanan ditandai selesai oleh admin.');
     await loadOrders();
+
   } catch (err) { alert('Gagal: ' + firebaseError(err)); btn.disabled = false; btn.textContent = orig; }
 }
 async function verifyOrderPayment(orderId, btn){
@@ -1225,28 +1235,46 @@ async function loadFinance(){
   document.getElementById('finDriverList').innerHTML = `<div class="admin-empty"><span class="ico">⏳</span><h3>Memuat…</h3></div>`;
   document.getElementById('finPeriodList').innerHTML = '';
   try {
+    // 1) semua driver (untuk sisa saldo)
+    const dSnap = await getDocs(query(collection(db, CONFIG.usersCollection), where('role', '==', 'driver')));
+    const drivers = dSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // 2) order selesai dalam periode
     const snap = await getDocs(query(collection(db, CONFIG.ordersCollection), where('status', 'in', ['selesai', 'done', 'completed']), limit(1000)));
     const allDone = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     finOrders = allDone.filter(o => { const ts = getOrderTimestamp(o); return ts && ts >= from && ts <= to; });
-    computeFinance();
+
+    computeFinance(drivers);
     renderFinance();
   } catch (err) { console.error('[Finance]', err); document.getElementById('finDriverList').innerHTML = `<div class="admin-empty"><span class="ico">⚠️</span><h3>Gagal memuat</h3><p>${escapeHtml(firebaseError(err))}</p></div>`; }
 }
 
-function computeFinance(){
+function computeFinance(drivers){
   finDriverMap = {};
+  drivers.forEach(dr => {
+    finDriverMap[dr.id] = {
+      driverId: dr.id, driverName: dr.name || '(tanpa nama)', driverWa: dr.wa || '',
+      balance: Number(dr.balance) || 0, active: dr.status === 'active',
+      trips: 0, totalFare: 0, cashTotal: 0, transferOwed: 0, transferPaid: 0, commission: 0,
+      earningOrderIds: [], services: new Set()
+    };
+  });
   finOrders.forEach(o => {
     if (!o.driverId) return;
-    if (!finDriverMap[o.driverId]) finDriverMap[o.driverId] = { driverId: o.driverId, driverName: o.driverName || '(tanpa nama)', driverWa: o.driverWa || '', trips: 0, totalFare: 0, cashHeld: 0, cashSettled: 0, earningOwed: 0, earningPaid: 0, cashOrderIds: [], earningOrderIds: [], services: new Set() };
+    if (!finDriverMap[o.driverId]) finDriverMap[o.driverId] = { driverId: o.driverId, driverName: o.driverName || '(tanpa nama)', driverWa: o.driverWa || '', balance: 0, active: true, trips: 0, totalFare: 0, cashTotal: 0, transferOwed: 0, transferPaid: 0, commission: 0, earningOrderIds: [], services: new Set() };
     const d = finDriverMap[o.driverId];
     const fare = Number(o.paymentTotal ?? o.fare ?? 0);
     const commission = Number(o.commission ?? appSettings.commissions?.[o.serviceId] ?? 0);
-    const driverEarning = Number(o.driverEarning ?? Math.max(0, fare - commission));
     d.trips++;
     d.totalFare += fare;
+    d.commission += commission;
     if (o.serviceId) d.services.add(o.serviceId);
-    if (o.paymentMethod === 'cash') { if (o.cashSettledToAdmin === true) d.cashSettled += commission; else { d.cashHeld += commission; d.cashOrderIds.push(o.id); } }
-    else if (o.paymentMethod === 'transfer') { if (o.driverEarningPaid === true) d.earningPaid += driverEarning; else { d.earningOwed += driverEarning; d.earningOrderIds.push(o.id); } }
+    if (o.paymentMethod === 'transfer') {
+      if (o.driverEarningPaid === true) d.transferPaid += fare;
+      else { d.transferOwed += fare; d.earningOrderIds.push(o.id); }
+    } else if (o.paymentMethod === 'cash') {
+      d.cashTotal += fare;
+    }
   });
   Object.values(finDriverMap).forEach(d => { d.services = Array.from(d.services); });
 }
@@ -1254,42 +1282,44 @@ function computeFinance(){
 function renderFinance(){
   const totalTrips = finOrders.length;
   const totalRevenue = finOrders.reduce((s, o) => s + Number(o.paymentTotal ?? o.fare ?? 0), 0);
-  const cashOutstanding = Object.values(finDriverMap).reduce((s, d) => s + d.cashHeld, 0);
-  const earningOwed = Object.values(finDriverMap).reduce((s, d) => s + d.earningOwed, 0);
+  const totalCommission = Object.values(finDriverMap).reduce((s, d) => s + d.commission, 0);
+  const earningOwed = Object.values(finDriverMap).reduce((s, d) => s + d.transferOwed, 0);
   document.getElementById('finTotalTrips').textContent = totalTrips;
   document.getElementById('finTotalRevenue').textContent = formatRp(totalRevenue);
-  document.getElementById('finCashOutstanding').textContent = formatRp(cashOutstanding);
+  document.getElementById('finTotalCommission').textContent = formatRp(totalCommission);
   document.getElementById('finEarningOwed').textContent = formatRp(earningOwed);
-  const drivers = Object.values(finDriverMap).sort((a, b) => (b.cashHeld + b.earningOwed) - (a.cashHeld + a.earningOwed));
-  if (!drivers.length) { document.getElementById('finDriverList').innerHTML = `<div class="admin-empty"><span class="ico">📊</span><h3>Belum ada data keuangan</h3><p>Tidak ada pesanan selesai di periode ini.</p></div>`; document.getElementById('finPeriodList').innerHTML = ''; return; }
+
+  const drivers = Object.values(finDriverMap)
+    .filter(d => d.active || d.trips > 0)
+    .sort((a, b) => b.transferOwed - a.transferOwed || b.trips - a.trips);
+
+  if (!drivers.length) { document.getElementById('finDriverList').innerHTML = `<div class="admin-empty"><span class="ico">📊</span><h3>Belum ada driver</h3><p>Tidak ada data driver.</p></div>`; document.getElementById('finPeriodList').innerHTML = ''; return; }
+
   document.getElementById('finDriverList').innerHTML = drivers.map(renderFinDriverCard).join('');
   document.getElementById('finPeriodList').innerHTML = renderFinPeriodBreakdown();
   $$('[data-fin-action]').forEach(btn => btn.addEventListener('click', () => handleFinAction(btn.dataset.finAction, btn.dataset.driverId, btn)));
 }
 
 function renderFinDriverCard(d){
-  const nett = d.cashHeld - d.earningOwed;
-  const nettLabel = nett > 0 ? 'Driver setor ke admin' : (nett < 0 ? 'Admin bayar ke driver' : 'Balance');
-  const nettClass = nett > 0 ? 'positive' : (nett < 0 ? 'negative' : 'zero');
+  const hasOwed = d.transferOwed > 0;
   const serviceBadges = d.services.map(s => serviceLabel(s)).join(' · ');
-  const noAction = d.cashHeld === 0 && d.earningOwed === 0;
+  const balanceColor = d.balance > 0 ? '#16a34a' : (d.balance < 0 ? '#dc2626' : '#64748b');
   return `<div class="fin-driver-card">
       <div class="fin-driver-head">
         <div class="fin-driver-avatar">${escapeHtml(d.driverName.charAt(0).toUpperCase())}</div>
-        <div class="fin-driver-info"><strong>${escapeHtml(d.driverName)}</strong><small>${d.trips} trip · ${escapeHtml(serviceBadges || '-')}</small></div>
-        <div class="fin-driver-nett ${nettClass}"><small>${escapeHtml(nettLabel)}</small><strong>${formatRp(Math.abs(nett))}</strong></div>
+        <div class="fin-driver-info"><strong>${escapeHtml(d.driverName)}</strong><small>${d.trips} trip · ${escapeHtml(serviceBadges || '-')}${d.active ? '' : ' · nonaktif'}</small></div>
+        <div class="fin-driver-nett ${hasOwed ? 'negative' : 'positive'}"><small>${hasOwed ? 'Admin bayar driver' : 'Lunas'}</small><strong>${hasOwed ? formatRp(d.transferOwed) : '✓'}</strong></div>
       </div>
       <div class="fin-driver-details">
-        <div class="fin-row"><span>Total Fare</span><strong>${formatRp(d.totalFare)}</strong></div>
-        <div class="fin-row"><span>💰 Komisi dari driver (cash)</span><strong style="color:${d.cashHeld > 0 ? '#dc2626' : '#16a34a'}">${formatRp(d.cashHeld)}</strong></div>
-        <div class="fin-row"><span>✅ Komisi cash sudah disetor</span><strong style="color:#16a34a">${formatRp(d.cashSettled)}</strong></div>
-        <div class="fin-row"><span>🎁 Hak driver (transfer) belum dibayar</span><strong style="color:${d.earningOwed > 0 ? '#dc2626' : '#16a34a'}">${formatRp(d.earningOwed)}</strong></div>
-        <div class="fin-row"><span>✅ Hak driver sudah dibayar</span><strong style="color:#16a34a">${formatRp(d.earningPaid)}</strong></div>
+        <div class="fin-row"><span>💰 Sisa Saldo (top up)</span><strong style="color:${balanceColor}">${formatRp(d.balance)}</strong></div>
+        <div class="fin-row"><span>📦 Total Fare</span><strong>${formatRp(d.totalFare)}</strong></div>
+        <div class="fin-row"><span>💵 Cash diterima driver</span><strong>${formatRp(d.cashTotal)}</strong></div>
+        <div class="fin-row"><span>🏦 Transfer (admin belum bayar)</span><strong style="color:${d.transferOwed > 0 ? '#dc2626' : '#16a34a'}">${formatRp(d.transferOwed)}</strong></div>
+        <div class="fin-row"><span>✅ Transfer sudah dibayar</span><strong style="color:#16a34a">${formatRp(d.transferPaid)}</strong></div>
+        <div class="fin-row"><span>🧾 Total Komisi (dari top up)</span><strong>${formatRp(d.commission)}</strong></div>
       </div>
       <div class="fin-driver-actions">
-        ${d.cashHeld > 0 ? `<button class="btn-sm btn-fin-cash" data-fin-action="settle-cash" data-driver-id="${escapeHtml(d.driverId)}">💰 Komisi Disetor</button>` : ''}
-        ${d.earningOwed > 0 ? `<button class="btn-sm btn-fin-earn" data-fin-action="settle-earning" data-driver-id="${escapeHtml(d.driverId)}">🎁 Bayar Hak Driver</button>` : ''}
-        ${!noAction ? `<button class="btn-sm btn-fin-nett" data-fin-action="settle-nett" data-driver-id="${escapeHtml(d.driverId)}">⚡ Nett Settlement</button>` : `<span class="fin-paid-badge">✅ Semua Lunas</span>`}
+        ${hasOwed ? `<button class="btn-sm btn-fin-earn" data-fin-action="settle-earning" data-driver-id="${escapeHtml(d.driverId)}">🎁 Bayar Hak Driver</button>` : (d.trips > 0 ? `<span class="fin-paid-badge">✅ Semua Lunas</span>` : '')}
       </div></div>`;
 }
 
@@ -1322,36 +1352,13 @@ async function handleFinAction(action, driverId, btn){
   const d = finDriverMap[driverId];
   if (!d) return;
   const settler = sessionGet()?.name || 'admin';
-  if (action === 'settle-cash') {
-    if (d.cashHeld === 0) return alert('Tidak ada komisi cash yang perlu disetor.');
-    if (!confirm(`Konfirmasi driver ${d.driverName} sudah menyetor komisi cash ${formatRp(d.cashHeld)}?`)) return;
-    btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Menyimpan…';
-    try { await Promise.all(d.cashOrderIds.map(id => updateDoc(doc(db, CONFIG.ordersCollection, id), { cashSettledToAdmin: true, cashSettledAt: serverTimestamp(), cashSettledBy: settler }))); alert(`✅ Komisi cash ${d.driverName} ditandai disetor.`); await loadFinance(); }
-    catch (err) { alert('Gagal: ' + firebaseError(err)); btn.disabled = false; btn.textContent = orig; }
-    return;
-  }
   if (action === 'settle-earning') {
-    if (d.earningOwed === 0) return alert('Tidak ada hak driver yang perlu dibayar.');
-    if (!confirm(`Konfirmasi admin sudah membayar hak driver ${d.driverName} sebesar ${formatRp(d.earningOwed)}?`)) return;
-    btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Menyimpan…';
-    try { await Promise.all(d.earningOrderIds.map(id => updateDoc(doc(db, CONFIG.ordersCollection, id), { driverEarningPaid: true, driverEarningPaidAt: serverTimestamp(), driverEarningPaidBy: settler }))); alert(`✅ Hak driver ${d.driverName} ditandai lunas.`); await loadFinance(); }
-    catch (err) { alert('Gagal: ' + firebaseError(err)); btn.disabled = false; btn.textContent = orig; }
-    return;
-  }
-  if (action === 'settle-nett') {
-    const nett = d.cashHeld - d.earningOwed;
-    const nettDesc = nett > 0 ? `Driver setor ke admin: ${formatRp(nett)}` : (nett < 0 ? `Admin bayar ke driver: ${formatRp(-nett)}` : 'Balance (Rp 0)');
-    if (!confirm(`Settlement nett untuk ${d.driverName}?\n\n💰 Komisi cash: ${formatRp(d.cashHeld)}\n🎁 Hak driver: ${formatRp(d.earningOwed)}\n\n→ ${nettDesc}`)) return;
+    if (d.transferOwed === 0) return alert('Tidak ada hak driver yang perlu dibayar.');
+    if (!confirm(`Konfirmasi admin sudah membayar hak driver ${d.driverName} sebesar ${formatRp(d.transferOwed)}?\n\nPembayaran ini dari total transfer yang diterima admin (tanpa potongan, karena komisi sudah dipotong dari top up).`)) return;
     btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Menyimpan…';
     try {
-      const allIds = new Set([...d.cashOrderIds, ...d.earningOrderIds]);
-      await Promise.all(Array.from(allIds).map(id => {
-        const updates = {};
-        if (d.cashOrderIds.includes(id)) { updates.cashSettledToAdmin = true; updates.cashSettledAt = serverTimestamp(); updates.cashSettledBy = settler; }
-        if (d.earningOrderIds.includes(id)) { updates.driverEarningPaid = true; updates.driverEarningPaidAt = serverTimestamp(); updates.driverEarningPaidBy = settler; }
-        return updateDoc(doc(db, CONFIG.ordersCollection, id), updates);
-      }));
-      alert(`✅ Nett settlement berhasil untuk ${d.driverName}.`);
+      await Promise.all(d.earningOrderIds.map(id => updateDoc(doc(db, CONFIG.ordersCollection, id), { driverEarningPaid: true, driverEarningPaidAt: serverTimestamp(), driverEarningPaidBy: settler })));
+      alert(`✅ Hak driver ${d.driverName} ditandai lunas.`);
       await loadFinance();
     } catch (err) { alert('Gagal: ' + firebaseError(err)); btn.disabled = false; btn.textContent = orig; }
   }
