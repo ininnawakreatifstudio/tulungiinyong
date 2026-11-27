@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Diagnostik • Tulung Inyong</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;background:#f6f9f6;color:#0f172a;margin:0;padding:20px;min-height:100dvh}
+  .wrap{max-width:680px;margin:0 auto}
+  h1{font-size:22px;margin:0 0 4px}
+  .sub{color:#64748b;font-size:13px;margin:0 0 18px}
+  .card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 1px 2px rgba(15,23,42,.05)}
+  label{display:block;font-size:12.5px;font-weight:700;color:#334155;margin:12px 0 6px}
+  label:first-child{margin-top:0}
+  input{width:100%;padding:11px 13px;border:1.5px solid #cbd5e1;border-radius:10px;font-size:14px;font-family:inherit}
+  input:focus{outline:none;border-color:#0f9d58;box-shadow:0 0 0 4px rgba(15,157,88,.15)}
+  .hint{font-size:11.5px;color:#64748b;margin-top:6px;line-height:1.5}
+  .btn{display:inline-block;margin-top:14px;padding:12px 18px;border:0;border-radius:10px;background:#0f9d58;color:#fff;font-weight:800;font-size:14px;cursor:pointer}
+  .btn.amber{background:#e8ad00;color:#4a3400}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+  .row{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:8px;background:#fff}
+  .row .st{font-size:18px;flex-shrink:0;line-height:1.2}
+  .row .b{flex:1;min-width:0}
+  .row .t{font-weight:800;font-size:13.5px}
+  .row .d{font-size:12px;color:#475569;white-space:pre-wrap;word-break:break-word;margin-top:3px;font-family:ui-monospace,Menlo,Consolas,monospace}
+  .ok{border-left:4px solid #0f9d58}
+  .fail{border-left:4px solid #dc2626}
+  .warn{border-left:4px solid #e8ad00}
+  .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:s .7s linear infinite;vertical-align:-2px;margin-right:8px}
+  @keyframes s{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🧪 Diagnostik Tulung Inyong</h1>
+  <p class="sub">Uji login langkah demi langkah. Isi email/WA + password, lalu klik tombol.</p>
+
+  <div class="card">
+    <label for="email">Email admin ATAU nomor WA (tanpa @ = otomatis jadi WA)</label>
+    <input id="email" type="text" placeholder="admin@tulunginyong.com  atau  0812xxxxxxxx" autocomplete="username" />
+    <label for="password">Password</label>
+    <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" />
+    <div class="hint">Kalau diisi nomor WA, otomatis dikonversi jadi 08xxxxxxx@tulunginyong.app</div>
+    <button class="btn" id="run">🔍 Masuk & Uji Semua</button>
+    <button class="btn amber" id="createAdmin" disabled>🛠️ Buat Dokumen Admin Saya (jika belum ada)</button>
+  </div>
+
+  <div id="results"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, collection, doc, getDoc, getDocs, setDoc,
+  query, where, limit, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getAuth, signInWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAXWxcWYhvEKlXC414ECmv0vG0jZAr_Ecc",
+  authDomain: "tulungiiyong.firebaseapp.com",
+  projectId: "tulungiiyong",
+  storageBucket: "tulungiiyong.firebasestorage.app",
+  messagingSenderId: "892623147541",
+  appId: "1:892623147541:web:47812250f6498efad7b41c"
+};
+
+const WHITELIST = ['pkXioBq6wYSPArQtB1kJTR4zGLn2'];
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+const results = document.getElementById('results');
+const runBtn = document.getElementById('run');
+const createBtn = document.getElementById('createAdmin');
+
+function normalizeWa(input){
+  let d = String(input || '').replace(/\D/g, '');
+  if (!d) return '';
+  if (d.startsWith('62')) d = '0' + d.slice(2);
+  else if (d.startsWith('8')) d = '0' + d;
+  return d;
+}
+function errCode(e){
+  return 'code: ' + (e?.code || '(tanpa code)') + '\n' + (e?.message || e || '');
+}
+function log(title, status, detail){
+  const row = document.createElement('div');
+  row.className = 'row ' + status;
+  const icon = status === 'ok' ? '✅' : status === 'warn' ? '⚠️' : '❌';
+  row.innerHTML = '<div class="st">' + icon + '</div>' +
+    '<div class="b"><div class="t">' + title + '</div>' +
+    (detail ? '<div class="d"></div>' : '') + '</div>';
+  if (detail) row.querySelector('.d').textContent = detail;
+  results.appendChild(row);
+}
+
+runBtn.addEventListener('click', async () => {
+  results.innerHTML = '';
+  const raw = document.getElementById('email').value.trim();
+  const pass = document.getElementById('password').value;
+  if (!raw || !pass) { log('Input', 'fail', 'Email/WA dan password wajib diisi.'); return; }
+
+  // Tentukan email login
+  let loginEmail = raw, waDigits = null;
+  if (!raw.includes('@')) {
+    waDigits = normalizeWa(raw);
+    loginEmail = waDigits + '@tulunginyong.app';
+    log('0. Konversi WA → email', 'ok', raw + '  →  ' + loginEmail);
+  }
+
+  runBtn.disabled = true;
+  runBtn.innerHTML = '<span class="spin"></span>Menguji…';
+
+  // 1) LOGIN AUTH
+  let uid = null;
+  try {
+    const cred = await signInWithEmailAndPassword(auth, loginEmail, pass);
+    uid = cred.user.uid;
+    log('1. Login Firebase Auth', 'ok',
+      'Berhasil masuk Auth.\nUID: ' + uid + '\nEmail: ' + (cred.user.email || '-'));
+    createBtn.disabled = false;
+  } catch (e) {
+    log('1. Login Firebase Auth', 'fail', errCode(e) +
+      '\n\n➡ Akun Auth belum ada / password salah. Cek di console Firebase → Authentication → Users.');
+    runBtn.disabled = false;
+    runBtn.textContent = '🔍 Masuk & Uji Semua';
+    return;
+  }
+
+  // 2) CEK WHITELIST ADMIN
+  const whitelisted = WHITELIST.includes(uid);
+  log('2. Cek UID di whitelist admin', whitelisted ? 'ok' : 'warn',
+    whitelisted
+      ? 'UID kamu ADA di whitelist rules. ✅'
+      : 'UID kamu TIDAK ada di whitelist.\nUID kamu : ' + uid +
+        '\nWhitelist: ' + WHITELIST.join(', ') +
+        '\n\n➡ Kalau ini admin, tambahkan UID di atas ke rules (baris request.auth.uid in [...]).');
+
+  // 3) BACA DOKUMEN SENDIRI
+  try {
+    const snap = await getDoc(doc(db, 'users', uid));
+    if (snap.exists()) {
+      const d = snap.data();
+      log('3. Baca users/{uid} (dokumen sendiri)', 'ok',
+        'Dokumen ADA.\nrole   : ' + d.role + '\nstatus : ' + d.status + '\nname   : ' + (d.name || '-') +
+        (d.role !== 'admin' ? '\n\n➡ role = ' + d.role + ', bukan admin. Login admin akan ditolak di aplikasi.' : ''));
+    } else {
+      log('3. Baca users/{uid} (dokumen sendiri)', 'warn',
+        'BACA diizinkan, tapi dokumen BELUM ADA.\n\n➡ INILAH PENYEBAB "Akses database ditolak":\n   index.html mencoba MEMBUAT dokumen admin, tapi rule create cuma mengizinkan role user/driver.\n\n   Solusi: klik tombol kuning "Buat Dokumen Admin Saya" di bawah (setelah rules diperbaiki), ATAU buat manual di console Firestore.');
+    }
+  } catch (e) {
+    log('3. Baca users/{uid} (dokumen sendiri)', 'fail', errCode(e));
+  }
+
+  // 4) BACA SETTINGS
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'app'));
+    log('4. Baca settings/app', 'ok',
+      snap.exists() ? 'Baca berhasil. Isi: ' + JSON.stringify(snap.data()).slice(0, 400)
+                    : 'Baca berhasil (diizinkan). Dokumen settings belum ada — normal kalau belum pernah disimpan.');
+  } catch (e) {
+    log('4. Baca settings/app', 'fail', errCode(e));
+  }
+
+  // 5) LIST PENDING USERS (cara kerja halaman verifikasi)
+  try {
+    const q = await getDocs(query(collection(db, 'users'), where('status', '==', 'pending'), limit(20)));
+    log('5. List users status=pending', 'ok', 'Query berhasil. Jumlah pending: ' + q.size);
+  } catch (e) {
+    log('5. List users status=pending', 'fail', errCode(e) +
+      '\n\n➡ Kemungkinan rule read belum mengizinkan query ini, atau butuh index.');
+  }
+
+  runBtn.disabled = false;
+  runBtn.textContent = '🔍 Masuk & Uji Semua';
+});
+
+createBtn.addEventListener('click', async () => {
+  if (!auth.currentUser) { log('Buat dokumen admin', 'fail', 'Login dulu lewat tombol hijau.'); return; }
+  const uid = auth.currentUser.uid;
+  createBtn.disabled = true;
+  try {
+    await setDoc(doc(db, 'users', uid), {
+      name: (auth.currentUser.email || 'Admin').split('@')[0],
+      email: auth.currentUser.email || '',
+      role: 'admin',
+      status: 'active',
+      createdAt: serverTimestamp()
+    });
+    log('Buat dokumen admin', 'ok', 'BERHASIL! Dokumen users/' + uid + ' dibuat (role=admin).\n\n➡ Sekarang buka index.html dan login admin lagi.');
+  } catch (e) {
+    log('Buat dokumen admin', 'fail', errCode(e) +
+      '\n\n➡ Ini artinya rule create belum mengizinkan admin membuat dokumen sendiri.\n   Perbaiki rules (lihat penjelasan), lalu ulangi.');
+  } finally {
+    createBtn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
