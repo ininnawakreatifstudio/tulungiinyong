@@ -57,15 +57,14 @@
     .btn-logout{padding:8px 12px; border-radius:8px; font-size:12px; font-weight:700; background:#fef2f2; color:#b91c1c}
   }
 
-  /* MAIN */
-  .main{max-width:1000px; margin:0 auto; padding:20px 16px; animation:fadeUp .3s ease}
-  @keyframes fadeUp{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)}}
+  /* MAIN — animasi dihapus (dulu bikin kedap-kedip) */
+  .main{max-width:1000px; margin:0 auto; padding:20px 16px}
   .page-header{margin-bottom:24px}
   .page-header h1{font-size:24px; margin:0 0 6px; letter-spacing:-.03em}
   .page-header p{margin:0; font-size:14px; color:var(--muted)}
   .highlight{color:var(--green-700)}
 
-  .global-banner{display:flex; gap:12px; align-items:flex-start; padding:14px 16px; border-radius:14px; background:#fef2f2; border:1.5px solid #fecaca; margin-bottom:16px; animation:fadeUp .3s ease;}
+  .global-banner{display:flex; gap:12px; align-items:flex-start; padding:14px 16px; border-radius:14px; background:#fef2f2; border:1.5px solid #fecaca; margin-bottom:16px;}
   .global-banner .gb-ico{font-size:22px; line-height:1; flex-shrink:0}
   .global-banner .gb-body{flex:1; min-width:0}
   .global-banner strong{display:block; font-size:13.5px; font-weight:800; color:#991b1b; margin-bottom:3px;}
@@ -79,7 +78,7 @@
   .service-card{
     background:#fff; border:1.5px solid var(--line); border-radius:var(--radius);
     padding:20px 16px 16px; display:flex; flex-direction:column; align-items:center;
-    text-align:center; gap:10px; box-shadow:var(--shadow); transition:.2s; position:relative;
+    text-align:center; gap:10px; box-shadow:var(--shadow); transition:border-color .2s, box-shadow .2s, transform .2s; position:relative;
   }
   .service-card:hover{border-color:var(--green-500); transform:translateY(-4px); box-shadow:0 12px 30px -12px rgba(15,157,88,.3)}
   .service-card.no-driver-avail{border-color:#fde68a; background:#fffbeb}
@@ -94,15 +93,15 @@
   .service-availability.no-driver{background:#fef2f2; color:#991b1b; border:1px solid #fecaca;}
   .service-availability.loading{background:#f1f5f9; color:#94a3b8; border:1px solid var(--line);}
 
-  /* BOOKING */
-  .booking-section{margin-top:24px; animation:fadeUp .3s ease}
+  /* BOOKING — animasi dihapus */
+  .booking-section{margin-top:24px}
   .card{background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:24px; box-shadow:var(--shadow)}
   .card-head{display:flex; align-items:center; gap:12px; margin-bottom:20px; border-bottom:1px solid var(--line); padding-bottom:16px}
   .card-head .icon{font-size:32px}
   .card-head h2{margin:0; font-size:18px}
   .btn-back{padding:6px 12px; background:#f1f5f9; border-radius:8px; font-size:12px; font-weight:700; color:var(--muted); margin-bottom:16px; display:inline-block}
 
-  .booking-warning{display:flex; gap:10px; align-items:flex-start; padding:12px 14px; border-radius:11px; background:#fffbeb; border:1.5px solid #fde68a; margin-bottom:16px; animation:fadeUp .3s ease;}
+  .booking-warning{display:flex; gap:10px; align-items:flex-start; padding:12px 14px; border-radius:11px; background:#fffbeb; border:1.5px solid #fde68a; margin-bottom:16px;}
   .booking-warning .bw-ico{font-size:20px; line-height:1; flex-shrink:0}
   .booking-warning .bw-body{flex:1; min-width:0; font-size:12px; color:#92400e; line-height:1.5}
   .booking-warning strong{color:#78350f; font-weight:800}
@@ -111,7 +110,7 @@
   .field label{display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:6px}
   .field input, .field select, .field textarea{
     width:100%; padding:12px 14px; border:1.5px solid var(--line); border-radius:12px;
-    font-size:14px; background:#fbfcfd; outline:none; transition:.2s;
+    font-size:14px; background:#fbfcfd; outline:none; transition:border-color .2s, box-shadow .2s, background .2s;
   }
   .field input:focus, .field select:focus, .field textarea:focus{
     border-color:var(--green-600); background:#fff; box-shadow:0 0 0 4px rgba(15,157,88,.13);
@@ -119,7 +118,7 @@
   .input-with-btn{display:flex; gap:8px; align-items:stretch}
   .input-with-btn input{flex:1}
 
-  .loc-btn-map{width:48px; height:48px; border-radius:12px; background:#fff; border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--green-600); flex-shrink:0; transition:.2s;}
+  .loc-btn-map{width:48px; height:48px; border-radius:12px; background:#fff; border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--green-600); flex-shrink:0; transition:border-color .2s, background .2s;}
   .loc-btn-map:hover{border-color:var(--green-500); background:var(--green-50)}
   .loc-btn-map:active{transform:scale(.96)}
   .loc-btn-map svg{width:22px; height:22px}
@@ -128,15 +127,15 @@
   .fare-row{display:flex; justify-content:space-between; font-size:13px; color:#3f6212; margin-bottom:8px}
   .fare-row.total{font-size:18px; font-weight:800; color:#065f46; margin-top:12px; padding-top:12px; border-top:1px dashed #a7e3c4; margin-bottom:0}
 
-  .btn-primary{width:100%; margin-top:20px; padding:15px; border-radius:12px; font-size:15px; font-weight:800; color:#0b3d22; background:linear-gradient(135deg,var(--yellow-400),var(--yellow-500)); box-shadow:0 8px 20px -10px rgba(255,199,44,1); transition:.2s;}
+  .btn-primary{width:100%; margin-top:20px; padding:15px; border-radius:12px; font-size:15px; font-weight:800; color:#0b3d22; background:linear-gradient(135deg,var(--yellow-400),var(--yellow-500)); box-shadow:0 8px 20px -10px rgba(255,199,44,1); transition:transform .2s, filter .2s;}
   .btn-primary:hover:not(:disabled){transform:translateY(-2px); filter:brightness(1.05)}
   .btn-primary:disabled{opacity:.6; cursor:not-allowed; box-shadow:none}
 
-  .btn-wa{width:100%; margin-top:20px; padding:15px; border-radius:12px; font-size:15px; font-weight:800; color:#fff; background:linear-gradient(135deg,#25d366,#128c7e); box-shadow:0 8px 20px -10px rgba(37,211,102,1); transition:.2s;}
+  .btn-wa{width:100%; margin-top:20px; padding:15px; border-radius:12px; font-size:15px; font-weight:800; color:#fff; background:linear-gradient(135deg,#25d366,#128c7e); box-shadow:0 8px 20px -10px rgba(37,211,102,1); transition:transform .2s, filter .2s;}
   .btn-wa:hover:not(:disabled){transform:translateY(-2px); filter:brightness(1.05)}
   .btn-wa:disabled{opacity:.6; cursor:not-allowed}
 
-  #map, #becakMap{height:300px; border-radius:12px; margin-bottom:16px; border:1.5px solid var(--line); z-index:1; background:transparent;}
+  #map, #becakMap{height:300px; border-radius:12px; margin-bottom:16px; border:1.5px solid var(--line); z-index:1; background:#f8fafc;}
   .map-hint{font-size:11px; color:var(--muted); margin-top:-10px; margin-bottom:16px}
   .loc-btn{padding:10px 12px; border-radius:8px; font-size:12px; font-weight:700; background:#fff; border:1.5px solid var(--line); display:inline-flex; align-items:center; gap:6px; white-space:nowrap}
   .loc-btn:hover{border-color:var(--green-500)}
@@ -147,7 +146,7 @@
   .coming-soon h3{margin:0 0 8px; color:#8a6d00; font-size:20px}
   .coming-soon p{margin:0; color:#a37f00; font-size:13px; line-height:1.6}
 
-  .payment-option{display:flex; align-items:center; gap:10px; padding:14px; border:1.5px solid var(--line); border-radius:12px; margin-bottom:8px; cursor:pointer; transition:.2s}
+  .payment-option{display:flex; align-items:center; gap:10px; padding:14px; border:1.5px solid var(--line); border-radius:12px; margin-bottom:8px; cursor:pointer; transition:border-color .2s, background .2s;}
   .payment-option:has(input:checked){border-color:var(--green-600); background:var(--green-50)}
   .payment-option input{accent-color:var(--green-600); width:18px; height:18px}
   .payment-option .po-text{flex:1; font-weight:700; font-size:14px}
@@ -160,21 +159,22 @@
   .bank-info-row .k{font-size:11px; color:var(--muted); font-weight:700; min-width:64px}
   .bank-info-row .v{font-size:15px; font-weight:800; color:var(--ink); letter-spacing:-.01em}
   .bank-info-row .v.mono{font-family:'SF Mono', 'Courier New', monospace; font-size:17px; letter-spacing:.05em; color:var(--green-800)}
-  .bank-info-copy{margin-left:auto; padding:6px 10px; border-radius:8px; background:#fff; border:1.5px solid #a7e3c4; color:var(--green-800); font-size:11px; font-weight:800; transition:.16s; display:inline-flex; align-items:center; gap:4px;}
+  .bank-info-copy{margin-left:auto; padding:6px 10px; border-radius:8px; background:#fff; border:1.5px solid #a7e3c4; color:var(--green-800); font-size:11px; font-weight:800; transition:background .16s; display:inline-flex; align-items:center; gap:4px;}
   .bank-info-copy:hover{background:var(--green-50)}
   .bank-info-empty{padding:14px; border-radius:10px; background:#fef2f2; border:1px solid #fecaca; color:#991b1b; font-size:12.5px; line-height:1.5; display:flex; gap:8px; align-items:flex-start;}
 
   .transfer-note{background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:11px 13px; margin-top:12px; font-size:12px; color:#991b1b; line-height:1.5;}
   .transfer-note strong{color:#7f1d1d}
 
-  .upload-area{margin-top:12px; border:2px dashed var(--line); border-radius:12px; padding:20px; text-align:center; cursor:pointer; transition:.2s}
+  .upload-area{margin-top:12px; border:2px dashed var(--line); border-radius:12px; padding:20px; text-align:center; cursor:pointer; transition:border-color .2s, background .2s}
   .upload-area:hover{border-color:var(--green-500); background:var(--green-50)}
   .upload-area .up-icon{font-size:24px; margin-bottom:6px}
   .upload-area p{margin:0; font-size:12px; color:var(--muted)}
 
   .info-box{padding:12px 14px; border-radius:10px; background:var(--yellow-50); border-left:3px solid var(--yellow-500); font-size:12px; color:#8a6d00; line-height:1.5; margin-top:12px}
 
-  .order-card{background:#fff; border:1px solid var(--line); border-radius:16px; padding:18px; margin-bottom:14px; box-shadow:0 2px 8px rgba(0,0,0,.04); animation:fadeUp .25s ease;}
+  /* ORDER CARD — animasi dihapus agar tidak re-fade saat onSnapshot update */
+  .order-card{background:#fff; border:1px solid var(--line); border-radius:16px; padding:18px; margin-bottom:14px; box-shadow:0 2px 8px rgba(0,0,0,.04);}
   .oc-head{display:flex; align-items:center; gap:12px; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--line)}
   .oc-icon{font-size:28px; width:44px; height:44px; border-radius:12px; background:var(--green-50); display:grid; place-items:center; flex-shrink:0}
   .oc-info{flex:1; min-width:0}
@@ -207,19 +207,19 @@
   .oc-total{text-align:right}
   .oc-total strong{color:var(--green-800); font-size:17px}
 
-  .oc-user-complete{width:100%; margin-top:14px; padding:13px 16px; border-radius:11px; font-size:13.5px; font-weight:800; letter-spacing:-.01em; color:#fff; background:linear-gradient(135deg,var(--green-600),var(--green-500)); box-shadow:0 6px 14px -8px rgba(15,157,88,.8); transition:.16s; display:inline-flex; align-items:center; justify-content:center; gap:6px;}
+  .oc-user-complete{width:100%; margin-top:14px; padding:13px 16px; border-radius:11px; font-size:13.5px; font-weight:800; letter-spacing:-.01em; color:#fff; background:linear-gradient(135deg,var(--green-600),var(--green-500)); box-shadow:0 6px 14px -8px rgba(15,157,88,.8); transition:transform .16s, filter .16s; display:inline-flex; align-items:center; justify-content:center; gap:6px;}
   .oc-user-complete:hover:not(:disabled){filter:brightness(1.05); transform:translateY(-1px)}
   .oc-user-complete:disabled{opacity:.6; cursor:not-allowed; transform:none; filter:none; box-shadow:none}
 
-  .loading-card{background:rgba(255,255,255,.55) !important; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); border:1.5px dashed var(--line) !important; box-shadow:none !important; text-align:center; padding:40px 20px;}
+  .loading-card{background:#f8fafc; border:1.5px dashed var(--line); text-align:center; padding:40px 20px; border-radius:var(--radius);}
   .loading-spinner{display:inline-block; width:32px; height:32px; border-radius:50%; border:3px solid rgba(15,157,88,.2); border-top-color:var(--green-600); animation:spin .8s linear infinite; margin-bottom:12px;}
   @keyframes spin{to{transform:rotate(360deg)}}
 
   .bottom-nav{display:flex; position:fixed; left:0; right:0; bottom:0; z-index:50; background:rgba(255,255,255,.95); backdrop-filter:blur(12px); border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom);}
   @media(min-width:768px){ .bottom-nav{display:none} }
-  .bottom-nav a{flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 0 8px; font-size:10px; font-weight:700; color:var(--muted); transition:.2s;}
+  .bottom-nav a{flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 0 8px; font-size:10px; font-weight:700; color:var(--muted); transition:color .2s;}
   .bottom-nav a.active{color:var(--green-700)}
-  .bottom-nav a .ico{font-size:20px; filter:grayscale(1); opacity:.6; transition:.2s}
+  .bottom-nav a .ico{font-size:20px; filter:grayscale(1); opacity:.6; transition:filter .2s, opacity .2s, transform .2s}
   .bottom-nav a.active .ico{filter:none; opacity:1; transform:translateY(-2px)}
 
   .text-center{text-align:center}
@@ -457,12 +457,13 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, doc, getDoc, getDocs, updateDoc, collection, addDoc, serverTimestamp,
   query, where, onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* ====== FIREBASE CONFIG — JANGAN DIUBAH ====== */
+/* ====== FIREBASE CONFIG — TIDAK DIUBAH ====== */
 const firebaseConfig = {
   apiKey: "AIzaSyAXWxcWYhvEKlXC414ECmv0vG0jZAr_Ecc",
   authDomain: "tulungiiyong.firebaseapp.com",
@@ -473,9 +474,10 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* ====== SESSION (sinkron dengan index.html baru) ====== */
+/* ====== SESSION ====== */
 const SESSION_KEYS = ['tulungiyong_session_v2', 'tulungiyong.session'];
 function getRawSession() {
   for (const k of SESSION_KEYS) {
@@ -511,7 +513,7 @@ function geohashForLocation([lat, lng], precision = 9) {
 let session = null;
 let userId = null;
 
-/* ====== SETTINGS (nama field disamakan dengan index.html baru) ====== */
+/* ====== SETTINGS ====== */
 let appSettings = {
   ojekPrice: 2500,
   taxiPrice: 4000,
@@ -536,7 +538,9 @@ let pickupCoords = null, destCoords = null;
 let becakMapInstance = null, becakMarker = null, becakCoords = null;
 
 let ordersUnsubscribe = null;
-let settingsLoaded = false;
+let lastOrdersSnapshot = null;      // cache untuk hindari flash loading
+let lastAvailabilityFetch = 0;
+const AVAILABILITY_TTL = 30000;     // cache availability 30 detik
 
 let serviceAvailability = {};
 let totalActiveDrivers = 0;
@@ -552,7 +556,7 @@ if (!rawSession) {
   }
 }
 if (session) {
-  userId = session.uid || session.id; // kompatibel dengan sesi lama & baru
+  userId = session.uid || session.id;
   document.getElementById('userName').textContent = (session.name || 'Pengguna').split(' ')[0];
   document.getElementById('topAvatar').textContent = (session.name || '?').charAt(0).toUpperCase();
 }
@@ -561,12 +565,16 @@ if (session) {
 function normalizeServiceId(id) {
   const s = String(id || '').toLowerCase();
   if (s === 'bantu') return 'tulung';
-  if (s === 'tambal') return 'becak'; // legacy
+  if (s === 'tambal') return 'becak';
   return s;
 }
 
-/* ====== DRIVER AVAILABILITY ====== */
-async function loadDriverAvailability() {
+/* ====== DRIVER AVAILABILITY (dengan cache) ====== */
+async function loadDriverAvailability(force = false) {
+  const now = Date.now();
+  if (!force && (now - lastAvailabilityFetch) < AVAILABILITY_TTL) return;
+  lastAvailabilityFetch = now;
+
   try {
     const snap = await getDocs(query(
       collection(db, 'password'),
@@ -595,7 +603,10 @@ async function loadDriverAvailability() {
     renderServiceAvailability();
   } catch (err) {
     console.warn('[Availability]', err);
-    renderServiceAvailabilityError();
+    // Jangan render error state kalau sudah ada data lama
+    if (totalActiveDrivers === 0 && Object.keys(serviceAvailability).length === 0) {
+      renderServiceAvailabilityError();
+    }
   }
 }
 
@@ -604,18 +615,18 @@ function renderServiceAvailability() {
     const sid = el.dataset.avail;
     const count = serviceAvailability[sid];
     const card = el.closest('.service-card');
-    el.classList.remove('loading', 'available', 'no-driver');
+    const cls = count === undefined ? 'loading' : (count === 0 ? 'no-driver' : 'available');
+    const text = count === undefined ? 'Memuat…' : (count === 0 ? '⚠️ Belum ada driver' : `✓ ${count} driver aktif`);
 
-    if (count === undefined) {
-      el.classList.add('loading'); el.textContent = 'Memuat…';
-      if (card) card.classList.remove('no-driver-avail');
-    } else if (count === 0) {
-      el.classList.add('no-driver'); el.textContent = '⚠️ Belum ada driver';
-      if (card) card.classList.add('no-driver-avail');
-    } else {
-      el.classList.add('available'); el.textContent = `✓ ${count} driver aktif`;
-      if (card) card.classList.remove('no-driver-avail');
-    }
+    // Hindari update kalau tidak berubah → cegah kedip
+    if (el.dataset.lastText === text) return;
+    el.dataset.lastText = text;
+
+    el.classList.remove('loading', 'available', 'no-driver');
+    el.classList.add(cls);
+    el.textContent = text;
+
+    if (card) card.classList.toggle('no-driver-avail', count === 0);
   });
 
   const banner = document.getElementById('globalDriverBanner');
@@ -624,6 +635,8 @@ function renderServiceAvailability() {
 
 function renderServiceAvailabilityError() {
   document.querySelectorAll('[data-avail]').forEach(el => {
+    if (el.dataset.lastText === '—') return;
+    el.dataset.lastText = '—';
     el.classList.remove('loading', 'available', 'no-driver');
     el.classList.add('loading');
     el.textContent = '—';
@@ -650,23 +663,22 @@ async function fetchSettings() {
     if (snap.exists()) {
       const data = snap.data();
       appSettings = { ...appSettings, ...data };
-      // Backward compat dengan nama field lama
       if (!data.ojekPrice && data.ojekPricePerKm != null) appSettings.ojekPrice = Number(data.ojekPricePerKm);
       if (!data.taxiPrice && data.taxiPricePerKm != null) appSettings.taxiPrice = Number(data.taxiPricePerKm);
     }
-    settingsLoaded = true;
-    const transferVisible = !document.getElementById('transferSection')?.hidden;
-    if (transferVisible) renderBankInfo();
   } catch (err) {
     console.warn('[Settings] gagal memuat:', err);
-    settingsLoaded = true;
   }
 }
 
-/* ====== INIT ORDER: settings dulu, baru availability ====== */
+/* ====== INIT — tunggu Auth siap dulu ====== */
 (async () => {
+  // Tunggu Auth resolve (bisa jadi user atau null)
+  await new Promise(resolve => {
+    const unsub = onAuthStateChanged(auth, () => { unsub(); resolve(); });
+  });
   await fetchSettings();
-  await loadDriverAvailability();
+  await loadDriverAvailability(true);
 })();
 
 /* ====== NAVIGATION ====== */
@@ -678,30 +690,37 @@ function switchView(view) {
     el.classList.toggle('active', el.dataset.nav === view);
   });
   if (view === 'orders') subscribeOrders();
-  else if (ordersUnsubscribe) { ordersUnsubscribe(); ordersUnsubscribe = null; }
-  if (view === 'home') loadDriverAvailability();
+  if (view === 'home') loadDriverAvailability();  // pakai cache
 }
 document.querySelectorAll('[data-nav]').forEach(el => {
   el.addEventListener('click', (e) => { e.preventDefault(); switchView(el.dataset.nav); });
 });
 
-/* ====== ORDERS ====== */
+/* ====== ORDERS — pakai cache untuk hindari flash loading ====== */
 function subscribeOrders() {
-  if (ordersUnsubscribe) ordersUnsubscribe();
   const container = document.getElementById('ordersList');
   if (!userId) return;
 
-  container.innerHTML = `
-    <div class="card loading-card">
-      <div class="loading-spinner"></div>
-      <h3 style="margin:0 0 4px;">Memuat pesanan…</h3>
-      <p style="margin:0; font-size:12px; color:var(--muted);">Sebentar ya.</p>
-    </div>`;
+  // Kalau sudah ada snapshot lama, tampilkan langsung (tanpa loading flash)
+  if (lastOrdersSnapshot && lastOrdersSnapshot.length > 0) {
+    container.innerHTML = lastOrdersSnapshot.map(renderOrderCard).join('');
+  } else if (!container.querySelector('.order-card')) {
+    container.innerHTML = `
+      <div class="card loading-card">
+        <div class="loading-spinner"></div>
+        <h3 style="margin:0 0 4px;">Memuat pesanan…</h3>
+        <p style="margin:0; font-size:12px; color:var(--muted);">Sebentar ya.</p>
+      </div>`;
+  }
+
+  // Kalau subscription sudah jalan, biarkan (jangan re-subscribe)
+  if (ordersUnsubscribe) return;
 
   const q = query(collection(db, 'orders'), where('userId', '==', userId));
 
   ordersUnsubscribe = onSnapshot(q, (snap) => {
     if (snap.empty) {
+      lastOrdersSnapshot = [];
       container.innerHTML = `
         <div class="card text-center" style="padding:40px 20px;">
           <span style="font-size:40px;">📭</span>
@@ -712,15 +731,18 @@ function subscribeOrders() {
     }
     const orders = snap.docs.map(d => ({ id: d.id, ...d.data() }))
       .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    lastOrdersSnapshot = orders;
     container.innerHTML = orders.map(renderOrderCard).join('');
   }, (err) => {
     console.error('[Orders]', err);
-    container.innerHTML = `
-      <div class="card text-center" style="padding:40px 20px;">
-        <span style="font-size:40px;">⚠️</span>
-        <h3 style="margin:12px 0 6px;">Gagal memuat pesanan</h3>
-        <p style="margin:0; font-size:13px; color:var(--muted);">${escapeHtml(err.message || 'Periksa Firestore Rules.')}</p>
-      </div>`;
+    if (!lastOrdersSnapshot) {
+      container.innerHTML = `
+        <div class="card text-center" style="padding:40px 20px;">
+          <span style="font-size:40px;">⚠️</span>
+          <h3 style="margin:12px 0 6px;">Gagal memuat pesanan</h3>
+          <p style="margin:0; font-size:13px; color:var(--muted);">${escapeHtml(err.message || 'Periksa Firestore Rules.')}</p>
+        </div>`;
+    }
   });
 }
 
@@ -881,7 +903,8 @@ window.openBooking = function(id, name, icon, baseFare) {
     document.getElementById('perKmLabel').textContent = formatRp(id === 'ojek' ? appSettings.ojekPrice : appSettings.taxiPrice);
     document.getElementById('pickupAddress').required = true;
     document.getElementById('destAddress').required = true;
-    setTimeout(initMap, 250);
+    // requestAnimationFrame 2x — lebih smooth dari setTimeout(250)
+    requestAnimationFrame(() => requestAnimationFrame(initMap));
   } else if (id === 'food') {
     document.getElementById('foodSection').hidden = false;
     document.getElementById('fareBox').hidden = true;
@@ -898,8 +921,7 @@ window.openBooking = function(id, name, icon, baseFare) {
   } else if (id === 'becak') {
     document.getElementById('becakSection').hidden = false;
     document.getElementById('becakAddress').required = true;
-    setTimeout(initBecakMap, 250);
-    // Becak = tarif dasar flat dari admin
+    requestAnimationFrame(() => requestAnimationFrame(initBecakMap));
     const fare = Number(appSettings.becakPrice) || 10000;
     currentService.calculatedFare = fare;
     document.getElementById('baseFareLabel').textContent = formatRp(fare);
@@ -927,12 +949,13 @@ function initMap() {
   const mapEl = document.getElementById('map');
   if (!mapEl) return;
 
-  mainMap = L.map('map').setView([-7.7956, 110.3695], 13);
+  mainMap = L.map('map', { zoomControl: true }).setView([-7.7956, 110.3695], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap', maxZoom: 19
   }).addTo(mainMap);
 
-  setTimeout(() => { if (mainMap) mainMap.invalidateSize(); }, 120);
+  // langsung invalidate setelah paint
+  requestAnimationFrame(() => { if (mainMap) mainMap.invalidateSize(); });
 
   mainMap.on('click', async (e) => {
     const lat = e.latlng.lat, lng = e.latlng.lng;
@@ -1051,12 +1074,12 @@ function initBecakMap() {
   const mapEl = document.getElementById('becakMap');
   if (!mapEl) return;
 
-  becakMapInstance = L.map('becakMap').setView([-7.7956, 110.3695], 13);
+  becakMapInstance = L.map('becakMap', { zoomControl: true }).setView([-7.7956, 110.3695], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap', maxZoom: 19
   }).addTo(becakMapInstance);
 
-  setTimeout(() => { if (becakMapInstance) becakMapInstance.invalidateSize(); }, 120);
+  requestAnimationFrame(() => { if (becakMapInstance) becakMapInstance.invalidateSize(); });
 
   becakMapInstance.on('click', async (e) => {
     const lat = e.latlng.lat, lng = e.latlng.lng;
@@ -1230,6 +1253,7 @@ window.submitOrder = async function(e) {
 
     await addDoc(collection(db, 'orders'), orderData);
     alert('✅ Pesanan berhasil dibuat! Driver terdekat akan segera mencari Anda.');
+    lastAvailabilityFetch = 0; // paksa refresh availability berikutnya
     closeBooking();
   } catch (err) {
     console.error('[Order]', err);
