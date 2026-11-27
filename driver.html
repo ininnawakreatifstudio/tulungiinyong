@@ -4,11 +4,12 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#0b7a44" />
-<title>Masuk • INYONG_JEK</title>
+<title>Driver • Tulung Inyong</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
 <style>
   *,*::before,*::after{box-sizing:border-box}
@@ -19,1114 +20,672 @@
     --green-900:#05472a; --green-800:#075c36; --green-700:#0b7a44;
     --green-600:#0f9d58; --green-500:#14b86a; --green-50:#e9f8f0;
     --yellow-600:#e8ad00; --yellow-500:#ffc72c; --yellow-400:#ffd75e; --yellow-50:#fff8e1;
-    --ink:#0f172a; --ink-2:#334155; --muted:#475569; --line:#cbd5e1;
-    --danger:#dc2626; --shadow-card:0 10px 40px -10px rgba(0,0,0,0.08);
+    --ink:#0f172a; --ink-2:#334155; --muted:#64748b; --line:#e2e8f0; --bg:#f6f9f6;
+    --radius:16px; --shadow:0 1px 2px rgba(15,23,42,.05), 0 10px 30px -18px rgba(5,71,42,.4);
+    --danger:#dc2626;
   }
 
   body{
-    font-family:'Plus Jakarta Sans',Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
-    color:var(--ink); background:#ffffff; min-height:100dvh;
+    font-family:'Plus Jakarta Sans',Inter,-apple-system,sans-serif;
+    color:var(--ink); background:var(--bg); min-height:100dvh;
+    -webkit-font-smoothing:antialiased;
   }
   button,input,select,textarea{font:inherit}
   button{cursor:pointer;border:0;background:none;color:inherit}
   a{color:inherit;text-decoration:none}
 
-  /* ===== SHELL ===== */
-  .shell{min-height:100dvh;display:grid;grid-template-columns:1fr}
-  .brand-panel{position:relative;display:flex;flex-direction:column;color:#fff;background:linear-gradient(150deg,#075c36 0%,#0f9d58 50%,#14b86a 100%);overflow:hidden}
-  .brand-hero{position:relative;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;padding:72px 20px 24px;min-height:240px;
-    background:url('logolatar.png') center / cover no-repeat,linear-gradient(150deg,#075c36 0%,#0f9d58 50%,#14b86a 100%);
-    isolation:isolate;}
-  .brand-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,71,42,0) 0%,rgba(5,71,42,0.2) 40%,rgba(5,71,42,0.6) 100%);pointer-events:none;z-index:1}
-  .brand-hero-content{position:relative;z-index:2;display:flex;flex-direction:row;align-items:center;gap:16px}
-
-  /* ===== 3D LOGO FRAME ===== */
-  .brand-logo-wrap{
-    display:inline-flex;
-    padding:6px;
-    border-radius:20px;
-    background:linear-gradient(145deg,#ffffff 0%,#f1f5f9 45%,#cbd5e1 100%);
-    box-shadow:
-      0 10px 28px rgba(0,0,0,0.35),
-      0 4px 10px rgba(0,0,0,0.18),
-      inset 0 2px 3px rgba(255,255,255,0.95),
-      inset 0 -2px 4px rgba(0,0,0,0.15);
-    position:relative;
-    flex:none;
-    transform:translateZ(0);
+  /* ===== LOADING ===== */
+  .loading-screen{
+    position:fixed;inset:0;z-index:999;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:rgba(246,249,246,.85);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    gap:16px;
   }
-  .brand-logo-wrap::after{
-    content:"";
-    position:absolute;
-    inset:3px;
-    border-radius:17px;
-    background:linear-gradient(145deg,rgba(255,255,255,0.55) 0%,transparent 45%);
-    pointer-events:none;
-    z-index:1;
+  .loading-screen p{color:var(--muted);font-weight:600;font-size:14px}
+  .spinner{
+    width:32px;height:32px;border-radius:50%;
+    border:3px solid rgba(15,157,88,.22);border-top-color:var(--green-600);
+    animation:spin .8s linear infinite;
   }
-  .brand-logo,
-  .brand-logo-fallback{
-    border-radius:14px;
-    display:block;
-    position:relative;
-    z-index:2;
-    box-shadow:0 1px 2px rgba(0,0,0,0.08);
-  }
-  .brand-logo{
-    max-height:54px;
-    max-width:180px;
-    width:auto;
-    height:auto;
-    object-fit:contain;
-    background:#ffffff;
-  }
-  .brand-logo-fallback{
-    width:54px;
-    height:54px;
-    display:grid;
-    place-items:center;
-    font-size:28px;
-    background:linear-gradient(135deg,#e8f5ee,#d1fae5);
-    color:var(--green-700);
-  }
-
-  .brand-text{display:flex;flex-direction:column;gap:3px;min-width:0}
-  .brand-title{display:block;font-size:20px;font-weight:800;letter-spacing:-.02em;line-height:1.15;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .brand-tagline{display:block;font-size:11.5px;font-weight:600;color:#ffffff;letter-spacing:.02em;line-height:1.3}
-  .brand-copy{flex:1;display:flex;flex-direction:column;justify-content:center;padding:28px 20px 22px;position:relative;z-index:1}
-  .brand-copy h1{font-size:clamp(24px,3vw,36px);line-height:1.14;letter-spacing:-.03em;font-weight:800;margin:0 0 12px}
-  .brand-copy h1 span{color:var(--yellow-400)}
-  .brand-copy p{margin:0 0 20px;font-size:14px;line-height:1.65;color:rgba(255,255,255,.9);max-width:46ch}
-  .brand-chips{display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:0;margin:0}
-  .brand-chips li{font-size:11.8px;font-weight:700;padding:8px 13px;border-radius:99px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#ffffff;backdrop-filter:blur(4px)}
-  .brand-foot{padding:0 20px 26px;position:relative;z-index:1;font-size:11px;color:rgba(255,255,255,.7);font-weight:600;letter-spacing:.01em}
-
-  .form-panel{display:flex;align-items:center;justify-content:center;padding:34px 18px 52px;background:#ffffff}
-  .login-card{width:100%;max-width:440px;background:#ffffff;border:1px solid #e2e8f0;border-top:4px solid var(--green-600);border-radius:24px;padding:22px 26px 22px;box-shadow:var(--shadow-card);transition:border-top-color .2s}
-  body[data-mode="admin"]  .login-card{border-top-color:var(--yellow-500)}
-  body[data-mode="driver"] .login-card{border-top-color:var(--green-800)}
-
-  /* ===== MODE TABS ===== */
-  .mode-tabs{
-    display:flex;
-    gap:4px;
-    padding:5px;
-    background:#f1f5f9;
-    border-radius:14px;
-    border:1px solid #e2e8f0;
-    margin-bottom:20px;
-  }
-  .mode-tab{
-    flex:1;
-    padding:10px 6px;
-    border-radius:10px;
-    font-size:12.5px;
-    font-weight:700;
-    color:var(--muted);
-    background:transparent;
-    border:0;
-    transition:.16s;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:5px;
-    white-space:nowrap;
-  }
-  .mode-tab .mt-ico{font-size:14px;line-height:1}
-  .mode-tab:hover{color:var(--ink)}
-  .mode-tab.active{
-    background:#fff;
-    color:var(--green-800);
-    box-shadow:0 2px 6px rgba(0,0,0,.09);
-    font-weight:800;
-  }
-  .mode-tab[data-mode-btn="admin"].active{color:#8a6d00}
-
-  .card-head{margin-bottom:19px}
-  .card-head h2{margin:0 0 6px;font-size:22px;letter-spacing:-.03em;font-weight:800;line-height:1.2}
-  .card-head p{margin:0;font-size:13.2px;line-height:1.55;color:var(--muted)}
-
-  .alert{display:none;font-size:13px;line-height:1.5;padding:11px 13px;border-radius:13px;margin-bottom:15px;font-weight:600}
-  .alert.show{display:block}
-  .alert.err{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
-  .alert.ok{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
-  .alert.info{background:var(--yellow-50);color:#8a6d00;border:1px solid #ffe08a}
-
-  .field{margin-bottom:15px}
-  .field label{display:block;font-size:12.4px;font-weight:700;color:var(--ink-2);margin-bottom:7px;letter-spacing:.01em}
-  .input-wrap{position:relative;display:flex;align-items:center}
-  .input-wrap .lead{position:absolute;left:14px;display:grid;place-items:center;color:#94a3b8;pointer-events:none;transition:color .16s}
-  .input-wrap input{width:100%;padding:14px 46px 14px 44px;border:1.5px solid var(--line);border-radius:14px;font-size:15px;font-weight:600;color:var(--ink);background:#ffffff;outline:none;transition:border-color .16s, background .16s, box-shadow .16s}
-  .input-wrap input::placeholder{font-weight:500;color:#94a3b8}
-  .input-wrap input:focus{border-color:var(--green-600);background:#ffffff;box-shadow:0 0 0 4px rgba(15,157,88,.15)}
-  .input-wrap:focus-within .lead{color:var(--green-600)}
-  .input-wrap.no-lead input{padding-left:14px}
-
-  .eye{position:absolute;right:8px;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:#94a3b8;transition:.16s}
-  .eye:hover{background:#f1f5f9;color:var(--green-700)}
-
-  .btn-primary{width:100%;margin-top:6px;padding:15px;border-radius:14px;font-size:15px;font-weight:800;letter-spacing:-.01em;color:#0b3d22;background:linear-gradient(135deg,var(--yellow-400),var(--yellow-500));box-shadow:0 14px 26px -14px rgba(255,199,44,1);transition:transform .16s, filter .16s, box-shadow .16s}
-  .btn-primary:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.04)}
-  .btn-primary:active:not(:disabled){transform:translateY(0) scale(.995)}
-  .btn-primary:disabled{opacity:.62;cursor:not-allowed;box-shadow:none;transform:none}
-
-  .spinner{display:inline-block;width:15px;height:15px;margin-right:8px;vertical-align:-2px;border-radius:50%;border:2.5px solid rgba(11,61,34,.22);border-top-color:#0b3d22;animation:spin .7s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
 
-  .card-foot{margin-top:18px;padding-top:15px;border-top:1px solid var(--line);text-align:center}
-  .card-foot p{margin:0 0 6px;font-size:12.8px;color:var(--muted);line-height:1.5}
-  .card-foot p:last-child{margin-bottom:0}
-  .card-foot a{color:var(--green-700);font-weight:800;border-bottom:2px solid var(--yellow-400);padding-bottom:1px}
-  .card-foot a:hover{color:var(--green-800)}
-
-  .session-note{
-    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-    padding:11px 13px;border-radius:13px;
-    background:var(--yellow-50);border:1px solid #ffe08a;
-    margin-bottom:16px;
+  /* ===== HEADER ===== */
+  .driver-header{
+    background:linear-gradient(135deg,#075c36 0%,#0f9d58 100%);
+    color:#fff;position:sticky;top:0;z-index:40;
+    box-shadow:0 4px 12px -8px rgba(0,0,0,.2);
+    isolation:isolate;
   }
-  .session-note .sn-txt{flex:1;min-width:0;font-size:12.4px;line-height:1.4;color:#8a6d00;font-weight:700}
-  .session-note .sn-txt span{display:block;font-weight:600;color:#a37f00;font-size:11.4px}
-  .session-note .sn-btn{flex:none;padding:8px 13px;border-radius:10px;background:var(--green-700);color:#fff;font-size:12px;font-weight:800;transition:.16s}
-  .session-note .sn-btn:hover{background:var(--green-800)}
-  .session-note .sn-btn-secondary{background:#fff;color:#8a6d00;border:1.5px solid #ffe08a}
-  .session-note .sn-btn-secondary:hover{background:var(--yellow-50);border-color:var(--yellow-600)}
-  @media (max-width:420px){
-    .session-note .sn-txt{min-width:100%}
-    .session-note .sn-btn{flex:1}
+  .dh-inner{
+    max-width:1000px;margin:0 auto;
+    padding:14px 18px;display:flex;align-items:center;gap:14px;
   }
+  .dh-brand{display:flex;align-items:center;gap:10px;min-width:0}
 
-  .version{margin-top:14px;text-align:center;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#94a3b8}
-
-  /* ===== ADMIN DASHBOARD ===== */
-  .admin-app{min-height:100dvh;background:#ffffff;display:flex;flex-direction:column}
-  .admin-header{background:linear-gradient(135deg,#075c36 0%,#0f9d58 100%);color:#fff;box-shadow:0 4px 12px -8px rgba(0,0,0,.2);position:sticky;top:0;z-index:50;isolation:isolate}
-  .admin-header-inner{max-width:1120px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px}
-  .admin-brand{display:flex;align-items:center;gap:10px;min-width:0}
-
-  .admin-logo-wrap{
-    width:44px;height:44px;flex:none;
-    padding:3px;
-    border-radius:13px;
-    background:linear-gradient(145deg,#ffffff,#d8e0e5);
-    box-shadow:0 2px 6px rgba(0,0,0,0.22), inset 0 1px 1px rgba(255,255,255,0.8), inset 0 -1px 2px rgba(0,0,0,0.1);
-    display:grid;place-items:center;
-  }
-  .admin-logo-wrap img{
-    width:100%;height:100%;object-fit:contain;border-radius:10px;display:block;
-    background:#ffffff;
-  }
-  .admin-logo-wrap .ico-fallback{font-size:20px;color:var(--green-700)}
-
-  .admin-brand-text{display:flex;flex-direction:column;gap:1px;min-width:0}
-  .admin-brand-text strong{font-size:16px;font-weight:800;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .admin-brand-text small{font-size:11px;font-weight:600;color:rgba(255,255,255,.85);letter-spacing:.01em}
-  .admin-logout{padding:9px 16px;border-radius:10px;background:rgba(255,255,255,.2);color:#fff;font-size:12.5px;font-weight:800;border:1px solid rgba(255,255,255,.3);transition:.16s;flex:none}
-  .admin-logout:hover{background:rgba(255,255,255,.35)}
-
-  .admin-main{max-width:1120px;margin:0 auto;padding:24px 20px 48px;width:100%;flex:1;background:#ffffff}
-
-  .admin-tabs{display:flex;gap:6px;margin-bottom:22px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
-  .admin-tabs::-webkit-scrollbar{display:none}
-  .admin-tab{padding:11px 18px;border-radius:12px;font-size:13.5px;font-weight:700;background:#f8fafc;color:var(--muted);border:1.5px solid var(--line);white-space:nowrap;transition:.16s;display:flex;align-items:center;gap:6px}
-  .admin-tab:hover{border-color:var(--green-500);color:var(--ink)}
-  .admin-tab.active{background:var(--green-700);color:#ffffff;border-color:var(--green-700)}
-  .tab-badge{background:#ffffff;color:var(--green-700);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:800;min-width:20px;text-align:center}
-
-  .panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
-  .panel-head h2{margin:0;font-size:18px;letter-spacing:-.02em}
-
-  .btn-refresh{padding:8px 14px;border-radius:10px;background:#ffffff;border:1.5px solid var(--line);font-size:12.5px;font-weight:700;color:var(--muted);transition:.16s}
-  .btn-refresh:hover{border-color:var(--green-500);color:var(--ink)}
-
-  /* Pending registration */
-  .pending-item{background:#ffffff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,.03);animation:fadeUp .2s ease;flex-wrap:wrap}
-  @keyframes fadeUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-  .pending-avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:16px;color:#fff;flex-shrink:0}
-  .pending-avatar.driver{background:linear-gradient(135deg,#0b7a44,#14b86a)}
-  .pending-avatar.user{background:linear-gradient(135deg,#e8ad00,#ffd75e);color:#4a3400}
-  .pending-info{flex:1;min-width:180px}
-  .pending-info strong{display:block;font-size:14.5px;margin-bottom:2px;color:var(--ink)}
-  .pending-info small{color:var(--muted);font-size:12px;display:block}
-  .pending-role{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;margin-left:6px;vertical-align:middle}
-  .pending-role.driver{background:var(--green-50);color:var(--green-800)}
-  .pending-role.user{background:var(--yellow-50);color:#8a6d00}
-  .pending-code{
-    display:flex;flex-direction:column;gap:4px;
-    padding:8px 12px;background:#f8fafc;border:1px solid var(--line);
-    border-radius:10px;font-size:11.5px;flex-shrink:0;
-  }
-  .pending-code span{color:var(--muted);font-weight:600}
-  .pending-code strong{font-family:'Courier New',monospace;font-size:16px;letter-spacing:2px;color:var(--green-800);font-weight:800}
-  .pending-actions{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}
-  .btn-approve,.btn-reject,.btn-wa-send{padding:8px 14px;border-radius:10px;font-size:12.5px;font-weight:800;transition:.16s;white-space:nowrap}
-  .btn-approve{background:var(--green-600);color:#fff}
-  .btn-approve:hover{background:var(--green-700)}
-  .btn-reject{background:#fef2f2;color:#b91c1c}
-  .btn-reject:hover{background:#fee2e2}
-  .btn-wa-send{background:#25d366;color:#fff}
-  .btn-wa-send:hover{background:#128c7e}
-
-  @media (max-width:700px){
-    .pending-item{flex-direction:column;align-items:stretch}
-    .pending-avatar{align-self:flex-start}
-    .pending-code{align-self:flex-start}
-    .pending-actions{width:100%;justify-content:flex-end;padding-top:10px;border-top:1px solid var(--line)}
+  .dh-logo{
+    height:40px;
+    max-width:110px;
+    width:auto;
+    object-fit:contain;
+    display:block;
+    flex:none;
+    mix-blend-mode:screen;
+    -webkit-mix-blend-mode:screen;
+    background:transparent;
+    filter:drop-shadow(0 1px 2px rgba(0,0,0,.25));
   }
 
-  .admin-empty{text-align:center;padding:48px 24px;background:#f8fafc;border:2px dashed var(--line);border-radius:16px;color:var(--muted)}
-  .admin-empty .ico{font-size:40px;margin-bottom:10px;display:block}
-  .admin-empty h3{margin:0 0 6px;color:var(--ink);font-size:16px}
-  .admin-empty p{margin:0;font-size:13px}
+  .dh-brand div{display:flex;flex-direction:column;gap:1px;min-width:0}
+  .dh-brand strong{font-size:14px;font-weight:800;letter-spacing:-.02em;white-space:nowrap}
+  .dh-brand small{font-size:10.5px;font-weight:600;color:rgba(255,255,255,.85)}
 
-  .admin-card{background:#ffffff;border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:var(--shadow-card);max-width:640px}
-  .admin-card label{display:block;font-size:13px;font-weight:700;color:var(--ink-2);margin-bottom:8px;margin-top:18px}
-  .admin-card label:first-of-type{margin-top:0}
-  .admin-card h3{margin:0;font-size:15px;letter-spacing:-.01em;color:var(--ink)}
-  .section-divider{height:1px;background:var(--line);margin:22px 0 20px}
-  .input-row{display:flex;align-items:center;gap:8px;padding:4px 4px 4px 16px;border:1.5px solid var(--line);border-radius:14px;background:#ffffff;margin-bottom:4px;transition:.16s}
-  .input-row:focus-within{border-color:var(--green-600);box-shadow:0 0 0 4px rgba(15,157,88,.15)}
-  .input-row span{font-weight:700;color:var(--muted);font-size:14px;flex-shrink:0}
-  .input-row input{flex:1;border:0;background:transparent;padding:10px 12px;font-size:15px;font-weight:600;outline:none;color:var(--ink);min-width:0}
-  .admin-info{font-size:12px;color:var(--muted);line-height:1.5;margin-top:12px;padding:10px 12px;background:#f8fafc;border-radius:10px;border-left:3px solid var(--green-500)}
-  .admin-info.warn{background:var(--yellow-50);border-left-color:var(--yellow-500);color:#8a6d00}
-
-  /* ===== ORDER ITEMS ===== */
-  .order-item{
-    background:#ffffff;border:1px solid var(--line);border-radius:14px;padding:16px;
-    margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.03);animation:fadeUp .2s ease;
+  .dh-user{margin-left:auto;display:flex;align-items:center;gap:10px;flex-shrink:0}
+  .dh-avatar{
+    width:36px;height:36px;border-radius:50%;
+    background:var(--yellow-500);color:#4a3400;
+    display:grid;place-items:center;font-weight:800;font-size:14px;
+    background-size:cover;background-position:center;flex-shrink:0;
   }
-  .oi-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--line)}
-  .oi-icon{font-size:24px;width:42px;height:42px;border-radius:10px;background:var(--green-50);display:grid;place-items:center;flex-shrink:0}
-  .oi-info{flex:1;min-width:0}
-  .oi-info strong{display:block;font-size:14.5px;margin-bottom:2px}
-  .oi-info small{color:var(--muted);font-size:11.5px;display:block;line-height:1.4}
+  .dh-user-info{display:flex;flex-direction:column;gap:0;line-height:1.2;min-width:0}
+  .dh-user-info strong{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}
+  .dh-user-info small{
+    font-size:10.5px;color:rgba(255,255,255,.85);font-weight:600;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;
+  }
+  .dh-logout{
+    padding:7px 12px;border-radius:9px;
+    background:rgba(255,255,255,.2);color:#fff;
+    font-size:11.5px;font-weight:800;
+    border:1px solid rgba(255,255,255,.3);
+    transition:.16s;flex-shrink:0;
+  }
+  .dh-logout:hover{background:rgba(255,255,255,.35)}
 
-  .oi-status{
+  /* ===== LOCATION BAR ===== */
+  .loc-bar{
+    max-width:1000px;margin:0 auto;
+    padding:10px 18px;
+    display:flex;align-items:center;gap:10px;
+    font-size:12.5px;font-weight:700;
+    border-bottom:1px solid var(--line);
+    background:#fff;
+  }
+  .loc-bar.fresh{background:var(--green-50);color:var(--green-800);border-bottom-color:#a7e3c4}
+  .loc-bar.stale{background:var(--yellow-50);color:#8a6d00;border-bottom-color:#ffe08a}
+  .loc-bar.danger{background:#fef2f2;color:#991b1b;border-bottom-color:#fecaca}
+  .loc-bar-icon{font-size:15px}
+  .loc-bar-text{flex:1;min-width:0}
+  .loc-bar-btn{
+    padding:6px 11px;border-radius:8px;
+    background:#fff;border:1px solid currentColor;
+    color:inherit;font-size:11.5px;font-weight:800;
+    transition:.16s;flex-shrink:0;
+  }
+  .loc-bar-btn:hover{background:rgba(255,255,255,.5)}
+
+  /* ===== TABS ===== */
+  .tabs{
+    max-width:1000px;margin:0 auto;
+    padding:10px 14px 10px;
+    display:flex;gap:6px;overflow-x:auto;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch;
+    background:var(--bg);
+    position:sticky;top:0;z-index:30;
+  }
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{
+    padding:10px 16px;border-radius:11px;
+    font-size:13px;font-weight:700;
+    background:#fff;color:var(--muted);
+    border:1.5px solid var(--line);
+    white-space:nowrap;transition:.16s;
+    display:flex;align-items:center;gap:6px;flex-shrink:0;
+  }
+  .tab:hover{border-color:var(--green-500)}
+  .tab.active{background:var(--green-700);color:#fff;border-color:var(--green-700)}
+  .tab-badge{
+    background:#fff;color:var(--green-700);
+    padding:1px 7px;border-radius:99px;
+    font-size:10.5px;font-weight:800;min-width:18px;text-align:center;
+  }
+  .tab.active .tab-badge{background:var(--yellow-400);color:#4a3400}
+  .tab.tab-warn{border-color:#fde68a;background:#fffbeb;color:#92400e}
+  .tab.tab-warn.active{background:#92400e;color:#fff;border-color:#92400e}
+
+  /* ===== CONTENT ===== */
+  .content{max-width:1000px;margin:0 auto;padding:8px 14px 80px}
+
+  .panel-head{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:12px;margin:8px 0 16px;flex-wrap:wrap;
+  }
+  .panel-head h2{margin:0;font-size:19px;letter-spacing:-.02em}
+  .panel-head-actions{display:flex;gap:6px;flex-wrap:wrap}
+
+  .card{
+    background:#fff;border:1px solid var(--line);
+    border-radius:var(--radius);padding:20px;
+    box-shadow:var(--shadow);
+    margin-bottom:14px;
+  }
+  .card-title{
+    margin:0 0 6px;font-size:16px;font-weight:800;letter-spacing:-.01em;
+    display:flex;align-items:center;gap:8px;
+  }
+  .card-subtitle{
+    margin:0 0 16px;font-size:12.5px;color:var(--muted);line-height:1.5;
+  }
+
+  /* ===== EMPTY ===== */
+  .empty{
+    text-align:center;padding:48px 20px;
+    background:#fff;border:2px dashed var(--line);
+    border-radius:16px;color:var(--muted);
+  }
+  .empty .ico{font-size:42px;margin-bottom:10px;display:block}
+  .empty h3{margin:0 0 6px;color:var(--ink);font-size:16px}
+  .empty p{margin:0;font-size:13px}
+
+  /* ===== SERVICES WARNING BANNER ===== */
+  .services-warning{
+    display:flex;gap:12px;padding:14px 16px;
+    border-radius:14px;margin-bottom:16px;
+    background:linear-gradient(135deg,#fffbeb,#fff);
+    border:2px solid #fde68a;
+    animation:fadeUp .3s ease;
+  }
+  .services-warning .ico{font-size:26px;line-height:1;flex-shrink:0}
+  .services-warning .sw-body{flex:1;min-width:0}
+  .services-warning strong{
+    display:block;color:#92400e;font-size:14px;font-weight:800;margin-bottom:4px;
+  }
+  .services-warning p{
+    margin:0 0 10px;font-size:12.5px;color:#78350f;line-height:1.5;
+  }
+  .services-warning .sw-btn{
+    padding:8px 14px;border-radius:9px;
+    background:#92400e;color:#fff;
+    font-size:12px;font-weight:800;border:0;cursor:pointer;
+    transition:.16s;
+  }
+  .services-warning .sw-btn:hover{background:#78350f}
+
+  /* ===== ORDER CARD ===== */
+  .order-card{
+    background:#fff;border:1.5px solid var(--line);
+    border-radius:16px;padding:18px;margin-bottom:14px;
+    box-shadow:0 2px 8px rgba(0,0,0,.04);
+    animation:fadeUp .25s ease;
+    border-left:4px solid var(--green-500);
+  }
+  .order-card.transfer{border-left-color:var(--yellow-500)}
+  .order-card.done{border-left-color:#94a3b8;opacity:.85}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+  .oc-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+  .oc-icon{
+    font-size:24px;width:46px;height:46px;border-radius:12px;
+    background:var(--green-50);display:grid;place-items:center;flex-shrink:0;
+  }
+  .oc-info{flex:1;min-width:0}
+  .oc-info strong{display:block;font-size:15px;font-weight:800;margin-bottom:2px;letter-spacing:-.01em}
+  .oc-info small{color:var(--muted);font-size:11.5px;display:block;line-height:1.4}
+
+  .oc-status{
     font-size:10px;font-weight:800;padding:4px 9px;border-radius:99px;
-    text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;flex-shrink:0;
+    text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;flex-shrink:0;
   }
-  .oi-status.pending{background:#fef3c7;color:#92400e}
-  .oi-status.accepted{background:#dbeafe;color:#1e40af}
-  .oi-status.done,.oi-status.completed{background:var(--green-50);color:var(--green-800)}
-  .oi-status.cancelled{background:#fef2f2;color:#991b1b}
+  .oc-status.pending{background:#fef3c7;color:#92400e}
+  .oc-status.accepted{background:#dbeafe;color:#1e40af}
+  .oc-status.done{background:var(--green-50);color:var(--green-800)}
 
-  .oi-detail{display:grid;grid-template-columns:1fr;gap:6px;margin-bottom:12px;font-size:12px;color:var(--ink-2)}
-  .oi-detail-row{display:flex;gap:8px;line-height:1.5}
-  .oi-detail-row strong{font-weight:700;color:var(--ink);flex-shrink:0}
-  .oi-detail-row span{color:var(--muted);word-break:break-word}
-
-  .oi-driver-box{
-    padding:11px 13px;border-radius:10px;background:var(--yellow-50);border:1px solid #ffe08a;
-    margin-bottom:12px;font-size:12.5px;color:#8a6d00;
+  .oc-route{
+    background:#f8fafc;border-radius:11px;padding:11px 13px;
+    margin-bottom:12px;font-size:12.5px;line-height:1.5;
   }
-  .oi-driver-box.assigned{background:var(--green-50);border-color:#a7e3c4;color:var(--green-800)}
+  .oc-route-item{display:flex;gap:9px;padding:3px 0}
+  .oc-route-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:6px}
+  .oc-route-dot.green{background:var(--green-600)}
+  .oc-route-dot.red{background:var(--danger)}
+  .oc-route-item strong{font-weight:700;color:var(--ink);margin-right:4px}
+  .oc-route-item span{color:var(--muted);word-break:break-word}
 
-  .oi-verified-box{
-    padding:10px 13px;border-radius:10px;
+  .oc-user{
+    display:flex;align-items:center;gap:10px;
+    padding:11px 13px;border-radius:11px;
     background:var(--green-50);border:1px solid #a7e3c4;
-    color:var(--green-800);font-size:12px;font-weight:700;
-    margin-bottom:12px;display:flex;align-items:center;gap:6px;
+    margin-bottom:12px;font-size:12.5px;
+  }
+  .oc-user-info{flex:1;min-width:0}
+  .oc-user-info strong{display:block;font-size:13px;font-weight:800;color:var(--green-800)}
+  .oc-user-info small{font-size:11px;color:#3f6212}
+  .oc-user-wa{
+    padding:7px 12px;border-radius:8px;
+    background:#25d366;color:#fff;
+    font-size:11.5px;font-weight:800;
+    display:inline-flex;align-items:center;gap:5px;flex-shrink:0;
+  }
+  .oc-user-wa:hover{background:#128c7e}
+
+  .oc-payment{
+    border-radius:11px;padding:12px 13px;
+    margin-bottom:12px;font-size:12.5px;
+  }
+  .oc-payment.cash{background:var(--green-50);border:1px solid #a7e3c4;color:var(--green-800)}
+  .oc-payment.transfer{background:var(--yellow-50);border:1px solid #ffe08a;color:#8a6d00}
+  .oc-payment-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .oc-payment-row + .oc-payment-row{margin-top:6px}
+  .oc-payment-row strong{font-weight:800;font-size:14px}
+  .oc-code{
+    display:inline-block;padding:3px 9px;border-radius:6px;
+    background:#fff;color:#8a6d00;
+    font-family:monospace;font-size:13px;font-weight:800;letter-spacing:1px;
+    border:1.5px dashed #e8ad00;
+  }
+  .oc-verified{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:4px 10px;border-radius:99px;
+    background:var(--green-600);color:#fff;
+    font-size:10.5px;font-weight:800;letter-spacing:.02em;
   }
 
-  .oi-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-  .oi-actions select{
-    flex:1;min-width:160px;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;
-    font-size:12.5px;font-weight:700;background:#fff;color:var(--ink);outline:none;
+  .oc-bank{
+    margin-top:8px;padding-top:8px;border-top:1px dashed #e8ad00;
   }
-  .oi-actions select:focus{border-color:var(--green-600)}
-  .btn-sm{
-    padding:9px 14px;border-radius:10px;font-size:12.5px;font-weight:800;transition:.16s;white-space:nowrap;
-    text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:4px;
+  .oc-bank-label{
+    font-size:10.5px;font-weight:800;letter-spacing:.04em;
+    text-transform:uppercase;color:#8a6d00;margin-bottom:4px;
   }
-  .btn-auto{background:linear-gradient(135deg,var(--yellow-400),var(--yellow-500));color:#4a3400}
-  .btn-auto:hover{filter:brightness(1.05)}
-  .btn-assign{background:var(--green-600);color:#fff}
-  .btn-assign:hover{background:var(--green-700)}
-  .btn-done{background:#f8fafc;color:var(--ink);border:1.5px solid var(--line)}
-  .btn-done:hover{border-color:var(--green-500)}
+  .oc-bank-body{font-size:12px;line-height:1.5}
+  .oc-bank-body strong{display:block;font-size:13px;color:var(--ink)}
+  .oc-bank-acc{
+    display:inline-block;
+    font-family:'SF Mono', 'Courier New', monospace;
+    font-size:14px;font-weight:800;color:var(--green-800);
+    letter-spacing:.05em;margin:2px 0;
+  }
+  .oc-bank-name{color:var(--muted);font-size:11.5px}
+  .oc-bank-empty{
+    margin-top:8px;font-size:11.5px;color:#991b1b;font-weight:700;
+  }
+
+  .oc-loc-status{
+    display:flex;align-items:center;gap:8px;
+    padding:9px 12px;border-radius:10px;
+    font-size:12px;font-weight:700;
+    margin-bottom:12px;
+  }
+  .oc-loc-status.ok{background:var(--green-50);border:1px solid #a7e3c4;color:var(--green-800)}
+  .oc-loc-status.warn{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+  .oc-loc-status.pending{background:var(--yellow-50);border:1px solid #ffe08a;color:#8a6d00}
+
+  .oc-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .btn-action{
+    flex:1;min-width:130px;
+    padding:12px 16px;border-radius:11px;
+    font-size:13px;font-weight:800;
+    transition:.16s;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  }
   .btn-verify{background:var(--yellow-500);color:#4a3400}
   .btn-verify:hover{filter:brightness(1.05)}
-  .btn-contact{background:#25d366;color:#fff}
-  .btn-contact:hover{background:#128c7e}
-  .btn-force-done{background:#fef2f2;color:#991b1b;border:1.5px solid #fecaca}
-  .btn-force-done:hover{background:#fee2e2}
-  .btn-sm:disabled{opacity:.55;cursor:not-allowed}
+  .btn-complete{
+    background:linear-gradient(135deg,var(--green-600),var(--green-500));color:#fff;
+    box-shadow:0 6px 14px -8px rgba(15,157,88,.8);
+  }
+  .btn-complete:hover{filter:brightness(1.05);transform:translateY(-1px)}
+  .btn-check{
+    background:#fff;border:1.5px solid var(--line);color:var(--ink);
+  }
+  .btn-check:hover{border-color:var(--green-500)}
+  .btn-action:disabled{opacity:.5;cursor:not-allowed;transform:none !important;filter:none !important;background:#e2e8f0;color:#94a3b8;box-shadow:none}
 
-  .oi-total{display:flex;justify-content:space-between;align-items:flex-end;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
-  .oi-total strong{font-size:16px;color:var(--green-800);font-weight:800}
+  /* ===== LOCATION PANEL ===== */
+  .map-box{
+    height:320px;border-radius:12px;
+    border:1.5px solid var(--line);
+    margin-bottom:14px;z-index:1;
+    background:transparent;
+  }
+  .loc-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .loc-info{
+    background:#f8fafc;border-radius:11px;padding:12px 14px;
+    font-size:11.5px;color:var(--muted);line-height:1.6;
+  }
+  .loc-info div{display:flex;justify-content:space-between;padding:2px 0}
+  .loc-info strong{color:var(--ink);font-family:monospace}
 
-  /* ===== FINANCE PANEL ===== */
-  .fin-filter {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 20px;
-    padding: 14px;
-    background: #f8fafc;
-    border-radius: 12px;
-    border: 1px solid var(--line);
+  /* ===== PROFILE ===== */
+  .profile-head{
+    display:flex;align-items:center;gap:14px;
+    padding-bottom:16px;margin-bottom:16px;
+    border-bottom:1px solid var(--line);
   }
-  .fin-period-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
-  .fin-period-btn {
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-size: 12.5px;
-    font-weight: 700;
-    background: #fff;
-    color: var(--muted);
-    border: 1.5px solid var(--line);
-    transition: .16s;
-    white-space: nowrap;
-  }
-  .fin-period-btn:hover { border-color: var(--green-500); color: var(--ink); }
-  .fin-period-btn.active {
-    background: var(--green-700);
-    color: #fff;
-    border-color: var(--green-700);
-  }
-  .fin-custom-range {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex: 1;
-    min-width: 280px;
-  }
-  .fin-custom-range input[type="date"] {
-    flex: 1;
-    padding: 8px 10px;
-    border: 1.5px solid var(--line);
-    border-radius: 8px;
-    font-size: 12.5px;
-    font-weight: 600;
-    background: #fff;
-    outline: none;
-    color: var(--ink);
-  }
-  .fin-custom-range input:focus { border-color: var(--green-600); }
-  .fin-custom-range span { font-size: 12px; color: var(--muted); font-weight: 700; }
-  .fin-custom-range button {
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-size: 12.5px;
-    font-weight: 800;
-    background: var(--green-600);
-    color: #fff;
-    white-space: nowrap;
-  }
-  .fin-custom-range button:hover { background: var(--green-700); }
-
-  .fin-stats {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-  @media (min-width: 720px) { .fin-stats { grid-template-columns: repeat(4, 1fr); } }
-
-  .fin-stat {
-    padding: 16px;
-    background: #fff;
-    border: 1.5px solid var(--line);
-    border-radius: 14px;
-    box-shadow: 0 2px 8px rgba(0,0,0,.03);
-  }
-  .fin-stat.warn { border-left: 4px solid #f59e0b; background: linear-gradient(180deg, #fff, #fffbeb); }
-  .fin-stat.info { border-left: 4px solid var(--green-600); background: linear-gradient(180deg, #fff, var(--green-50)); }
-
-  .fin-stat-ico { font-size: 20px; margin-bottom: 6px; }
-  .fin-stat-lbl {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-    color: var(--muted);
-    margin-bottom: 4px;
-  }
-  .fin-stat-val {
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--ink);
-    letter-spacing: -.02em;
-    line-height: 1.15;
-  }
-  .fin-stat-sub {
-    font-size: 10.5px;
-    color: var(--muted);
-    font-weight: 600;
-    margin-top: 4px;
-  }
-
-  .fin-driver-card {
-    background: #fff;
-    border: 1.5px solid var(--line);
-    border-radius: 14px;
-    padding: 16px;
-    margin-bottom: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,.03);
-  }
-  .fin-driver-head {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding-bottom: 14px;
-    margin-bottom: 12px;
-    border-bottom: 1px solid var(--line);
-    flex-wrap: wrap;
-  }
-  .fin-driver-avatar {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--green-700), var(--green-500));
-    color: #fff;
-    display: grid;
-    place-items: center;
-    font-weight: 800;
-    font-size: 16px;
-    flex-shrink: 0;
-  }
-  .fin-driver-info { flex: 1; min-width: 0; }
-  .fin-driver-info strong { display: block; font-size: 14.5px; font-weight: 800; color: var(--ink); }
-  .fin-driver-info small { font-size: 11.5px; color: var(--muted); font-weight: 600; }
-
-  .fin-driver-nett { text-align: right; flex-shrink: 0; }
-  .fin-driver-nett small {
-    display: block;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-    color: var(--muted);
-    font-weight: 700;
-    margin-bottom: 2px;
-  }
-  .fin-driver-nett strong {
-    display: block;
-    font-size: 16px;
-    font-weight: 800;
-    letter-spacing: -.02em;
-  }
-  .fin-driver-nett.positive strong { color: var(--green-800); }
-  .fin-driver-nett.negative strong { color: #dc2626; }
-  .fin-driver-nett.zero strong { color: var(--muted); }
-
-  .fin-driver-details { display: grid; gap: 6px; margin-bottom: 14px; }
-  .fin-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 0;
-    font-size: 12.5px;
-  }
-  .fin-row span { color: var(--muted); font-weight:600; }
-  .fin-row strong { font-weight: 800; color: var(--ink); }
-
-  .fin-driver-actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    padding-top: 12px;
-    border-top: 1px solid var(--line);
-    align-items: center;
-  }
-  .btn-fin-cash { background: #fff7ed; color: #9a3412; border: 1.5px solid #fed7aa; }
-  .btn-fin-cash:hover { background: #ffedd5; }
-  .btn-fin-earn { background: var(--green-50); color: var(--green-800); border: 1.5px solid #a7e3c4; }
-  .btn-fin-earn:hover { background: #d1fae5; }
-  .btn-fin-nett { background: var(--green-700); color: #fff; }
-  .btn-fin-nett:hover { background: var(--green-800); }
-
-  .fin-paid-badge {
-    color: #16a34a;
-    font-weight: 800;
-    font-size: 12px;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .fin-table-wrap {
-    overflow-x: auto;
-    border-radius: 12px;
-    border: 1.5px solid var(--line);
-    background: #fff;
-  }
-  .fin-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12.5px;
-    min-width: 560px;
-  }
-  .fin-table thead { background: #f8fafc; }
-  .fin-table th {
-    padding: 12px 14px;
-    text-align: left;
-    font-weight: 800;
-    color: var(--ink-2);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-    border-bottom: 1.5px solid var(--line);
-    white-space: nowrap;
-  }
-  .fin-table th.num { text-align: right; }
-  .fin-table td {
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--line);
-    color: var(--ink);
-  }
-  .fin-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
-  .fin-table tbody tr:hover { background: #f8fafc; }
-  .fin-table tfoot td {
-    padding: 12px 14px;
-    background: var(--green-50);
-    font-weight: 800;
-    border-top: 2px solid var(--green-500);
-  }
-  .fin-table tfoot td.num { color: var(--green-800); }
-
-  /* ===== COMMISSION PANEL ===== */
-  .commission-driver-item{
-    display:flex;align-items:center;gap:12px;padding:12px 14px;
-    background:#fff;border:1.5px solid var(--line);border-radius:12px;margin-bottom:8px;
-    flex-wrap:wrap;
-  }
-  .commission-driver-item.approved{border-color:#a7e3c4;background:var(--green-50)}
-  .commission-driver-item.pending{border-color:#ffe08a;background:var(--yellow-50)}
-  .cd-avatar{
-    width:36px;height:36px;border-radius:50%;
+  .profile-avatar{
+    width:64px;height:64px;border-radius:50%;
     background:linear-gradient(135deg,var(--green-700),var(--green-500));
-    color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px;flex-shrink:0;
+    color:#fff;display:grid;place-items:center;
+    font-weight:800;font-size:24px;flex-shrink:0;
+    background-size:cover;background-position:center;
+    box-shadow:0 4px 12px -4px rgba(15,157,88,.4);
   }
-  .cd-info{flex:1;min-width:0}
-  .cd-info strong{display:block;font-size:13.5px;color:var(--ink)}
-  .cd-info small{font-size:11.5px;color:var(--muted);font-weight:600}
-  .cd-status{
-    padding:5px 11px;border-radius:99px;font-size:11px;font-weight:800;
-    white-space:nowrap;flex-shrink:0;
-  }
-  .cd-status.ok{background:#dcfce7;color:#166534}
-  .cd-status.pending{background:#fef3c7;color:#92400e}
-  .cd-remind{
-    padding:7px 12px;border-radius:8px;background:#25d366;color:#fff;
-    font-size:11.5px;font-weight:800;transition:.16s;flex-shrink:0;
-  }
-  .cd-remind:hover{background:#128c7e}
+  .profile-head h3{margin:0 0 3px;font-size:17px;letter-spacing:-.02em}
+  .profile-head small{color:var(--muted);font-size:12px;display:block}
 
-  /* ===== RESPONSIVE ===== */
-  @media (max-width:979px){
-    .brand-copy,.brand-foot{display:none}
-    .brand-hero{min-height:200px;padding:68px 20px 26px}
-    .brand-logo{max-height:46px;max-width:140px}
-    .brand-logo-fallback{width:46px;height:46px;font-size:24px}
-    .brand-title{font-size:18px}
-    .brand-tagline{font-size:11px}
+  .upload-area{
+    border:2px dashed var(--line);border-radius:12px;
+    padding:18px;text-align:center;cursor:pointer;
+    transition:.2s;margin-bottom:18px;
   }
-  @media (min-width:980px){
-    .shell{grid-template-columns:minmax(0,1.06fr) minmax(0,.94fr)}
-    .brand-hero{min-height:280px;padding:80px 48px 34px}
-    .brand-logo{max-height:64px;max-width:200px}
-    .brand-logo-fallback{width:64px;height:64px;font-size:32px}
-    .brand-title{font-size:24px}
-    .brand-tagline{font-size:12.5px}
-    .brand-hero-content{gap:18px}
-    .brand-copy{padding:40px 48px 32px}
-    .brand-foot{padding:0 48px 40px}
-    .form-panel{padding:56px 40px}
+  .upload-area:hover{border-color:var(--green-500);background:var(--green-50)}
+  .upload-area .up-icon{font-size:22px;margin-bottom:4px}
+  .upload-area p{margin:0;font-size:12px;color:var(--muted)}
+
+  .field-label{
+    display:block;font-size:12px;font-weight:700;
+    color:var(--ink-2);margin-bottom:6px;margin-top:14px;
   }
-  @media (min-width:1280px){
-    .brand-hero{min-height:320px;padding:88px 72px 40px}
-    .brand-logo{max-height:72px;max-width:240px}
-    .brand-logo-fallback{width:72px;height:72px;font-size:36px}
-    .brand-title{font-size:26px}
-    .brand-copy{padding:48px 72px 40px}
-    .brand-foot{padding:0 72px 48px}
+  .field-label:first-of-type{margin-top:0}
+  .input{
+    width:100%;padding:12px 14px;
+    border:1.5px solid var(--line);border-radius:12px;
+    font-size:14px;background:#fbfcfd;outline:none;
+    transition:.2s;color:var(--ink);font-weight:600;
+  }
+  .input:focus{
+    border-color:var(--green-600);background:#fff;
+    box-shadow:0 0 0 4px rgba(15,157,88,.13);
+  }
+  .input[readonly]{background:#f1f5f9;color:var(--muted);cursor:not-allowed}
+
+  /* ===== SERVICES CHECKBOX ===== */
+  .service-checkbox{
+    display:flex;align-items:center;gap:12px;
+    padding:14px;border-radius:12px;
+    border:1.5px solid var(--line);
+    background:#fff;cursor:pointer;
+    transition:.16s;margin-bottom:10px;
+    user-select:none;
+  }
+  .service-checkbox:hover{border-color:var(--green-500);background:#f8fdfb}
+  .service-checkbox:has(input:checked){
+    border-color:var(--green-600);
+    background:var(--green-50);
+    box-shadow:0 0 0 1px var(--green-500);
+  }
+  .service-checkbox input{
+    width:20px;height:20px;
+    accent-color:var(--green-600);
+    flex-shrink:0;cursor:pointer;
+  }
+  .sc-icon{font-size:22px;flex-shrink:0;line-height:1}
+  .sc-text{flex:1;min-width:0}
+  .sc-text strong{display:block;font-size:14px;font-weight:800;color:var(--ink);margin-bottom:2px}
+  .sc-text small{display:block;font-size:11.5px;color:var(--muted);font-weight:600;line-height:1.3}
+
+  .services-note{
+    padding:11px 13px;border-radius:10px;
+    background:var(--yellow-50);border:1px solid #ffe08a;
+    color:#8a6d00;font-size:12px;font-weight:600;line-height:1.5;
+    margin-bottom:14px;
+  }
+  .services-note strong{color:#7c2d12;font-weight:800}
+
+  .services-actions{
+    display:flex;gap:8px;margin-top:4px;margin-bottom:14px;
+  }
+  .services-actions button{
+    flex:1;padding:10px 14px;border-radius:10px;
+    font-size:12.5px;font-weight:800;
+    background:#fff;border:1.5px solid var(--line);
+    color:var(--ink);transition:.16s;
+  }
+  .services-actions button:hover{border-color:var(--green-500);color:var(--green-800)}
+
+  /* ===== BUTTONS ===== */
+  .btn-primary{
+    width:100%;margin-top:16px;padding:14px;border-radius:12px;
+    font-size:14.5px;font-weight:800;color:#0b3d22;
+    background:linear-gradient(135deg,var(--yellow-400),var(--yellow-500));
+    box-shadow:0 8px 20px -10px rgba(255,199,44,1);
+    transition:.2s;
+  }
+  .btn-primary:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.05)}
+  .btn-primary:disabled{opacity:.6;cursor:not-allowed;box-shadow:none}
+
+  .btn-secondary{
+    padding:12px 16px;border-radius:11px;
+    background:#fff;border:1.5px solid var(--line);
+    font-size:13px;font-weight:700;color:var(--ink);
+    transition:.16s;flex:1;min-width:130px;
+  }
+  .btn-secondary:hover{border-color:var(--green-500)}
+
+  .btn-refresh{
+    padding:8px 12px;border-radius:10px;
+    background:#fff;border:1.5px solid var(--line);
+    font-size:12px;font-weight:700;color:var(--muted);
+    transition:.16s;
+  }
+  .btn-refresh:hover{border-color:var(--green-500);color:var(--ink)}
+  .btn-refresh:disabled{opacity:.6;cursor:not-allowed}
+
+  .info-box{
+    padding:12px 14px;border-radius:11px;
+    background:var(--yellow-50);border-left:3px solid var(--yellow-500);
+    font-size:12px;color:#8a6d00;line-height:1.5;margin-bottom:14px;
+  }
+
+  /* ===== STATS ===== */
+  .stats-bar{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:10px;
+    margin-bottom:16px;
+  }
+  @media(min-width:480px){.stats-bar{grid-template-columns:repeat(4,1fr)}}
+  .stat{
+    background:#fff;border:1px solid var(--line);border-radius:12px;
+    padding:12px 14px;text-align:center;
+  }
+  .stat-val{font-size:18px;font-weight:800;color:var(--green-700);display:block;letter-spacing:-.02em}
+  .stat-label{font-size:10.5px;color:var(--muted);font-weight:700;letter-spacing:.02em;text-transform:uppercase}
+
+  /* ===== MOBILE ===== */
+  @media (max-width:600px){
+    .dh-inner{padding:12px 14px;gap:10px}
+    .dh-logo{height:34px;max-width:90px}
+    .dh-brand strong{font-size:13px}
+    .dh-user-info strong{max-width:90px;font-size:12px}
+    .dh-user-info small{max-width:90px}
+    .dh-avatar{width:32px;height:32px;font-size:12.5px}
+    .content{padding:8px 12px 60px}
+    .oc-actions .btn-action{min-width:0;flex:1 1 100%}
+    .loc-actions .btn-secondary{min-width:0;flex:1 1 100%}
   }
 </style>
-<base target="_blank">
 </head>
-<body data-mode="user">
+<body>
 
-<main class="shell" id="authScreen">
+<div class="loading-screen" id="loadingScreen">
+  <div class="spinner"></div>
+  <p>Memuat panel driver…</p>
+</div>
 
-  <section class="brand-panel">
-    <div class="brand-hero">
-      <div class="brand-hero-content">
-        <div class="brand-logo-wrap">
-          <img id="brandLogo" src="logo1.png" alt="INYONG_JEK" class="brand-logo"
-               onerror="this.hidden=true;document.getElementById('logoFallback').hidden=false;" />
-          <div id="logoFallback" class="brand-logo-fallback" hidden>🛵</div>
-        </div>
-        <div class="brand-text">
-          <strong class="brand-title"><span style="color:#05472a">INYONG_</span><span style="color:#f59e0b">JEK</span></strong>
-          <small class="brand-tagline" style="color:#05472a">Ojeke Wong Kebumen</small>
-        </div>
-      </div>
-    </div>
+<div id="driverApp" hidden>
 
-    <div class="brand-copy">
-      <h1>Satu aplikasi,<br /><span>semua kebutuhan</span> harianmu.</h1>
-      <p>
-        Pesan ojek, taxi, makanan, jasa tulung, sampai becak —
-        semua dari satu tempat, dengan mitra terpercaya di sekitarmu.
-      </p>
-      <ul class="brand-chips">
-        <li>🛵 Ojek Online</li>
-        <li>🚕 Taxi Online</li>
-        <li>🍜 Food Online</li>
-        <li>🤝 Tulung Apa Bae</li>
-        <li>🛺 Becak Online</li>
-      </ul>
-    </div>
-
-    <div class="brand-foot">© 2025 INYONG_JEK · Ojeke Wong Kebumen</div>
-  </section>
-
-  <section class="form-panel">
-    <div class="login-card">
-
-      <div class="session-note" id="sessionNote" hidden>
-        <div class="sn-txt" id="sessionText">Kamu masih tercatat masuk.</div>
-        <button class="sn-btn" id="sessionContinue">Lanjutkan</button>
-        <button class="sn-btn sn-btn-secondary" id="sessionSwitch">Ganti Akun</button>
-      </div>
-
-      <div id="viewLogin">
-        <div class="mode-tabs" id="modeTabs">
-          <button class="mode-tab active" data-mode-btn="user"><span class="mt-ico">👤</span>User</button>
-          <button class="mode-tab" data-mode-btn="driver"><span class="mt-ico">🛵</span>Driver</button>
-          <button class="mode-tab" data-mode-btn="admin"><span class="mt-ico">🛡️</span>Admin</button>
-        </div>
-
-        <div class="card-head">
-          <h2 id="cardTitle">Masuk ke akun kamu</h2>
-          <p id="cardSub">Gunakan nomor WhatsApp dan password yang sudah terdaftar.</p>
-        </div>
-
-        <div class="alert" id="alertBox" role="status" aria-live="polite"></div>
-
-        <form id="loginForm" novalidate>
-          <div class="field" id="fieldWa">
-            <label for="wa">Nomor WhatsApp</label>
-            <div class="input-wrap">
-              <span class="lead">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>
-                </svg>
-              </span>
-              <input id="wa" name="wa" type="tel" inputmode="numeric" autocomplete="tel" placeholder="08xxxxxxxxxx" maxlength="20" required />
-            </div>
-          </div>
-
-          <div class="field" id="fieldEmail" hidden>
-            <label for="email">Email Admin</label>
-            <div class="input-wrap">
-              <span class="lead">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <rect x="3" y="5" width="18" height="14" rx="2"/>
-                  <path d="M3 7l9 6 9-6"/>
-                </svg>
-              </span>
-              <input id="email" name="email" type="email" autocomplete="email" placeholder="admin@tulunginyong.com" />
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="password">Password</label>
-            <div class="input-wrap">
-              <span class="lead">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <rect x="3" y="11" width="18" height="11" rx="2"/>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                </svg>
-              </span>
-              <input id="password" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required />
-              <button type="button" class="eye" id="eyeBtn" aria-label="Tampilkan password"></button>
-            </div>
-          </div>
-
-          <button type="submit" class="btn-primary" id="submitBtn" disabled>Memuat…</button>
-        </form>
-
-        <div class="card-foot" id="loginFooter">
-          <p>Belum punya akun? <a href="#" id="showRegister">Daftar di sini</a></p>
-          <p>Sudah daftar tapi belum verifikasi? <a href="#" id="showVerify">Verifikasi kode WA</a></p>
+  <!-- HEADER -->
+  <header class="driver-header">
+    <div class="dh-inner">
+      <div class="dh-brand">
+        <img src="logo2.png" alt="Tulung Inyong Driver" class="dh-logo"
+             onerror="this.style.display='none'" />
+        <div>
+          <strong>Tulung Inyong</strong>
+          <small>Driver Panel</small>
         </div>
       </div>
-
-      <div id="viewRegister" hidden>
-        <div class="card-head">
-          <h2 id="regTitle">Daftar Akun Baru</h2>
-          <p id="regSub">Isi data diri kamu. Admin akan mengirim kode verifikasi ke WhatsApp kamu.</p>
+      <div class="dh-user">
+        <div class="dh-avatar" id="headerAvatar">?</div>
+        <div class="dh-user-info">
+          <strong id="headerName">-</strong>
+          <small id="headerStatus">Offline</small>
         </div>
-
-        <div class="alert" id="regAlert" role="status" aria-live="polite"></div>
-
-        <form id="registerForm" novalidate>
-          <div class="field">
-            <label for="regName">Nama lengkap</label>
-            <div class="input-wrap no-lead">
-              <input id="regName" name="regName" type="text" placeholder="Nama kamu" required />
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="regWa">Nomor WhatsApp</label>
-            <div class="input-wrap no-lead">
-              <input id="regWa" name="regWa" type="tel" inputmode="numeric" maxlength="20" placeholder="08xxxxxxxxxx" required />
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="regPassword">Password</label>
-            <div class="input-wrap no-lead">
-              <input id="regPassword" name="regPassword" type="password" minlength="6" placeholder="Minimal 6 karakter" required />
-            </div>
-          </div>
-
-          <div class="admin-info" style="margin-top:8px;margin-bottom:14px">
-            <strong>Catatan:</strong> Pendaftaran <strong id="regRoleLabel">Pengguna</strong>. Nomor WA akan diverifikasi lewat kode yang dikirim admin.
-          </div>
-
-          <button type="submit" class="btn-primary" id="regBtn" disabled>Memuat…</button>
-        </form>
-
-        <div class="card-foot">
-          <p>Sudah punya akun? <a href="#" id="showLogin">Masuk di sini</a></p>
-        </div>
+        <button class="dh-logout" onclick="doLogout()">Keluar</button>
       </div>
-
-      <div id="viewVerify" hidden>
-        <div class="card-head">
-          <h2>Verifikasi Nomor WhatsApp</h2>
-          <p>Minta kode verifikasi dari admin, lalu masukkan kode 6 digit di bawah ini.</p>
-        </div>
-
-        <div class="alert" id="verAlert" role="status" aria-live="polite"></div>
-
-        <form id="verifyForm" novalidate>
-          <div class="field">
-            <label for="verWa">Nomor WhatsApp terdaftar</label>
-            <div class="input-wrap no-lead">
-              <input id="verWa" name="verWa" type="tel" inputmode="numeric" maxlength="20" placeholder="08xxxxxxxxxx" required />
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="verCode">Kode Verifikasi (6 digit)</label>
-            <div class="input-wrap no-lead">
-              <input id="verCode" name="verCode" type="text" inputmode="numeric" maxlength="6" placeholder="000000" required style="letter-spacing:6px;font-family:'Courier New',monospace;font-weight:800;font-size:18px;text-align:center" />
-            </div>
-          </div>
-
-          <button type="submit" class="btn-primary" id="verBtn" disabled>Memuat…</button>
-        </form>
-
-        <div class="card-foot">
-          <p>Sudah terverifikasi? <a href="#" id="showLoginFromVerify">Masuk di sini</a></p>
-        </div>
-      </div>
-
-      <div class="version">INYONG_JEK · v2.0</div>
-    </div>
-  </section>
-</main>
-
-<!-- ===== ADMIN DASHBOARD ===== -->
-<div class="admin-app" id="adminScreen" hidden>
-
-  <header class="admin-header">
-    <div class="admin-header-inner">
-      <div class="admin-brand">
-        <div class="admin-logo-wrap">
-          <img src="logo1.png" alt="INYONG_JEK" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=&quot;ico-fallback&quot;>🛵</span>'" />
-        </div>
-        <div class="admin-brand-text">
-          <strong><span style="color:#05472a">INYONG_</span><span style="color:#f59e0b">JEK</span></strong>
-          <small>Admin Panel · Ojeke Wong Kebumen</small>
-        </div>
-      </div>
-      <button class="admin-logout" id="adminLogout">Keluar</button>
     </div>
   </header>
 
-  <main class="admin-main">
-    <nav class="admin-tabs">
-      <button class="admin-tab active" data-admin-tab="pendaftaran">
-        👥 Pendaftaran <span class="tab-badge" id="pendingBadge" hidden>0</span>
-      </button>
-      <button class="admin-tab" data-admin-tab="pesanan">
-        📦 Pesanan <span class="tab-badge" id="ordersBadge" hidden>0</span>
-      </button>
-      <button class="admin-tab" data-admin-tab="keuangan">💵 Keuangan</button>
-      <button class="admin-tab" data-admin-tab="harga">💰 Harga & Komisi</button>
-      <button class="admin-tab" data-admin-tab="bonus">🏦 Pembayaran & Kontak</button>
-    </nav>
+  <!-- LOCATION BAR -->
+  <div class="loc-bar danger" id="locBar">
+    <div class="loc-bar-icon" id="locBarIcon">⚠️</div>
+    <div class="loc-bar-text" id="locBarText">Lokasi belum diperbarui</div>
+    <button class="loc-bar-btn" onclick="switchTab('location')">Update</button>
+  </div>
 
-    <!-- Panel Pendaftaran -->
-    <div class="admin-panel" data-panel="pendaftaran">
-      <div class="panel-head">
-        <h2>Pendaftaran Menunggu Verifikasi</h2>
-        <button class="btn-refresh" id="refreshPending">🔄 Muat Ulang</button>
-      </div>
-      <div id="pendingList">
-        <div class="admin-empty"><span class="ico">⏳</span><h3>Memuat data…</h3></div>
-      </div>
-    </div>
+  <!-- TABS -->
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="orders">
+      📦 Pesanan <span class="tab-badge" id="ordersBadge" hidden>0</span>
+    </button>
+    <button class="tab" data-tab="location">🗺️ Lokasi</button>
+    <button class="tab" data-tab="history">🕓 Riwayat</button>
+    <button class="tab" data-tab="profile" id="profileTab">
+      👤 Profil <span class="tab-badge" id="servicesWarnBadge" hidden style="background:#fde68a;color:#92400e">!</span>
+    </button>
+  </nav>
 
-    <!-- Panel Pesanan -->
-    <div class="admin-panel" data-panel="pesanan" hidden>
+  <!-- CONTENT -->
+  <main class="content">
+
+    <!-- ============ PANEL: ORDERS ============ -->
+    <div class="panel" data-panel="orders">
+
+      <!-- WARNING BANNER: LAYANAN BELUM DIATUR -->
+      <div class="services-warning" id="servicesWarning" hidden>
+        <div class="ico">⚠️</div>
+        <div class="sw-body">
+          <strong>Layanan Aktif Belum Diatur</strong>
+          <p>Atur layanan yang bisa Anda layani. Admin hanya akan menugaskan pesanan sesuai layanan yang Anda aktifkan.</p>
+          <button class="sw-btn" onclick="switchTab('profile')">⚙️ Atur Sekarang</button>
+        </div>
+      </div>
+
+      <div class="stats-bar" id="statsBar">
+        <div class="stat"><span class="stat-val" id="statActive">0</span><span class="stat-label">Aktif</span></div>
+        <div class="stat"><span class="stat-val" id="statToday">0</span><span class="stat-label">Trip Hari Ini</span></div>
+        <div class="stat"><span class="stat-val" id="statEarnings">Rp 0</span><span class="stat-label">Pendapatan</span></div>
+        <div class="stat"><span class="stat-val" id="statRating">-</span><span class="stat-label">Rating</span></div>
+      </div>
+
       <div class="panel-head">
-        <h2>Pesanan Masuk</h2>
-        <button class="btn-refresh" id="refreshOrders">🔄 Muat Ulang</button>
+        <h2>Pesanan Aktif</h2>
+        <div class="panel-head-actions">
+          <button class="btn-refresh" onclick="refreshDistanceChecks(true)">📍 Refresh Lokasi</button>
+          <button class="btn-refresh" onclick="refreshOrders()">🔄 Muat Ulang</button>
+        </div>
       </div>
       <div id="ordersList">
-        <div class="admin-empty"><span class="ico">⏳</span><h3>Memuat data…</h3></div>
+        <div class="empty"><span class="ico">⏳</span><h3>Memuat…</h3></div>
       </div>
     </div>
 
-    <!-- Panel Keuangan -->
-    <div class="admin-panel" data-panel="keuangan" hidden>
+    <!-- ============ PANEL: LOCATION ============ -->
+    <div class="panel" data-panel="location" hidden>
       <div class="panel-head">
-        <h2>Laporan Keuangan</h2>
-        <button class="btn-refresh" id="refreshFinance">🔄 Muat Ulang</button>
+        <h2>Lokasi Saya</h2>
       </div>
-
-      <div class="fin-filter">
-        <div class="fin-period-tabs" id="finPeriodTabs">
-          <button class="fin-period-btn" data-fin-period="today">Hari Ini</button>
-          <button class="fin-period-btn active" data-fin-period="week">Minggu Ini</button>
-          <button class="fin-period-btn" data-fin-period="month">Bulan Ini</button>
-          <button class="fin-period-btn" data-fin-period="custom">Custom</button>
+      <div class="card">
+        <div class="info-box">
+          ℹ️ Perbarui lokasi Anda setiap kali pindah area agar admin bisa menugaskan order terdekat.
+          Sistem <strong>tidak</strong> melacak realtime — hemat kuota & baterai.
         </div>
-        <div class="fin-custom-range" id="finCustomRange" hidden>
-          <input type="date" id="finFrom" />
-          <span>s/d</span>
-          <input type="date" id="finTo" />
-          <button type="button" id="finApply">Terapkan</button>
+        <div id="locMap" class="map-box"></div>
+        <div class="loc-actions">
+          <button class="btn-secondary" onclick="detectMyLocation()">📍 Gunakan GPS</button>
+          <button class="btn-secondary" onclick="clearPickedLocation()">🔄 Reset</button>
         </div>
-      </div>
-
-      <div class="fin-stats">
-        <div class="fin-stat">
-          <div class="fin-stat-ico">📦</div>
-          <div class="fin-stat-lbl">Trip Selesai</div>
-          <div class="fin-stat-val" id="finTotalTrips">0</div>
-          <div class="fin-stat-sub" id="finPeriodLabel">Minggu ini</div>
+        <div class="loc-info" id="locInfo">
+          <div><span>Latitude</span><strong id="locLat">-</strong></div>
+          <div><span>Longitude</span><strong id="locLng">-</strong></div>
+          <div><span>Geohash</span><strong id="locGeohash">-</strong></div>
         </div>
-        <div class="fin-stat">
-          <div class="fin-stat-ico">💵</div>
-          <div class="fin-stat-lbl">Total Pendapatan</div>
-          <div class="fin-stat-val" id="finTotalRevenue">Rp 0</div>
-          <div class="fin-stat-sub">Cash + transfer</div>
-        </div>
-        <div class="fin-stat warn">
-          <div class="fin-stat-ico">💰</div>
-          <div class="fin-stat-lbl">Cash di Driver</div>
-          <div class="fin-stat-val" id="finCashOutstanding">Rp 0</div>
-          <div class="fin-stat-sub">Belum disetor ke admin</div>
-        </div>
-        <div class="fin-stat info">
-          <div class="fin-stat-ico">🎁</div>
-          <div class="fin-stat-lbl">Hak Driver</div>
-          <div class="fin-stat-val" id="finEarningOwed">Rp 0</div>
-          <div class="fin-stat-sub">Belum dibayar admin</div>
-        </div>
-      </div>
-
-      <div class="panel-head" style="margin-top:24px">
-        <h3 style="margin:0;font-size:16px">Rincian Per Driver</h3>
-      </div>
-      <div id="finDriverList">
-        <div class="admin-empty"><span class="ico">⏳</span><h3>Memuat…</h3></div>
-      </div>
-
-      <div class="panel-head" style="margin-top:24px">
-        <h3 style="margin:0;font-size:16px">Rincian Periode</h3>
-      </div>
-      <div id="finPeriodList"></div>
-    </div>
-
-    <!-- Panel Harga & Komisi -->
-    <div class="admin-panel" data-panel="harga" hidden>
-      <div class="panel-head">
-        <h2>Harga, Tarif & Komisi</h2>
-      </div>
-      <div class="admin-card">
-        <h3>🛵 Ojek & 🚕 Taxi & 🛺 Becak — tarif per km</h3>
-
-        <label>Ojek Online — harga per km (Rp)</label>
-        <div class="input-row">
-          <span>Rp</span>
-          <input type="number" id="inputOjekPrice" min="0" step="100" placeholder="2500" />
-        </div>
-
-        <label>Taxi Online — harga per km (Rp)</label>
-        <div class="input-row">
-          <span>Rp</span>
-          <input type="number" id="inputTaxiPrice" min="0" step="100" placeholder="4000" />
-        </div>
-
-        <label>Becak Online — harga per km (Rp)</label>
-        <div class="input-row">
-          <span>Rp</span>
-          <input type="number" id="inputBecakPrice" min="0" step="100" placeholder="2000" />
-        </div>
-
-        <div class="admin-info">
-          Tarif ini dipakai user.html saat menghitung ongkos berdasarkan jarak rute peta.
-        </div>
-
-        <div class="section-divider"></div>
-
-        <h3>💵 Komisi Admin per Trip</h3>
-        <p style="margin:8px 0 16px;font-size:12px;color:var(--muted);line-height:1.5">
-          Komisi yang diambil dari setiap trip driver. Jika diubah, driver <strong>wajib menyetujui</strong> perubahan sebelum bisa mengambil order. Default: <strong>Rp 0</strong>.
-        </p>
-
-        <label>Komisi Ojek (Rp / trip)</label>
-        <div class="input-row">
-          <span>Rp</span>
-          <input type="number" id="inputCommOjek" min="0" step="100" placeholder="0" />
-        </div>
-
-        <label>Komisi Taxi (Rp / trip)</label>
-        <div class="input-row">
-          <span>Rp</span>
-          <input type="number" id="inputCommTaxi" min="0" step="100" placeholder="0" />
-        </div>
-
-        <label>Komisi Food (Rp / trip)</label>
-        <div class="input-row">
-          <span>Rp</span>
-          <input type="number" id="inputCommFood" min="0" step="100" placeholder="0" />
-        </div>
-
-        <label>Komisi Becak (Rp / trip)</label>
-        <div class="input-row">
-          <span>Rp</span>
-          <input type="number" id="inputCommBecak" min="0" step="100" placeholder="0" />
-        </div>
-
-        <label>Komisi Tulung (Rp / trip)</label>
-        <div class="input-row">
-          <span>Rp</span>
-          <input type="number" id="inputCommTulung" min="0" step="100" placeholder="0" />
-        </div>
-
-        <div class="admin-info warn">
-          Setiap perubahan komisi akan menaikkan <strong>versi komisi</strong>. Driver yang belum menyetujui versi terbaru akan melihat notifikasi di aplikasi driver dan tidak bisa menerima order sampai menyetujui.
-        </div>
-
-        <button class="btn-primary" id="savePrice" style="margin-top:18px">Simpan Harga & Komisi</button>
-
-        <div class="section-divider"></div>
-
-        <h3>👥 Status Persetujuan Driver</h3>
-        <p style="margin:8px 0 14px;font-size:12px;color:var(--muted);line-height:1.5">
-          Daftar driver aktif dan status persetujuan komisi terbaru.
-        </p>
-        <div id="commissionDriversList">
-          <div class="admin-empty"><span class="ico">⏳</span><h3>Memuat…</h3></div>
-        </div>
+        <button class="btn-primary" onclick="saveLocation()" id="saveLocBtn">💾 Simpan Lokasi</button>
       </div>
     </div>
 
-    <!-- Panel Pembayaran & Kontak -->
-    <div class="admin-panel" data-panel="bonus" hidden>
+    <!-- ============ PANEL: HISTORY ============ -->
+    <div class="panel" data-panel="history" hidden>
       <div class="panel-head">
-        <h2>Pembayaran, Bonus & Kontak</h2>
+        <h2>Riwayat Pesanan</h2>
       </div>
-      <div class="admin-card">
-        <h3>🏦 Rekening Penerima Transfer</h3>
+      <div id="historyList">
+        <div class="empty"><span class="ico">📭</span><h3>Belum ada riwayat</h3><p>Pesanan yang selesai akan muncul di sini.</p></div>
+      </div>
+    </div>
 
-        <label for="inputBankName">Nama Bank</label>
-        <div class="input-row">
-          <input type="text" id="inputBankName" placeholder="Contoh: BCA / BRI / Mandiri / BNI" style="padding-left:16px" />
+    <!-- ============ PANEL: PROFILE ============ -->
+    <div class="panel" data-panel="profile" hidden>
+      <div class="panel-head">
+        <h2>Profil Saya</h2>
+      </div>
+
+      <!-- CARD: LAYANAN AKTIF -->
+      <div class="card">
+        <h3 class="card-title">🎯 Layanan Aktif</h3>
+        <p class="card-subtitle">Pilih layanan yang bisa Anda layani. Admin hanya akan menugaskan pesanan sesuai layanan yang Anda aktifkan di sini.</p>
+
+        <div class="services-note" id="servicesNote" hidden></div>
+
+        <div id="servicesList"></div>
+
+        <div class="services-actions">
+          <button type="button" onclick="selectAllServices()">✓ Pilih Semua</button>
+          <button type="button" onclick="clearAllServices()">✕ Kosongkan</button>
         </div>
 
-        <label for="inputBankAccountName">Atas Nama</label>
-        <div class="input-row">
-          <input type="text" id="inputBankAccountName" placeholder="Nama pemilik rekening" style="padding-left:16px" />
+        <button class="btn-primary" onclick="saveServices()" id="saveServicesBtn">💾 Simpan Layanan</button>
+      </div>
+
+      <!-- CARD: DATA DIRI -->
+      <div class="card">
+        <h3 class="card-title">👤 Data Diri</h3>
+        <div class="profile-head">
+          <div class="profile-avatar" id="profileAvatar">?</div>
+          <div>
+            <h3 id="profileName">-</h3>
+            <small id="profileWa">-</small>
+          </div>
         </div>
 
-        <label for="inputBankAccountNumber">Nomor Rekening</label>
-        <div class="input-row">
-          <input type="text" id="inputBankAccountNumber" placeholder="1234567890" style="padding-left:16px" />
+        <div class="upload-area" onclick="uploadPhoto()">
+          <div class="up-icon">📤</div>
+          <p>Unggah Foto Profil</p>
+          <p style="font-size:10px;color:#94a3b8">(Segera hadir — via Cloudinary)</p>
         </div>
 
-        <div class="admin-info warn">
-          Rekening ini akan ditampilkan ke pengguna saat memilih metode pembayaran <strong>Transfer Bank</strong>.
-        </div>
+        <label class="field-label">Nama Lengkap</label>
+        <input type="text" id="inputName" class="input" placeholder="Nama Anda" />
 
-        <div class="section-divider"></div>
+        <label class="field-label">Nomor WhatsApp</label>
+        <input type="tel" id="inputWa" class="input" readonly />
 
-        <h3>🎁 Bonus Prestasi</h3>
+        <label class="field-label">Kendaraan</label>
+        <input type="text" id="inputVehicle" class="input" placeholder="Contoh: Honda Vario · AB 1234 CD" />
 
-        <label for="inputDriverBonus">Bonus driver per trip (Rp)</label>
-        <div class="input-row">
-          <span>Rp</span>
-          <input type="number" id="inputDriverBonus" min="0" step="500" placeholder="5000" />
-        </div>
-
-        <label for="inputUserBonus">Bonus pengguna per trip (Rp)</label>
-        <div class="input-row">
-          <span>Rp</span>
-          <input type="number" id="inputUserBonus" min="0" step="500" placeholder="2000" />
-        </div>
-
-        <div class="admin-info">
-          <strong>Bonus driver</strong> = hak default driver tiap menyelesaikan trip.<br>
-          <strong>Bonus pengguna</strong> = potongan/credit pengguna tiap trip.
-        </div>
-
-        <div class="section-divider"></div>
-
-        <h3>📱 Kontak Admin</h3>
-
-        <label for="inputAdminWa">WhatsApp Admin (untuk Tulung Apa Bae)</label>
-        <div class="input-row">
-          <span>+62</span>
-          <input type="tel" id="inputAdminWa" placeholder="81234567890" style="padding-left:4px" />
-        </div>
-        <div class="admin-info warn">
-          Format tanpa <code>+</code> atau <code>0</code> di depan (contoh: <code>81234567890</code>).
-        </div>
-
-        <button class="btn-primary" id="saveBonus">Simpan Semua</button>
+        <button class="btn-primary" onclick="saveProfile()" id="saveProfileBtn">💾 Simpan Profil</button>
       </div>
     </div>
 
   </main>
 </div>
 
-<noscript>
-  <div style="padding:24px;text-align:center;font-family:sans-serif">
-    Aplikasi ini membutuhkan JavaScript. Aktifkan JavaScript di browser kamu.
-  </div>
-</noscript>
-
-<script>
-(function loadLogo(){
-  const img = document.getElementById('brandLogo');
-  const fallback = document.getElementById('logoFallback');
-  if (!img || !fallback) return;
-  img.onload  = () => { img.hidden = false; fallback.hidden = true; };
-  img.onerror = () => { img.hidden = true;  fallback.hidden = false; };
-})();
-</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc,
-  updateDoc, deleteDoc, query, where, limit, serverTimestamp
+  getFirestore, doc, getDoc, updateDoc, collection, query, where, onSnapshot, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import {
-  getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAXWxcWYhvEKlXC414ECmv0vG0jZAr_Ecc",
@@ -1137,1379 +696,1057 @@ const firebaseConfig = {
   appId: "1:892623147541:web:47812250f6498efad7b41c"
 };
 
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 const CONFIG = {
-  brand: 'INYONG_JEK',
-  usersCollection: 'users',
+  collection: 'password',
   ordersCollection: 'orders',
-  settingsDoc: { collection: 'settings', doc: 'app' },
   sessionKey: 'tulungiyong.session',
-  routes: { user: 'user.html', admin: 'index.html', driver: 'driver.html' },
-  waEmailDomain: 'tulunginyong.app'
+  routes: { user: 'user.html', admin: 'index.html', driver: 'driver.html' }
 };
 
-const DEFAULT_SETTINGS = {
-  ojekPricePerKm: 2500,
-  taxiPricePerKm: 4000,
-  becakPricePerKm: 2000,
-  driverBonus: 5000,
-  userBonus: 2000,
-  adminWa: '6281234567890',
-  bankName: '',
-  bankAccountName: '',
-  bankAccountNumber: '',
-  commissions: { ojek: 0, taxi: 0, food: 0, becak: 0, tulung: 0 },
-  commissionVersion: 1
-};
+const COMPLETE_RADIUS_M = 200;
 
-const ROLE_LABEL = { user:'Pengguna', admin:'Admin', driver:'Driver' };
+// Daftar layanan yang bisa diaktifkan driver
+// 'tulung' = 'bantu' (alias, untuk backward compat)
+const SERVICE_OPTIONS = [
+  { id: 'ojek',   label: 'Ojek Online',    icon: '🛵', desc: 'Antar penumpang dengan motor' },
+  { id: 'taxi',   label: 'Taxi Online',    icon: '🚕', desc: 'Antar penumpang dengan mobil' },
+  { id: 'food',   label: 'Food Online',    icon: '🍜', desc: 'Antar pesanan makanan' },
+  { id: 'tulung', label: 'Tulung / Bantu', icon: '🤝', desc: 'Belanja, antar, titip barang' },
+  { id: 'tambal', label: 'Tambal Ban',     icon: '🔧', desc: 'Datang ke lokasi ban bocor' }
+];
 
-// Service labels
-const SERVICE_LABELS = {
-  ojek: 'Ojek', taxi: 'Taxi', food: 'Food', tulung: 'Bantu', becak: 'Becak'
-};
-const SERVICE_ALIASES = { bantu: 'tulung' };
 function normalizeServiceId(id) {
   const s = String(id || '').toLowerCase();
-  return SERVICE_ALIASES[s] || s;
+  if (s === 'bantu') return 'tulung';
+  return s;
 }
 
-let app, db, auth;
-try {
-  app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
-  auth = getAuth(app);
-} catch (err) { console.error('[Firebase init]', err); }
+// ============================================================
+// GEOHASH INLINE
+// ============================================================
+function geohashForLocation([lat, lng], precision = 9) {
+  const B32 = '0123456789bcdefghjkmnpqrstuvwxyz';
+  let latMin = -90, latMax = 90, lngMin = -180, lngMax = 180;
+  let hash = '', bits = 0, bitCount = 0, isEven = true;
+  while (hash.length < precision) {
+    let mid;
+    if (isEven) {
+      mid = (lngMin + lngMax) / 2;
+      if (lng >= mid) { bits = (bits << 1) | 1; lngMin = mid; }
+      else { bits = bits << 1; lngMax = mid; }
+    } else {
+      mid = (latMin + latMax) / 2;
+      if (lat >= mid) { bits = (bits << 1) | 1; latMin = mid; }
+      else { bits = bits << 1; latMax = mid; }
+    }
+    isEven = !isEven;
+    bitCount++;
+    if (bitCount === 5) { hash += B32[bits]; bits = 0; bitCount = 0; }
+  }
+  return hash;
+}
 
-const $ = (s, r = document) => r.querySelector(s);
-const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+function haversineM(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
 
-const el = {
-  body: document.body,
-  authScreen: $('#authScreen'), adminScreen: $('#adminScreen'),
-  viewLogin: $('#viewLogin'), viewRegister: $('#viewRegister'), viewVerify: $('#viewVerify'),
-  loginForm: $('#loginForm'), wa: $('#wa'), email: $('#email'), password: $('#password'),
-  fieldWa: $('#fieldWa'), fieldEmail: $('#fieldEmail'),
-  eyeBtn: $('#eyeBtn'), submitBtn: $('#submitBtn'), alertBox: $('#alertBox'),
-  cardTitle: $('#cardTitle'), cardSub: $('#cardSub'),
-  loginFooter: $('#loginFooter'), modeTabs: $$('[data-mode-btn]'),
-  sessionNote: $('#sessionNote'), sessionText: $('#sessionText'),
-  sessionBtn: $('#sessionContinue'), sessionSwitch: $('#sessionSwitch'),
-  showRegister: $('#showRegister'), showLogin: $('#showLogin'), showVerify: $('#showVerify'),
-  showLoginFromVerify: $('#showLoginFromVerify'),
-  registerForm: $('#registerForm'), regName: $('#regName'), regWa: $('#regWa'),
-  regPassword: $('#regPassword'), regBtn: $('#regBtn'), regAlert: $('#regAlert'),
-  regTitle: $('#regTitle'), regSub: $('#regSub'), regRoleLabel: $('#regRoleLabel'),
-  verifyForm: $('#verifyForm'), verWa: $('#verWa'), verCode: $('#verCode'),
-  verBtn: $('#verBtn'), verAlert: $('#verAlert'),
-  adminLogout: $('#adminLogout'), adminTabs: $$('[data-admin-tab]'), adminPanels: $$('[data-panel]'),
-  pendingList: $('#pendingList'), pendingBadge: $('#pendingBadge'), refreshPending: $('#refreshPending'),
-  ordersList: $('#ordersList'), ordersBadge: $('#ordersBadge'), refreshOrders: $('#refreshOrders'),
-  refreshFinance: $('#refreshFinance'),
-  inputOjekPrice: $('#inputOjekPrice'), inputTaxiPrice: $('#inputTaxiPrice'),
-  inputBecakPrice: $('#inputBecakPrice'),
-  inputCommOjek: $('#inputCommOjek'), inputCommTaxi: $('#inputCommTaxi'),
-  inputCommFood: $('#inputCommFood'), inputCommBecak: $('#inputCommBecak'), inputCommTulung: $('#inputCommTulung'),
-  commissionDriversList: $('#commissionDriversList'),
-  inputDriverBonus: $('#inputDriverBonus'), inputUserBonus: $('#inputUserBonus'), inputAdminWa: $('#inputAdminWa'),
-  inputBankName: $('#inputBankName'), inputBankAccountName: $('#inputBankAccountName'), inputBankAccountNumber: $('#inputBankAccountNumber'),
-  savePrice: $('#savePrice'), saveBonus: $('#saveBonus')
+// ============================================================
+// STATE
+// ============================================================
+let session = null;
+let driverData = null;
+let ordersUnsub = null;
+let activeOrders = [];
+let historyOrders = [];
+
+const distanceChecks = {};
+let checkingDistances = false;
+
+let appSettings = {
+  driverBonus: 5000,
+  userBonus: 2000,
+  bankName: '',
+  bankAccountName: '',
+  bankAccountNumber: ''
 };
 
-let mode = 'user', busy = false, regBusy = false, verBusy = false;
-let driverCache = [];
-let appSettings = { ...DEFAULT_SETTINGS };
-
-// Finance state
-let finPeriod = 'week';
-let finFrom = null;
-let finTo = null;
-let finOrders = [];
-let finDriverMap = {};
-
-const EYE_ON = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>`;
-const EYE_OFF = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
-
-function normalizeWa(input){
-  let d = String(input || '').replace(/\D/g, '');
-  if (!d) return '';
-  if (d.startsWith('62')) d = '0' + d.slice(2);
-  else if (d.startsWith('8')) d = '0' + d;
-  return d;
-}
-function waToEmail(waDigits) {
-  return `${waDigits}@${CONFIG.waEmailDomain}`;
-}
-function generate6DigitCode() {
-  return String(Math.floor(100000 + Math.random() * 900000));
-}
-function showAlert(type, text){ el.alertBox.className = 'alert show ' + type; el.alertBox.textContent = text; }
-function hideAlert(){ el.alertBox.className = 'alert'; el.alertBox.textContent = ''; }
-function showRegAlert(type, text){ el.regAlert.className = 'alert show ' + type; el.regAlert.textContent = text; }
-function hideRegAlert(){ el.regAlert.className = 'alert'; el.regAlert.textContent = ''; }
-function showVerAlert(type, text){ el.verAlert.className = 'alert show ' + type; el.verAlert.textContent = text; }
-function hideVerAlert(){ el.verAlert.className = 'alert'; el.verAlert.textContent = ''; }
-
-function sessionGet(){ try { const r = localStorage.getItem(CONFIG.sessionKey); return r ? JSON.parse(r) : null; } catch { return null; } }
-function sessionSet(obj){ try { localStorage.setItem(CONFIG.sessionKey, JSON.stringify(obj)); } catch {} }
-function sessionClear(){ try { localStorage.removeItem(CONFIG.sessionKey); } catch {} }
-
-function firebaseError(err){
-  const code = String(err?.code || '');
-  if (code.includes('auth/invalid-credential') || code.includes('auth/wrong-password')) return 'Nomor/email atau password salah.';
-  if (code.includes('auth/user-not-found')) return 'Akun tidak ditemukan.';
-  if (code.includes('auth/email-already-in-use')) return 'Nomor/email sudah terdaftar.';
-  if (code.includes('auth/invalid-email')) return 'Format email tidak valid.';
-  if (code.includes('auth/weak-password')) return 'Password terlalu lemah (min. 6 karakter).';
-  if (code.includes('auth/too-many-requests')) return 'Terlalu banyak percobaan. Coba lagi nanti.';
-  if (code.includes('permission-denied')) return 'Akses database ditolak. Periksa Firestore Rules.';
-  if (code.includes('unavailable') || code.includes('network')) return 'Tidak dapat terhubung ke server. Periksa internet.';
-  if (code.includes('failed-precondition')) return 'Butuh index Firestore. Klik link di console browser.';
-  return err?.message || 'Terjadi kesalahan tidak diketahui.';
-}
-
-function setMode(next){
-  mode = next; el.body.dataset.mode = next;
-  el.modeTabs.forEach(btn => btn.classList.toggle('active', btn.dataset.modeBtn === next));
-
-  // Toggle fields
-  el.fieldWa.hidden = next === 'admin';
-  el.fieldEmail.hidden = next !== 'admin';
-
-  // Title/subtitle
-  if (next === 'user') {
-    el.cardTitle.textContent = 'Masuk ke akun kamu';
-    el.cardSub.textContent = 'Gunakan nomor WhatsApp dan password yang sudah terdaftar.';
-  } else if (next === 'driver') {
-    el.cardTitle.textContent = 'Masuk sebagai Driver';
-    el.cardSub.textContent = 'Gunakan nomor WhatsApp dan password driver Anda.';
-  } else {
-    el.cardTitle.textContent = 'Masuk sebagai Admin';
-    el.cardSub.textContent = 'Gunakan email dan password admin.';
-  }
-
-  // Footer links
-  if (el.loginFooter) el.loginFooter.hidden = next === 'admin';
-
-  // Register copy
-  if (next === 'user') {
-    if (el.regTitle) el.regTitle.textContent = 'Daftar Akun Pengguna';
-    if (el.regRoleLabel) el.regRoleLabel.textContent = 'Pengguna';
-  } else if (next === 'driver') {
-    if (el.regTitle) el.regTitle.textContent = 'Daftar Akun Driver';
-    if (el.regRoleLabel) el.regRoleLabel.textContent = 'Driver';
-  }
-
-  if (!busy) el.submitBtn.textContent = buttonLabel();
-  hideAlert();
-}
-
-function buttonLabel(){
-  if (mode === 'admin') return 'Masuk sebagai Admin';
-  if (mode === 'driver') return 'Masuk sebagai Driver';
-  return 'Masuk';
-}
-
-el.modeTabs.forEach(btn => {
-  btn.addEventListener('click', () => {
-    setMode(btn.dataset.modeBtn);
-  });
-});
-
-el.eyeBtn.innerHTML = EYE_ON;
-el.eyeBtn.addEventListener('click', () => {
-  const h = el.password.type === 'password';
-  el.password.type = h ? 'text' : 'password';
-  el.eyeBtn.innerHTML = h ? EYE_OFF : EYE_ON;
-  el.password.focus({ preventScroll: true });
-});
-
-el.wa.addEventListener('input', () => { el.wa.value = el.wa.value.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, ''); });
-el.regWa.addEventListener('input', () => { el.regWa.value = el.regWa.value.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, ''); });
-el.verWa.addEventListener('input', () => { el.verWa.value = el.verWa.value.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, ''); });
-el.verCode.addEventListener('input', () => { el.verCode.value = el.verCode.value.replace(/\D/g, '').slice(0, 6); });
-
-// View switcher
-function showLoginViewInternal() {
-  el.viewRegister.hidden = true;
-  el.viewVerify.hidden = true;
-  el.viewLogin.hidden = false;
-  hideAlert(); hideRegAlert(); hideVerAlert();
-}
-el.showRegister.addEventListener('click', (e) => {
-  e.preventDefault();
-  hideAlert(); hideRegAlert(); hideVerAlert();
-  el.viewLogin.hidden = true; el.viewRegister.hidden = false; el.viewVerify.hidden = true;
-  setTimeout(() => el.regName.focus(), 50);
-});
-el.showLogin.addEventListener('click', (e) => { e.preventDefault(); showLoginViewInternal(); });
-el.showLoginFromVerify.addEventListener('click', (e) => { e.preventDefault(); showLoginViewInternal(); });
-el.showVerify.addEventListener('click', (e) => {
-  e.preventDefault();
-  hideAlert(); hideRegAlert(); hideVerAlert();
-  el.viewLogin.hidden = true; el.viewRegister.hidden = true; el.viewVerify.hidden = false;
-  setTimeout(() => el.verWa.focus(), 50);
-});
-
-// ===== LOGIN HANDLER =====
-el.loginForm.addEventListener('submit', async (e) => {
-  e.preventDefault(); if (busy) return; hideAlert();
-  if (!auth || !db) return showAlert('err', 'Koneksi ke Firebase gagal dimuat.');
-
-  if (mode === 'admin') {
-    const email = String(el.email.value || '').trim().toLowerCase();
-    const pass = el.password.value;
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showAlert('err', 'Email admin tidak valid.');
-    if (pass.length < 6) return showAlert('err', 'Password minimal 6 karakter.');
-
-    setBusy(true);
-    try {
-      const cred = await signInWithEmailAndPassword(auth, email, pass);
-      const userDocRef = doc(db, CONFIG.usersCollection, cred.user.uid);
-      const userSnap = await getDoc(userDocRef);
-
-      if (userSnap.exists()) {
-        const data = userSnap.data();
-        if (data.role !== 'admin') {
-          await signOut(auth).catch(()=>{});
-          setBusy(false);
-          return showAlert('err', 'Akun ini bukan admin. Gunakan tab yang sesuai.');
-        }
-        sessionSet({ uid: cred.user.uid, name: data.name || email.split('@')[0], email, role: 'admin', loginAt: new Date().toISOString() });
-      } else {
-        // Legacy admin — auto create doc
-        await setDoc(userDocRef, {
-          name: email.split('@')[0],
-          email,
-          role: 'admin',
-          status: 'active',
-          createdAt: serverTimestamp()
-        });
-        sessionSet({ uid: cred.user.uid, name: email.split('@')[0], email, role: 'admin', loginAt: new Date().toISOString() });
-      }
-
-      showAlert('ok', 'Berhasil masuk sebagai Admin. Membuka dashboard…');
-      setTimeout(() => showAdminDashboard(), 400);
-    } catch (err) {
-      setBusy(false);
-      showAlert('err', firebaseError(err));
-    }
-    return;
-  }
-
-  // User / Driver login via WA
-  const waDigits = normalizeWa(el.wa.value);
-  const pass = el.password.value;
-  if (!/^0\d{8,14}$/.test(waDigits)) return showAlert('err', 'Nomor WhatsApp tidak valid.');
-  if (pass.length < 6) return showAlert('err', 'Password minimal 6 karakter.');
-
-  setBusy(true);
-  try {
-    const cred = await signInWithEmailAndPassword(auth, waToEmail(waDigits), pass);
-    const userSnap = await getDoc(doc(db, CONFIG.usersCollection, cred.user.uid));
-    if (!userSnap.exists()) {
-      await signOut(auth).catch(()=>{});
-      setBusy(false);
-      return showAlert('err', 'Data akun tidak ditemukan di database. Hubungi admin.');
-    }
-    const data = userSnap.data();
-    if (data.status === 'pending') {
-      await signOut(auth).catch(()=>{});
-      setBusy(false);
-      return showAlert('err', 'Akun belum terverifikasi. Minta kode ke admin, lalu buka halaman Verifikasi.');
-    }
-    if (data.status === 'rejected') {
-      await signOut(auth).catch(()=>{});
-      setBusy(false);
-      return showAlert('err', 'Pendaftaran akun ini ditolak. Hubungi admin.');
-    }
-    if (data.status !== 'active') {
-      await signOut(auth).catch(()=>{});
-      setBusy(false);
-      return showAlert('err', 'Status akun tidak valid. Hubungi admin.');
-    }
-    if (data.role !== mode) {
-      await signOut(auth).catch(()=>{});
-      setBusy(false);
-      return showAlert('err', `Akun ini terdaftar sebagai ${ROLE_LABEL[data.role] || 'Pengguna'}, bukan ${ROLE_LABEL[mode]}.`);
-    }
-
-    sessionSet({ uid: cred.user.uid, name: data.name, wa: data.wa, role: data.role, loginAt: new Date().toISOString() });
-    showAlert('ok', `Berhasil masuk sebagai ${ROLE_LABEL[data.role]}. Mengalihkan…`);
-    setTimeout(() => { window.location.href = CONFIG.routes[data.role] || CONFIG.routes.user; }, 900);
-  } catch (err) {
-    setBusy(false);
-    showAlert('err', firebaseError(err));
-  }
-});
-
-function setBusy(state){
-  busy = state; el.submitBtn.disabled = state || !auth;
-  el.submitBtn.innerHTML = state ? '<span class="spinner"></span>Memeriksa…' : buttonLabel();
-  el.wa.disabled = state; el.email.disabled = state; el.password.disabled = state;
-}
-function setRegBusy(state){
-  regBusy = state; el.regBtn.disabled = state || !auth;
-  el.regBtn.innerHTML = state ? '<span class="spinner"></span>Mendaftar…' : 'Daftar';
-  el.regName.disabled = state; el.regWa.disabled = state; el.regPassword.disabled = state;
-}
-function setVerBusy(state){
-  verBusy = state; el.verBtn.disabled = state || !db;
-  el.verBtn.innerHTML = state ? '<span class="spinner"></span>Memverifikasi…' : 'Verifikasi';
-  el.verWa.disabled = state; el.verCode.disabled = state;
-}
-
-// ===== REGISTER =====
-el.registerForm.addEventListener('submit', async (e) => {
-  e.preventDefault(); if (regBusy) return; hideRegAlert();
-  if (!auth || !db) return showRegAlert('err', 'Koneksi gagal.');
-
-  const name = el.regName.value.trim();
-  const waDigits = normalizeWa(el.regWa.value);
-  const pass = el.regPassword.value;
-  const role = mode === 'driver' ? 'driver' : 'user';
-
-  if (name.length < 3) return showRegAlert('err', 'Nama minimal 3 karakter.');
-  if (!/^0\d{8,14}$/.test(waDigits)) return showRegAlert('err', 'Nomor WhatsApp tidak valid.');
-  if (pass.length < 6) return showRegAlert('err', 'Password minimal 6 karakter.');
-
-  setRegBusy(true);
-  try {
-    let cred;
-    try {
-      cred = await createUserWithEmailAndPassword(auth, waToEmail(waDigits), pass);
-    } catch (err) {
-      if (String(err?.code || '').includes('email-already-in-use')) {
-        // Try sign in with password — might be a re-registration
-        try {
-          cred = await signInWithEmailAndPassword(auth, waToEmail(waDigits), pass);
-        } catch {
-          throw new Error('Nomor ini sudah pernah terdaftar. Coba masuk dengan password lama, atau hubungi admin.');
-        }
-      } else {
-        throw err;
-      }
-    }
-
-    const userDocRef = doc(db, CONFIG.usersCollection, cred.user.uid);
-    const existing = await getDoc(userDocRef);
-    const code = generate6DigitCode();
-
-    if (existing.exists()) {
-      const data = existing.data();
-      if (data.status === 'active') {
-        await signOut(auth).catch(()=>{});
-        setRegBusy(false);
-        return showRegAlert('err', 'Nomor sudah terdaftar & aktif. Silakan masuk.');
-      }
-      // Pending/rejected — update with fresh code
-      await updateDoc(userDocRef, {
-        name, wa: waDigits, role,
-        status: 'pending',
-        verificationCode: code,
-        updatedAt: serverTimestamp()
-      });
-    } else {
-      await setDoc(userDocRef, {
-        name, wa: waDigits, role,
-        status: 'pending',
-        verificationCode: code,
-        createdAt: serverTimestamp(),
-        acceptedCommissionVersion: 0
-      });
-    }
-
-    await signOut(auth).catch(()=>{});
-    setRegBusy(false);
-    el.registerForm.reset();
-    showRegAlert('ok', 'Pendaftaran berhasil! Minta kode verifikasi ke admin, lalu buka halaman Verifikasi.');
-    setTimeout(() => {
-      el.viewRegister.hidden = true; el.viewLogin.hidden = true; el.viewVerify.hidden = false;
-      el.verWa.value = waDigits;
-      el.verCode.focus();
-      showVerAlert('info', 'Masukkan kode verifikasi 6 digit dari admin untuk mengaktifkan akun.');
-    }, 1600);
-  } catch (err) {
-    setRegBusy(false);
-    showRegAlert('err', firebaseError(err));
-  }
-});
-
-// ===== VERIFY =====
-el.verifyForm.addEventListener('submit', async (e) => {
-  e.preventDefault(); if (verBusy) return; hideVerAlert();
-  if (!db) return showVerAlert('err', 'Koneksi gagal.');
-
-  const waDigits = normalizeWa(el.verWa.value);
-  const code = el.verCode.value.trim();
-  if (!/^0\d{8,14}$/.test(waDigits)) return showVerAlert('err', 'Nomor WhatsApp tidak valid.');
-  if (!/^\d{6}$/.test(code)) return showVerAlert('err', 'Kode harus 6 digit angka.');
-
-  setVerBusy(true);
-  try {
-    const snap = await getDocs(query(
-      collection(db, CONFIG.usersCollection),
-      where('wa', '==', waDigits),
-      where('status', '==', 'pending'),
-      limit(1)
-    ));
-    if (snap.empty) {
-      setVerBusy(false);
-      return showVerAlert('err', 'Tidak ada pendaftaran pending dengan nomor ini.');
-    }
-    const userDoc = snap.docs[0];
-    const data = userDoc.data();
-    if (String(data.verificationCode || '') !== code) {
-      setVerBusy(false);
-      return showVerAlert('err', 'Kode verifikasi salah. Periksa kembali atau minta ulang ke admin.');
-    }
-    await updateDoc(doc(db, CONFIG.usersCollection, userDoc.id), {
-      status: 'active',
-      verifiedAt: serverTimestamp(),
-      verificationCode: null
-    });
-    setVerBusy(false);
-    el.verifyForm.reset();
-    showVerAlert('ok', 'Akun berhasil diverifikasi! Silakan masuk.');
-    setTimeout(() => { showLoginViewInternal(); showAlert('ok', 'Akun aktif. Silakan masuk dengan WA & password.'); }, 1500);
-  } catch (err) {
-    setVerBusy(false);
-    showVerAlert('err', firebaseError(err));
-  }
-});
-
-// ===== ADMIN DASHBOARD =====
-function showAdminDashboard(){
-  el.authScreen.hidden = true;
-  el.adminScreen.hidden = false;
-  el.adminTabs.forEach(t => t.classList.toggle('active', t.dataset.adminTab === 'pendaftaran'));
-  el.adminPanels.forEach(p => { p.hidden = p.dataset.panel !== 'pendaftaran'; });
-  loadSettings().then(() => {
-    loadPendingAccounts();
-    preloadDrivers();
-    loadCommissionDrivers();
-  });
-}
-
-function showLoginView(){
-  el.adminScreen.hidden = true;
-  el.authScreen.hidden = false;
-  el.viewRegister.hidden = true;
-  el.viewVerify.hidden = true;
-  el.viewLogin.hidden = false;
-  el.sessionNote.hidden = true;
-  el.loginForm.reset();
-  el.registerForm.reset();
-  el.verifyForm.reset();
-  hideAlert(); hideRegAlert(); hideVerAlert();
-  setMode('user');
-}
-
-el.adminLogout.addEventListener('click', async () => {
-  if (!confirm('Keluar dari dashboard admin?')) return;
-  try { await signOut(auth); } catch {}
-  sessionClear();
-  showLoginView();
-});
-
-el.adminTabs.forEach(tab => tab.addEventListener('click', () => {
-  const target = tab.dataset.adminTab;
-  el.adminTabs.forEach(t => t.classList.toggle('active', t === tab));
-  el.adminPanels.forEach(p => { p.hidden = p.dataset.panel !== target; });
-  if (target === 'pendaftaran') loadPendingAccounts();
-  if (target === 'pesanan') loadOrders();
-  if (target === 'keuangan') loadFinance();
-  if (target === 'harga') { loadSettings().then(loadCommissionDrivers); }
-  if (target === 'bonus') loadSettings();
-}));
-
-el.refreshPending.addEventListener('click', () => loadPendingAccounts());
-el.refreshOrders.addEventListener('click', () => loadOrders());
-if (el.refreshFinance) el.refreshFinance.addEventListener('click', () => loadFinance());
+let locMap = null, locMarker = null, pickedCoords = null;
 
 // ============================================================
-// PENDAFTARAN (Pending list with verification codes)
+// SESSION CHECK
 // ============================================================
-async function loadPendingAccounts(){
-  if (!db) return;
-  el.pendingList.innerHTML = `<div class="admin-empty"><span class="ico">⏳</span><h3>Memuat data…</h3></div>`;
-  try {
-    const snap = await getDocs(query(collection(db, CONFIG.usersCollection), where('status', '==', 'pending')));
-    const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    updatePendingBadge(list.length); renderPendingList(list);
-  } catch (err) {
-    el.pendingList.innerHTML = `<div class="admin-empty"><span class="ico">⚠️</span><h3>Gagal memuat</h3><p>${escapeHtml(firebaseError(err))}</p></div>`;
-  }
-}
-
-function updatePendingBadge(count){
-  if (count > 0) { el.pendingBadge.hidden = false; el.pendingBadge.textContent = count; }
-  else { el.pendingBadge.hidden = true; }
-}
-
-function renderPendingList(list){
-  if (!list.length) {
-    el.pendingList.innerHTML = `<div class="admin-empty"><span class="ico">✅</span><h3>Tidak ada pendaftaran menunggu</h3><p>Semua sudah diverifikasi.</p></div>`;
+(function checkSession() {
+  const raw = localStorage.getItem(CONFIG.sessionKey);
+  if (!raw) { window.location.href = 'index.html'; return; }
+  try { session = JSON.parse(raw); } catch { window.location.href = 'index.html'; return; }
+  if (!session || session.role !== 'driver') {
+    window.location.href = session?.role === 'admin' ? 'index.html' : 'user.html';
     return;
   }
-  el.pendingList.innerHTML = list.map(acc => {
-    const role = String(acc.role || 'user').toLowerCase();
-    const label = role === 'driver' ? 'Driver' : 'Pengguna';
-    const icon = role === 'driver' ? '🛵' : '👤';
-    const initial = escapeHtml(String(acc.name || '?').trim().charAt(0).toUpperCase());
-    const code = String(acc.verificationCode || '------');
-    const waClean = String(acc.wa || '').replace(/\D/g,'');
-    const waHref = waClean.startsWith('0') ? '62' + waClean.slice(1) : waClean;
-    const msg = encodeURIComponent(`Halo ${acc.name || 'kak'}, dari Admin INYONG_JEK.\n\nKode verifikasi WhatsApp Anda:\n\n*${code}*\n\nMasukkan kode ini di halaman Verifikasi untuk mengaktifkan akun.\n\nTerima kasih 🙏`);
+})();
+
+// ============================================================
+// BOOT
+// ============================================================
+async function boot() {
+  try {
+    await loadDriverData();
+    await loadSettings();
+    renderHeader();
+    renderProfile();
+    renderServices();
+    updateServicesWarning();
+    updateLocationBar();
+    subscribeOrders();
+    setupTabs();
+    document.getElementById('loadingScreen').hidden = true;
+    document.getElementById('driverApp').hidden = false;
+    setTimeout(() => refreshDistanceChecks(false), 800);
+  } catch (err) {
+    console.error('[Boot]', err);
+    alert('Gagal memuat data driver: ' + (err.message || err));
+    doLogout();
+  }
+}
+
+async function loadDriverData() {
+  const snap = await getDoc(doc(db, CONFIG.collection, session.id));
+  if (!snap.exists()) throw new Error('Data akun driver tidak ditemukan.');
+  driverData = snap.data();
+}
+
+async function loadSettings() {
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'app'));
+    if (snap.exists()) appSettings = { ...appSettings, ...snap.data() };
+  } catch (err) { console.warn('[Settings]', err); }
+}
+
+// ============================================================
+// SERVICES HELPERS
+// ============================================================
+function isServicesConfigured() {
+  const raw = driverData?.services;
+  return Array.isArray(raw) && raw.length > 0;
+}
+
+function getActiveServices() {
+  const raw = driverData?.services;
+  if (!Array.isArray(raw)) {
+    // Belum diatur — sistem anggap semua aktif (default/backward compat)
+    return SERVICE_OPTIONS.map(o => o.id);
+  }
+  return raw.map(normalizeServiceId).filter(Boolean);
+}
+
+function getServicesBadgeText() {
+  const raw = driverData?.services;
+  if (!Array.isArray(raw)) {
+    return `Semua layanan`;
+  }
+  if (raw.length === 0) {
+    return `⚠️ Belum diatur`;
+  }
+  if (raw.length === SERVICE_OPTIONS.length) {
+    return `Semua layanan`;
+  }
+  return `${raw.length} layanan`;
+}
+
+// ============================================================
+// RENDER HEADER
+// ============================================================
+function renderHeader() {
+  const name = driverData.name || session.name || 'Driver';
+  const initial = name.charAt(0).toUpperCase();
+  document.getElementById('headerAvatar').textContent = initial;
+  document.getElementById('headerName').textContent = name;
+
+  const active = driverData.lastSeen ? 'Aktif' : 'Offline';
+  const svcText = getServicesBadgeText();
+  document.getElementById('headerStatus').textContent = `${active} · ${svcText}`;
+
+  if (driverData.photoUrl) {
+    const av = document.getElementById('headerAvatar');
+    av.style.backgroundImage = `url('${driverData.photoUrl}')`;
+    av.style.color = 'transparent';
+  }
+  document.title = name + ' • Driver Tulung Inyong';
+}
+
+// ============================================================
+// RENDER SERVICES
+// ============================================================
+function renderServices() {
+  const container = document.getElementById('servicesList');
+  const noteEl = document.getElementById('servicesNote');
+  if (!container) return;
+
+  const raw = driverData?.services;
+  const isDefault = !Array.isArray(raw);
+  const currentIds = isDefault
+    ? SERVICE_OPTIONS.map(o => o.id)
+    : raw.map(normalizeServiceId).filter(Boolean);
+
+  container.innerHTML = SERVICE_OPTIONS.map(opt => {
+    const checked = currentIds.includes(opt.id);
     return `
-      <div class="pending-item" data-id="${escapeHtml(acc.id)}">
-        <div class="pending-avatar ${role}">${initial}</div>
-        <div class="pending-info">
-          <strong>${icon} ${escapeHtml(acc.name || '(tanpa nama)')}</strong>
-          <small>${escapeHtml(acc.wa || '-')} <span class="pending-role ${role}">${label}</span></small>
-        </div>
-        <div class="pending-code">
-          <span>Kode verifikasi:</span>
-          <strong>${escapeHtml(code)}</strong>
-        </div>
-        <div class="pending-actions">
-          ${waHref ? `<a class="btn-wa-send" href="https://wa.me/${waHref}?text=${msg}" target="_blank" rel="noopener">📱 Kirim WA</a>` : ''}
-          <button class="btn-approve" data-action="approve" data-id="${escapeHtml(acc.id)}">✓ Verifikasi Manual</button>
-          <button class="btn-reject" data-action="reject" data-id="${escapeHtml(acc.id)}">✕ Tolak</button>
-        </div>
-      </div>
+      <label class="service-checkbox">
+        <input type="checkbox" name="service" value="${opt.id}" ${checked ? 'checked' : ''} />
+        <span class="sc-icon">${opt.icon}</span>
+        <span class="sc-text">
+          <strong>${opt.label}</strong>
+          <small>${opt.desc}</small>
+        </span>
+      </label>
     `;
   }).join('');
-  $$('.pending-item [data-action]').forEach(btn => btn.addEventListener('click', () => handlePendingAction(btn.dataset.action, btn.dataset.id, btn)));
-}
 
-async function handlePendingAction(action, id, btn){
-  if (!db || !id) return;
-  const item = btn.closest('.pending-item');
-  const name = item?.querySelector('.pending-info strong')?.textContent?.trim() || 'akun ini';
-
-  if (action === 'reject' && !confirm(`Tolak pendaftaran ${name}? User tidak akan bisa masuk.`)) return;
-
-  btn.disabled = true; const originalText = btn.textContent;
-  btn.textContent = action === 'approve' ? 'Memverifikasi…' : 'Menolak…';
-  try {
-    if (action === 'approve') {
-      await updateDoc(doc(db, CONFIG.usersCollection, id), {
-        status: 'active',
-        approvedAt: serverTimestamp(),
-        approvedBy: 'admin (manual)',
-        verificationCode: null
-      });
-      alert(`✓ ${name} diverifikasi manual. User sekarang bisa masuk.`);
-      preloadDrivers();
-      loadCommissionDrivers();
+  if (noteEl) {
+    if (isDefault) {
+      noteEl.hidden = false;
+      noteEl.innerHTML = 'ℹ️ Anda <strong>belum mengatur</strong> layanan secara eksplisit. Saat ini sistem menganggap <strong>semua layanan aktif</strong>. Klik <strong>Simpan Layanan</strong> untuk mengonfirmasi pilihan Anda.';
+    } else if (raw.length === 0) {
+      noteEl.hidden = false;
+      noteEl.innerHTML = '⚠️ Anda <strong>belum memilih layanan apa pun</strong>. Admin tidak akan bisa menugaskan pesanan ke Anda. Pilih minimal 1 layanan lalu simpan.';
     } else {
-      await updateDoc(doc(db, CONFIG.usersCollection, id), {
-        status: 'rejected',
-        rejectedAt: serverTimestamp()
-      });
-      alert(`✕ Pendaftaran ${name} ditolak.`);
+      noteEl.hidden = true;
     }
-    await loadPendingAccounts();
-  } catch (err) {
-    alert('Gagal: ' + firebaseError(err)); btn.disabled = false; btn.textContent = originalText;
   }
 }
 
-// ============================================================
-// DRIVERS CACHE + SERVICE FILTER
-// ============================================================
-async function preloadDrivers(){
-  if (!db) return;
+window.selectAllServices = function() {
+  document.querySelectorAll('input[name="service"]').forEach(cb => cb.checked = true);
+};
+window.clearAllServices = function() {
+  document.querySelectorAll('input[name="service"]').forEach(cb => cb.checked = false);
+};
+
+window.saveServices = async function() {
+  const checked = [...document.querySelectorAll('input[name="service"]:checked')].map(el => el.value);
+  if (checked.length === 0) {
+    return alert('Pilih minimal 1 layanan.\n\nJika Anda tidak ingin menerima pesanan, logout atau hubungi admin untuk menonaktifkan akun.');
+  }
+
+  const btn = document.getElementById('saveServicesBtn');
+  btn.disabled = true;
+  const orig = btn.textContent;
+  btn.textContent = '💾 Menyimpan…';
+
   try {
-    const snap = await getDocs(query(
-      collection(db, CONFIG.usersCollection),
-      where('role', '==', 'driver'),
-      where('status', '==', 'active')
-    ));
-    driverCache = snap.docs.map(d => {
-      const data = d.data();
-      const rawServices = Array.isArray(data.services) ? data.services : null;
-      return {
-        id: d.id,
-        name: data.name || '(tanpa nama)',
-        wa: data.wa || '',
-        geohash: data.geohash || '',
-        photoUrl: data.photoUrl || '',
-        vehicle: data.vehicle || '',
-        services: rawServices
-      };
+    await updateDoc(doc(db, CONFIG.collection, session.id), {
+      services: checked,
+      servicesUpdatedAt: serverTimestamp()
     });
+
+    driverData.services = checked;
+    renderServices();
+    renderHeader();
+    updateServicesWarning();
+
+    btn.textContent = '✅ Tersimpan!';
+    setTimeout(() => { btn.disabled = false; btn.textContent = orig; }, 1200);
   } catch (err) {
-    console.warn('[Drivers] gagal load:', err);
+    alert('Gagal menyimpan layanan: ' + (err.message || err));
+    btn.disabled = false;
+    btn.textContent = orig;
   }
-}
+};
 
-function driversForService(serviceId) {
-  const normalized = normalizeServiceId(serviceId);
-  return driverCache.filter(d => {
-    if (!Array.isArray(d.services)) return true;
-    return d.services.map(normalizeServiceId).includes(normalized);
-  });
-}
+function updateServicesWarning() {
+  const warningEl = document.getElementById('servicesWarning');
+  const tabBadge = document.getElementById('servicesWarnBadge');
+  const profileTab = document.getElementById('profileTab');
+  if (!warningEl) return;
 
-function serviceLabel(serviceId) {
-  return SERVICE_LABELS[serviceId] || SERVICE_LABELS[normalizeServiceId(serviceId)] || serviceId || '-';
+  const configured = isServicesConfigured();
+  warningEl.hidden = configured;
+
+  if (tabBadge) tabBadge.hidden = configured;
+  if (profileTab) profileTab.classList.toggle('tab-warn', !configured);
 }
 
 // ============================================================
-// PESANAN
+// LOCATION BAR
 // ============================================================
-async function loadOrders(){
-  if (!db) return;
-  el.ordersList.innerHTML = `<div class="admin-empty"><span class="ico">⏳</span><h3>Memuat pesanan…</h3></div>`;
-  try {
-    const snap = await getDocs(query(collection(db, CONFIG.ordersCollection), limit(100)));
-    const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    const pendingCount = all.filter(o => String(o.status || '').toLowerCase() === 'pending').length;
-    updateOrdersBadge(pendingCount);
-    all.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-    renderOrders(all);
-  } catch (err) {
-    el.ordersList.innerHTML = `<div class="admin-empty"><span class="ico">⚠️</span><h3>Gagal memuat</h3><p>${escapeHtml(firebaseError(err))}</p></div>`;
-  }
-}
+function updateLocationBar() {
+  const bar = document.getElementById('locBar');
+  const icon = document.getElementById('locBarIcon');
+  const text = document.getElementById('locBarText');
 
-function updateOrdersBadge(count){
-  if (count > 0) { el.ordersBadge.hidden = false; el.ordersBadge.textContent = count; }
-  else { el.ordersBadge.hidden = true; }
-}
-
-function renderOrders(list){
-  if (!list.length) {
-    el.ordersList.innerHTML = `<div class="admin-empty"><span class="ico">📭</span><h3>Belum ada pesanan</h3><p>Pesanan dari pengguna akan muncul di sini.</p></div>`;
+  if (!driverData.lastSeen) {
+    bar.className = 'loc-bar danger';
+    icon.textContent = '⚠️';
+    text.textContent = 'Lokasi belum diperbarui — klik Update';
     return;
   }
-  el.ordersList.innerHTML = list.map(o => renderOrderItem(o)).join('');
 
-  $$('.order-item [data-action="assign"]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const orderId = btn.dataset.id;
-      const sel = document.querySelector(`.order-item[data-id="${CSS.escape(orderId)}"] select[data-role="driver-select"]`);
-      const driverId = sel?.value;
-      if (!driverId) return alert('Pilih driver dulu.');
-      assignDriver(orderId, driverId, btn);
-    });
+  const ts = driverData.lastSeen.toDate ? driverData.lastSeen.toDate() : new Date(driverData.lastSeen.seconds * 1000);
+  const mins = Math.max(0, Math.round((Date.now() - ts.getTime()) / 60000));
+
+  if (mins < 5) {
+    bar.className = 'loc-bar fresh';
+    icon.textContent = '📍';
+    text.textContent = `Lokasi segar · ${mins === 0 ? 'baru saja' : mins + ' menit lalu'}`;
+  } else if (mins < 15) {
+    bar.className = 'loc-bar stale';
+    icon.textContent = '⏰';
+    text.textContent = `Perbarui lokasi · ${mins} menit lalu`;
+  } else {
+    bar.className = 'loc-bar danger';
+    icon.textContent = '⚠️';
+    text.textContent = `Lokasi lama · ${mins} menit lalu`;
+  }
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function setupTabs() {
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => switchTab(tab.dataset.tab));
   });
-  $$('.order-item [data-action="auto"]').forEach(btn => btn.addEventListener('click', () => autoAssignDriver(btn.dataset.id, btn)));
-  $$('.order-item [data-action="done"]').forEach(btn => btn.addEventListener('click', () => setOrderStatus(btn.dataset.id, 'done', btn)));
-  $$('.order-item [data-action="force-done"]').forEach(btn => btn.addEventListener('click', () => forceCompleteOrder(btn.dataset.id, btn)));
-  $$('.order-item [data-action="verify"]').forEach(btn => btn.addEventListener('click', () => verifyOrderPayment(btn.dataset.id, btn)));
 }
 
-function renderOrderItem(order){
-  const status = String(order.status || 'pending').toLowerCase();
-  const statusLabel = { pending: 'Menunggu', accepted: 'Diproses', done: 'Selesai', completed: 'Selesai', cancelled: 'Dibatalkan' }[status] || status;
-  const icon = { ojek: '🛵', taxi: '🚕', food: '🍜', tulung: '🤝', becak: '🛺' }[order.serviceId] || '📦';
-  const dateStr = formatDate(order.createdAt);
-
-  const rows = [];
-  if (order.serviceId === 'ojek' || order.serviceId === 'taxi' || order.serviceId === 'becak') {
-    rows.push(['Jemput', order.pickup || '-']);
-    rows.push(['Tujuan', order.dest || '-']);
-    if (order.distance) rows.push(['Jarak', Number(order.distance).toFixed(1) + ' km']);
-    if (order.pickupGeohash) rows.push(['Geohash', order.pickupGeohash]);
-  } else if (order.serviceId === 'tulung') {
-    rows.push(['Alamat', order.address || '-']);
-    rows.push(['Detail', order.detail || '-']);
-  } else if (order.serviceId === 'food') {
-    rows.push(['Antar', order.deliveryAddress || '-']);
+window.switchTab = function(name) {
+  document.querySelectorAll('.panel').forEach(p => { p.hidden = p.dataset.panel !== name; });
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  if (name === 'location') setTimeout(initLocMap, 100);
+  if (name === 'orders') setTimeout(() => refreshDistanceChecks(false), 200);
+  if (name === 'profile') {
+    renderServices();
+    setTimeout(() => { if (locMap) locMap.invalidateSize(); }, 100);
   }
+};
 
-  const payMethod = order.paymentMethod === 'transfer' ? 'Transfer' :
-                   order.paymentMethod === 'wa' ? 'Via WA' : 'Tunai';
-  const total = order.paymentTotal ?? order.totalWithCode ?? order.fare ?? 0;
+// ============================================================
+// ORDERS SUBSCRIPTION
+// ============================================================
+function subscribeOrders() {
+  if (ordersUnsub) ordersUnsub();
 
-  const hasDriver = order.driverName && String(order.driverName).trim();
-  const driverBox = hasDriver ? `
-    <div class="oi-driver-box assigned">
-      ✅ Driver: <strong>${escapeHtml(order.driverName)}</strong>
-      ${order.driverWa ? ` · <a href="https://wa.me/${String(order.driverWa).replace(/\D/g,'')}" target="_blank" style="color:inherit;text-decoration:underline">WA driver</a>` : ''}
-    </div>` : `
-    <div class="oi-driver-box">
-      ⚠️ Belum ada driver. Assign manual atau klik <strong>Auto</strong>.
-    </div>`;
+  const q = query(collection(db, CONFIG.ordersCollection), where('driverId', '==', session.id));
 
-  const isTransfer = order.paymentMethod === 'transfer';
-  const isVerified = order.paymentVerified === true;
-  const verifiedBox = (isTransfer && isVerified) ? `
-    <div class="oi-verified-box">✅ Pembayaran terverifikasi${order.paymentVerifiedAt ? ' · ' + formatDate(order.paymentVerifiedAt) : ''}</div>
-  ` : '';
+  ordersUnsub = onSnapshot(q, (snap) => {
+    const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  const eligibleDrivers = driversForService(order.serviceId);
-  const driverOptions = eligibleDrivers.map(d => {
-    const suffix = d.geohash ? ` (${d.geohash.slice(0, 5)}…)` : '';
-    return `<option value="${escapeHtml(d.id)}">${escapeHtml(d.name)}${suffix}</option>`;
-  }).join('');
+    activeOrders = all.filter(o => String(o.status || '').toLowerCase() === 'accepted');
+    historyOrders = all.filter(o => ['done', 'completed'].includes(String(o.status || '').toLowerCase()));
 
-  let selectHtml;
-  if (eligibleDrivers.length) {
-    selectHtml = `<select data-role="driver-select"><option value="">— Pilih driver —</option>${driverOptions}</select>`;
-  } else if (driverCache.length === 0) {
-    selectHtml = `<select disabled><option>Tidak ada driver aktif</option></select>`;
-  } else {
-    selectHtml = `<select disabled><option>Tidak ada driver aktif untuk ${escapeHtml(serviceLabel(order.serviceId))}</option></select>`;
-  }
+    const sortFn = (a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+    activeOrders.sort(sortFn);
+    historyOrders.sort(sortFn);
 
-  const userWaClean = String(order.userWa || '').replace(/\D/g, '');
-  const userWaHref = userWaClean ? (userWaClean.startsWith('0') ? '62' + userWaClean.slice(1) : userWaClean) : '';
-  const waMsgUser = encodeURIComponent(
-    `Halo ${order.userName || 'kak'}, kami dari Admin INYONG_JEK.\n\n` +
-    `Mohon konfirmasi: apakah pesanan *${order.serviceName || ''}* sudah selesai dan diterima dengan baik?\n\n` +
-    `Terima kasih 🙏`
-  );
-
-  const actions = [];
-  if (status === 'pending') {
-    actions.push(selectHtml);
-    actions.push(`<button class="btn-sm btn-assign" data-action="assign" data-id="${escapeHtml(order.id)}" ${eligibleDrivers.length ? '' : 'disabled'}>Assign</button>`);
-    actions.push(`<button class="btn-sm btn-auto" data-action="auto" data-id="${escapeHtml(order.id)}" ${eligibleDrivers.length ? '' : 'disabled'}>🎯 Auto</button>`);
-  } else if (status === 'accepted') {
-    if (userWaHref) {
-      actions.push(`<a class="btn-sm btn-contact" href="https://wa.me/${userWaHref}?text=${waMsgUser}" target="_blank" rel="noopener">💬 Hubungi User</a>`);
-    }
-    actions.push(`<button class="btn-sm btn-done" data-action="done" data-id="${escapeHtml(order.id)}">✓ Tandai Selesai</button>`);
-    actions.push(`<button class="btn-sm btn-force-done" data-action="force-done" data-id="${escapeHtml(order.id)}">🔒 Selesaikan Paksa</button>`);
-  }
-  if (isTransfer && !isVerified && !['done', 'completed', 'cancelled'].includes(status)) {
-    actions.push(`<button class="btn-sm btn-verify" data-action="verify" data-id="${escapeHtml(order.id)}">💳 Verifikasi Bayar</button>`);
-  }
-
-  return `
-    <div class="order-item" data-id="${escapeHtml(order.id)}">
-      <div class="oi-head">
-        <div class="oi-icon">${icon}</div>
-        <div class="oi-info">
-          <strong>${escapeHtml(order.serviceName || '-')}</strong>
-          <small>${escapeHtml(order.userName || '-')} · ${escapeHtml(order.userWa || '-')} · ${dateStr}</small>
-        </div>
-        <span class="oi-status ${status}">${statusLabel}</span>
-      </div>
-      <div class="oi-detail">
-        ${rows.map(([k, v]) => `<div class="oi-detail-row"><strong>${escapeHtml(k)}:</strong> <span>${escapeHtml(v)}</span></div>`).join('')}
-      </div>
-      ${driverBox}
-      ${verifiedBox}
-      ${actions.length ? `<div class="oi-actions">${actions.join('')}</div>` : ''}
-      <div class="oi-total">
-        <div>${escapeHtml(payMethod)}${order.uniqueCode ? ' · Kode: <strong>' + escapeHtml(order.uniqueCode) + '</strong>' : ''}</div>
-        <strong>${formatRp(total)}</strong>
-      </div>
-    </div>
-  `;
-}
-
-async function assignDriver(orderId, driverId, btn){
-  const driver = driverCache.find(d => d.id === driverId);
-  if (!driver) return alert('Driver tidak ditemukan.');
-  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Assign…';
-  try {
-    await updateDoc(doc(db, CONFIG.ordersCollection, orderId), {
-      driverId: driver.id, driverName: driver.name, driverWa: driver.wa,
-      driverPhotoUrl: driver.photoUrl || '', driverVehicle: driver.vehicle || 'Mitra INYONG_JEK',
-      status: 'accepted', assignedAt: serverTimestamp()
+    Object.keys(distanceChecks).forEach(id => {
+      if (!activeOrders.find(o => o.id === id)) delete distanceChecks[id];
     });
-    await loadOrders();
-  } catch (err) {
-    alert('Gagal assign: ' + firebaseError(err)); btn.disabled = false; btn.textContent = orig;
-  }
-}
 
-async function autoAssignDriver(orderId, btn){
-  if (!driverCache.length) return alert('Tidak ada driver aktif.');
-  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Mencari…';
-  try {
-    const orderSnap = await getDoc(doc(db, CONFIG.ordersCollection, orderId));
-    if (!orderSnap.exists()) throw new Error('Order tidak ditemukan.');
-    const order = orderSnap.data();
-    const eligible = driversForService(order.serviceId);
-    if (!eligible.length) throw new Error(`Tidak ada driver aktif untuk layanan ${serviceLabel(order.serviceId)}.`);
-    const targetGeo = order.pickupGeohash || order.geohash || '';
-    if (!targetGeo) throw new Error('Order tidak punya geohash lokasi.');
-    let best = null, bestScore = -1;
-    for (const d of eligible) {
-      if (!d.geohash) continue;
-      let i = 0;
-      while (i < targetGeo.length && i < d.geohash.length && targetGeo[i] === d.geohash[i]) i++;
-      if (i > bestScore) { bestScore = i; best = d; }
+    renderActiveOrders();
+    renderHistory();
+    updateStats();
+    updateOrdersBadge(activeOrders.length);
+
+    const ordersPanelVisible = !document.querySelector('[data-panel="orders"]')?.hidden;
+    if (ordersPanelVisible && activeOrders.length) {
+      setTimeout(() => refreshDistanceChecks(false), 400);
     }
-    if (!best) throw new Error('Tidak ada driver dengan lokasi geohash terdaftar untuk layanan ini.');
-    await updateDoc(doc(db, CONFIG.ordersCollection, orderId), {
-      driverId: best.id, driverName: best.name, driverWa: best.wa,
-      driverPhotoUrl: best.photoUrl || '', driverVehicle: best.vehicle || 'Mitra INYONG_JEK',
-      status: 'accepted', assignedAt: serverTimestamp(),
-      autoAssigned: true, autoAssignScore: bestScore
-    });
-    alert(`✓ Auto-assign: ${best.name} (match ${bestScore} karakter geohash).`);
-    await loadOrders();
-  } catch (err) {
-    alert('Gagal auto-assign: ' + (err.message || firebaseError(err)));
-    btn.disabled = false; btn.textContent = orig;
-  }
+  }, (err) => {
+    console.error('[Orders]', err);
+    document.getElementById('ordersList').innerHTML = `
+      <div class="empty">
+        <span class="ico">⚠️</span>
+        <h3>Gagal memuat pesanan</h3>
+        <p>${escapeHtml(err.message || 'Periksa Firestore Rules & index.')}</p>
+      </div>`;
+  });
 }
 
-async function setOrderStatus(orderId, status, btn){
-  if (!confirm(`Tandai pesanan sebagai "${status}"?`)) return;
-  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Menyimpan…';
-  try {
-    const s = sessionGet();
-    const updates = {
-      status, completedAt: serverTimestamp(),
-      completedBy: 'Admin: ' + (s?.name || 'admin')
-    };
-    if (status === 'done' || status === 'completed') {
-      const orderSnap = await getDoc(doc(db, CONFIG.ordersCollection, orderId));
-      if (orderSnap.exists()) {
-        const od = orderSnap.data();
-        if (od.driverEarning == null) {
-          updates.driverEarning = Number(appSettings.driverBonus) || DEFAULT_SETTINGS.driverBonus;
-        }
-      }
-    }
-    await updateDoc(doc(db, CONFIG.ordersCollection, orderId), updates);
-    await loadOrders();
-  } catch (err) {
-    alert('Gagal: ' + firebaseError(err)); btn.disabled = false; btn.textContent = orig;
-  }
-}
+window.refreshOrders = function() {
+  const btn = event?.target;
+  if (btn) { btn.disabled = true; btn.textContent = '🔄 Memuat…'; setTimeout(() => { btn.disabled = false; btn.textContent = '🔄 Muat Ulang'; }, 600); }
+};
 
-async function forceCompleteOrder(orderId, btn){
-  const orderSnap = await getDoc(doc(db, CONFIG.ordersCollection, orderId));
-  if (!orderSnap.exists()) return alert('Order tidak ditemukan.');
-  const order = orderSnap.data();
-  const userWaClean = String(order.userWa || '').replace(/\D/g, '');
-  const waHref = userWaClean ? (userWaClean.startsWith('0') ? '62' + userWaClean.slice(1) : userWaClean) : '';
-  const waHint = waHref ? `\n\n💬 Buka WA user dulu:\nhttps://wa.me/${waHref}` : '';
-  const ok = confirm(
-    '⚠️ SELESAIKAN PAKSA\n\nPastikan Anda SUDAH menghubungi user untuk konfirmasi.\n\n' +
-    'Pesanan akan ditandai selesai oleh ADMIN (bukan driver).' + waHint
-  );
-  if (!ok) return;
-  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Menyimpan…';
-  try {
-    const s = sessionGet();
-    const updates = {
-      status: 'done', completedAt: serverTimestamp(),
-      completedBy: 'Admin: ' + (s?.name || 'admin'),
-      adminForceComplete: true
-    };
-    if (order.driverEarning == null) {
-      updates.driverEarning = Number(appSettings.driverBonus) || DEFAULT_SETTINGS.driverBonus;
-    }
-    await updateDoc(doc(db, CONFIG.ordersCollection, orderId), updates);
-    alert('✅ Pesanan ditandai selesai oleh admin.');
-    await loadOrders();
-  } catch (err) {
-    alert('Gagal: ' + firebaseError(err)); btn.disabled = false; btn.textContent = orig;
-  }
-}
-
-async function verifyOrderPayment(orderId, btn){
-  if (!confirm('Konfirmasi pembayaran transfer sudah masuk?\n\nPastikan 3 digit terakhir nominal cocok dengan kode unik order.')) return;
-  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Memverifikasi…';
-  try {
-    const s = sessionGet();
-    await updateDoc(doc(db, CONFIG.ordersCollection, orderId), {
-      paymentVerified: true,
-      paymentVerifiedAt: serverTimestamp(),
-      paymentVerifiedBy: s?.name || 'admin'
-    });
-    alert('✅ Pembayaran terverifikasi.');
-    await loadOrders();
-  } catch (err) {
-    alert('Gagal: ' + firebaseError(err)); btn.disabled = false; btn.textContent = orig;
-  }
+function updateOrdersBadge(count) {
+  const badge = document.getElementById('ordersBadge');
+  if (count > 0) { badge.hidden = false; badge.textContent = count; }
+  else { badge.hidden = true; }
 }
 
 // ============================================================
-// FINANCE
+// GPS + DISTANCE CHECK
 // ============================================================
-function getPeriodRange() {
-  const now = new Date();
-  let from, to;
-  if (finPeriod === 'today') {
-    from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    to = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-  } else if (finPeriod === 'week') {
-    const day = now.getDay();
-    const diff = day === 0 ? 6 : day - 1;
-    from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - diff);
-    to = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-  } else if (finPeriod === 'month') {
-    from = new Date(now.getFullYear(), now.getMonth(), 1);
-    to = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-  } else {
-    from = finFrom ? new Date(finFrom + 'T00:00:00') : new Date(now.getFullYear(), now.getMonth(), 1);
-    to = finTo ? new Date(finTo + 'T23:59:59') : new Date();
-  }
-  return { from, to };
+function getCurrentPositionAsync() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) return reject(new Error('Geolocation tidak didukung'));
+    navigator.geolocation.getCurrentPosition(
+      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy }),
+      (err) => reject(err),
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  });
 }
 
-function getOrderTimestamp(o) {
-  if (o.completedAt?.toDate) return o.completedAt.toDate();
-  if (o.completedAt?.seconds) return new Date(o.completedAt.seconds * 1000);
+function getOrderTargetCoords(order) {
+  if (order.serviceId === 'ojek' || order.serviceId === 'taxi') return order.destCoords;
+  if (order.serviceId === 'tambal') return order.coords;
   return null;
 }
 
-async function loadFinance(){
-  if (!db) return;
-  const { from, to } = getPeriodRange();
-  const periodLabel = finPeriod === 'today' ? 'Hari ini'
-    : finPeriod === 'week' ? 'Minggu ini'
-    : finPeriod === 'month' ? 'Bulan ini'
-    : `${fmtDate(from)} – ${fmtDate(to)}`;
-  const periodEl = document.getElementById('finPeriodLabel');
-  if (periodEl) periodEl.textContent = periodLabel;
-  document.getElementById('finDriverList').innerHTML = `<div class="admin-empty"><span class="ico">⏳</span><h3>Memuat…</h3></div>`;
-  document.getElementById('finPeriodList').innerHTML = '';
-  try {
-    const snap = await getDocs(query(
-      collection(db, CONFIG.ordersCollection),
-      where('status', 'in', ['done', 'completed']),
-      limit(1000)
-    ));
-    const allDone = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    finOrders = allDone.filter(o => {
-      const ts = getOrderTimestamp(o);
-      return ts && ts >= from && ts <= to;
+window.refreshDistanceChecks = async function(manual = false) {
+  if (checkingDistances) return;
+  if (!activeOrders.length) {
+    if (manual) alert('Tidak ada pesanan aktif.');
+    return;
+  }
+
+  const needsCheck = activeOrders.filter(o => getOrderTargetCoords(o));
+  if (!needsCheck.length) {
+    activeOrders.forEach(o => {
+      distanceChecks[o.id] = { ok: true, dist: 0, msg: 'Tanpa lokasi target', checkedAt: Date.now() };
     });
-    computeFinance();
-    renderFinance();
-  } catch (err) {
-    console.error('[Finance]', err);
-    document.getElementById('finDriverList').innerHTML = `
-      <div class="admin-empty"><span class="ico">⚠️</span><h3>Gagal memuat</h3><p>${escapeHtml(firebaseError(err))}</p></div>`;
+    renderActiveOrders();
+    if (manual) alert('✅ Semua pesanan tidak memerlukan cek lokasi.');
+    return;
   }
-}
 
-function computeFinance() {
-  finDriverMap = {};
-  finOrders.forEach(o => {
-    if (!o.driverId) return;
-    if (!finDriverMap[o.driverId]) {
-      finDriverMap[o.driverId] = {
-        driverId: o.driverId, driverName: o.driverName || '(tanpa nama)', driverWa: o.driverWa || '',
-        trips: 0, totalFare: 0, cashHeld: 0, cashSettled: 0,
-        earningOwed: 0, earningPaid: 0,
-        cashOrderIds: [], earningOrderIds: [], services: new Set()
+  checkingDistances = true;
+
+  const refreshBtn = document.querySelector('[onclick="refreshDistanceChecks(true)"]');
+  if (refreshBtn) { refreshBtn.disabled = true; refreshBtn.textContent = '📍 Mengecek…'; }
+
+  try {
+    const pos = await getCurrentPositionAsync();
+
+    needsCheck.forEach(o => {
+      const target = getOrderTargetCoords(o);
+      const dist = haversineM(pos.lat, pos.lng, target[0], target[1]);
+      const ok = dist <= COMPLETE_RADIUS_M;
+      distanceChecks[o.id] = {
+        ok,
+        dist: Math.round(dist),
+        msg: ok
+          ? `Anda berada ${Math.round(dist)}m dari tujuan ✓`
+          : `Anda masih ${Math.round(dist)}m dari tujuan`,
+        checkedAt: Date.now()
       };
+    });
+
+    activeOrders.forEach(o => {
+      if (!distanceChecks[o.id]) {
+        distanceChecks[o.id] = { ok: true, dist: 0, msg: 'Tanpa lokasi target', checkedAt: Date.now() };
+      }
+    });
+
+    renderActiveOrders();
+    if (manual) {
+      const okCount = needsCheck.filter(o => distanceChecks[o.id].ok).length;
+      const farCount = needsCheck.length - okCount;
+      if (farCount === 0) alert('✅ Lokasi sudah sesuai untuk semua pesanan.');
+      else alert(`📍 ${okCount} pesanan siap diselesaikan, ${farCount} pesanan masih jauh (>${COMPLETE_RADIUS_M}m).`);
     }
-    const d = finDriverMap[o.driverId];
-    const fare = Number(o.paymentTotal ?? o.fare ?? 0);
-    const earning = Number(o.driverEarning ?? appSettings.driverBonus ?? DEFAULT_SETTINGS.driverBonus);
-    d.trips++;
-    d.totalFare += fare;
-    if (o.serviceId) d.services.add(o.serviceId);
-    if (o.paymentMethod === 'cash') {
-      if (o.cashSettledToAdmin === true) d.cashSettled += fare;
-      else { d.cashHeld += fare; d.cashOrderIds.push(o.id); }
-    }
-    if (o.driverEarningPaid === true) d.earningPaid += earning;
-    else { d.earningOwed += earning; d.earningOrderIds.push(o.id); }
-  });
-  Object.values(finDriverMap).forEach(d => { d.services = Array.from(d.services); });
-}
-
-function renderFinance() {
-  const totalTrips = finOrders.length;
-  const totalRevenue = finOrders.reduce((s, o) => s + Number(o.paymentTotal ?? o.fare ?? 0), 0);
-  const cashOutstanding = Object.values(finDriverMap).reduce((s, d) => s + d.cashHeld, 0);
-  const earningOwed = Object.values(finDriverMap).reduce((s, d) => s + d.earningOwed, 0);
-  document.getElementById('finTotalTrips').textContent = totalTrips;
-  document.getElementById('finTotalRevenue').textContent = formatRp(totalRevenue);
-  document.getElementById('finCashOutstanding').textContent = formatRp(cashOutstanding);
-  document.getElementById('finEarningOwed').textContent = formatRp(earningOwed);
-  const drivers = Object.values(finDriverMap).sort((a, b) => (b.cashHeld + b.earningOwed) - (a.cashHeld + a.earningOwed));
-  if (!drivers.length) {
-    document.getElementById('finDriverList').innerHTML = `<div class="admin-empty"><span class="ico">📊</span><h3>Belum ada data keuangan</h3><p>Tidak ada pesanan selesai di periode ini.</p></div>`;
-    document.getElementById('finPeriodList').innerHTML = '';
-    return;
-  }
-  document.getElementById('finDriverList').innerHTML = drivers.map(renderFinDriverCard).join('');
-  document.getElementById('finPeriodList').innerHTML = renderFinPeriodBreakdown();
-  $$('[data-fin-action]').forEach(btn => {
-    btn.addEventListener('click', () => handleFinAction(btn.dataset.finAction, btn.dataset.driverId, btn));
-  });
-}
-
-function renderFinDriverCard(d) {
-  const nett = d.cashHeld - d.earningOwed;
-  const nettLabel = nett > 0 ? 'Driver setor ke admin' : (nett < 0 ? 'Admin bayar ke driver' : 'Balance');
-  const nettClass = nett > 0 ? 'positive' : (nett < 0 ? 'negative' : 'zero');
-  const serviceBadges = d.services.map(s => serviceLabel(s)).join(' · ');
-  const noAction = d.cashHeld === 0 && d.earningOwed === 0;
-  return `
-    <div class="fin-driver-card">
-      <div class="fin-driver-head">
-        <div class="fin-driver-avatar">${escapeHtml(d.driverName.charAt(0).toUpperCase())}</div>
-        <div class="fin-driver-info">
-          <strong>${escapeHtml(d.driverName)}</strong>
-          <small>${d.trips} trip · ${escapeHtml(serviceBadges || '-')}</small>
-        </div>
-        <div class="fin-driver-nett ${nettClass}">
-          <small>${escapeHtml(nettLabel)}</small>
-          <strong>${formatRp(Math.abs(nett))}</strong>
-        </div>
-      </div>
-      <div class="fin-driver-details">
-        <div class="fin-row"><span>Total Fare</span><strong>${formatRp(d.totalFare)}</strong></div>
-        <div class="fin-row"><span>💰 Cash dipegang driver</span><strong style="color:${d.cashHeld > 0 ? '#dc2626' : '#16a34a'}">${formatRp(d.cashHeld)}</strong></div>
-        <div class="fin-row"><span>✅ Cash sudah disetor</span><strong style="color:#16a34a">${formatRp(d.cashSettled)}</strong></div>
-        <div class="fin-row"><span>🎁 Hak driver belum dibayar</span><strong style="color:${d.earningOwed > 0 ? '#dc2626' : '#16a34a'}">${formatRp(d.earningOwed)}</strong></div>
-        <div class="fin-row"><span>✅ Hak driver sudah dibayar</span><strong style="color:#16a34a">${formatRp(d.earningPaid)}</strong></div>
-      </div>
-      <div class="fin-driver-actions">
-        ${d.cashHeld > 0 ? `<button class="btn-sm btn-fin-cash" data-fin-action="settle-cash" data-driver-id="${escapeHtml(d.driverId)}">💰 Cash Disetor</button>` : ''}
-        ${d.earningOwed > 0 ? `<button class="btn-sm btn-fin-earn" data-fin-action="settle-earning" data-driver-id="${escapeHtml(d.driverId)}">🎁 Hak Lunas</button>` : ''}
-        ${!noAction ? `<button class="btn-sm btn-fin-nett" data-fin-action="settle-nett" data-driver-id="${escapeHtml(d.driverId)}">⚡ Nett Settlement</button>` : `<span class="fin-paid-badge">✅ Semua Lunas</span>`}
-      </div>
-    </div>
-  `;
-}
-
-function renderFinPeriodBreakdown() {
-  const groups = {};
-  finOrders.forEach(o => {
-    const ts = getOrderTimestamp(o);
-    if (!ts) return;
-    let key;
-    if (finPeriod === 'today') key = String(ts.getHours()).padStart(2, '0') + ':00';
-    else {
-      const pad = n => String(n).padStart(2, '0');
-      key = `${pad(ts.getDate())}/${pad(ts.getMonth()+1)}/${ts.getFullYear()}`;
-    }
-    if (!groups[key]) groups[key] = { key, trips: 0, cash: 0, transfer: 0, total: 0, earning: 0, sortTs: ts };
-    const g = groups[key];
-    const fare = Number(o.paymentTotal ?? o.fare ?? 0);
-    const earning = Number(o.driverEarning ?? appSettings.driverBonus ?? DEFAULT_SETTINGS.driverBonus);
-    g.trips++; g.total += fare; g.earning += earning;
-    if (o.paymentMethod === 'cash') g.cash += fare;
-    else if (o.paymentMethod === 'transfer') g.transfer += fare;
-  });
-  const rows = Object.values(groups).sort((a, b) => a.sortTs - b.sortTs);
-  const totals = rows.reduce((s, r) => ({
-    trips: s.trips + r.trips, cash: s.cash + r.cash, transfer: s.transfer + r.transfer,
-    total: s.total + r.total, earning: s.earning + r.earning
-  }), { trips: 0, cash: 0, transfer: 0, total: 0, earning: 0 });
-  return `
-    <div class="fin-table-wrap">
-      <table class="fin-table">
-        <thead>
-          <tr>
-            <th>Periode</th><th class="num">Trip</th><th class="num">Cash</th>
-            <th class="num">Transfer</th><th class="num">Total</th><th class="num">Hak Driver</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows.map(r => `
-            <tr>
-              <td><strong>${escapeHtml(r.key)}</strong></td>
-              <td class="num">${r.trips}</td>
-              <td class="num">${formatRp(r.cash)}</td>
-              <td class="num">${formatRp(r.transfer)}</td>
-              <td class="num"><strong>${formatRp(r.total)}</strong></td>
-              <td class="num">${formatRp(r.earning)}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-        <tfoot>
-          <tr>
-            <td><strong>TOTAL</strong></td>
-            <td class="num"><strong>${totals.trips}</strong></td>
-            <td class="num"><strong>${formatRp(totals.cash)}</strong></td>
-            <td class="num"><strong>${formatRp(totals.transfer)}</strong></td>
-            <td class="num"><strong>${formatRp(totals.total)}</strong></td>
-            <td class="num"><strong>${formatRp(totals.earning)}</strong></td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-  `;
-}
-
-async function handleFinAction(action, driverId, btn) {
-  const d = finDriverMap[driverId];
-  if (!d) return;
-  const settler = sessionGet()?.name || 'admin';
-  if (action === 'settle-cash') {
-    if (d.cashHeld === 0) return alert('Tidak ada cash yang perlu disetor.');
-    if (!confirm(`Konfirmasi driver ${d.driverName} sudah menyetor cash ${formatRp(d.cashHeld)}?`)) return;
-    btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Menyimpan…';
-    try {
-      await Promise.all(d.cashOrderIds.map(id => updateDoc(doc(db, CONFIG.ordersCollection, id), {
-        cashSettledToAdmin: true, cashSettledAt: serverTimestamp(), cashSettledBy: settler
-      })));
-      alert(`✅ Cash driver ${d.driverName} ditandai sudah disetor.`);
-      await loadFinance();
-    } catch (err) { alert('Gagal: ' + firebaseError(err)); btn.disabled = false; btn.textContent = orig; }
-    return;
-  }
-  if (action === 'settle-earning') {
-    if (d.earningOwed === 0) return alert('Tidak ada hak driver yang perlu dibayar.');
-    if (!confirm(`Konfirmasi admin sudah membayar hak driver ${d.driverName} sebesar ${formatRp(d.earningOwed)}?`)) return;
-    btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Menyimpan…';
-    try {
-      await Promise.all(d.earningOrderIds.map(id => updateDoc(doc(db, CONFIG.ordersCollection, id), {
-        driverEarningPaid: true, driverEarningPaidAt: serverTimestamp(), driverEarningPaidBy: settler
-      })));
-      alert(`✅ Hak driver ${d.driverName} ditandai lunas.`);
-      await loadFinance();
-    } catch (err) { alert('Gagal: ' + firebaseError(err)); btn.disabled = false; btn.textContent = orig; }
-    return;
-  }
-  if (action === 'settle-nett') {
-    const nett = d.cashHeld - d.earningOwed;
-    const nettDesc = nett > 0 ? `Driver setor ke admin: ${formatRp(nett)}` : (nett < 0 ? `Admin bayar ke driver: ${formatRp(-nett)}` : 'Balance (Rp 0)');
-    if (!confirm(`Settlement nett untuk ${d.driverName}?\n\n💰 Cash: ${formatRp(d.cashHeld)}\n🎁 Hak driver: ${formatRp(d.earningOwed)}\n\n→ ${nettDesc}`)) return;
-    btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Menyimpan…';
-    try {
-      const allIds = new Set([...d.cashOrderIds, ...d.earningOrderIds]);
-      await Promise.all(Array.from(allIds).map(id => {
-        const updates = {};
-        if (d.cashOrderIds.includes(id)) {
-          updates.cashSettledToAdmin = true; updates.cashSettledAt = serverTimestamp(); updates.cashSettledBy = settler;
-        }
-        if (d.earningOrderIds.includes(id)) {
-          updates.driverEarningPaid = true; updates.driverEarningPaidAt = serverTimestamp(); updates.driverEarningPaidBy = settler;
-        }
-        return updateDoc(doc(db, CONFIG.ordersCollection, id), updates);
-      }));
-      alert(`✅ Nett settlement berhasil untuk ${d.driverName}.`);
-      await loadFinance();
-    } catch (err) { alert('Gagal: ' + firebaseError(err)); btn.disabled = false; btn.textContent = orig; }
-  }
-}
-
-$$('#finPeriodTabs [data-fin-period]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    finPeriod = btn.dataset.finPeriod;
-    $$('#finPeriodTabs [data-fin-period]').forEach(b => b.classList.toggle('active', b === btn));
-    document.getElementById('finCustomRange').hidden = finPeriod !== 'custom';
-    if (finPeriod !== 'custom') loadFinance();
-  });
-});
-
-document.getElementById('finApply').addEventListener('click', () => {
-  const fromVal = document.getElementById('finFrom').value;
-  const toVal = document.getElementById('finTo').value;
-  if (!fromVal || !toVal) return alert('Isi tanggal mulai dan akhir.');
-  if (new Date(fromVal) > new Date(toVal)) return alert('Tanggal mulai tidak boleh setelah tanggal akhir.');
-  finFrom = fromVal; finTo = toVal;
-  loadFinance();
-});
-
-// ============================================================
-// SETTINGS + COMMISSION
-// ============================================================
-async function loadSettings(){
-  if (!db) return;
-  try {
-    const snap = await getDoc(doc(db, CONFIG.settingsDoc.collection, CONFIG.settingsDoc.doc));
-    const data = snap.exists() ? { ...DEFAULT_SETTINGS, ...snap.data() } : { ...DEFAULT_SETTINGS };
-    if (!data.commissions || typeof data.commissions !== 'object') data.commissions = { ...DEFAULT_SETTINGS.commissions };
-    data.commissions = { ...DEFAULT_SETTINGS.commissions, ...data.commissions };
-    appSettings = data;
-
-    el.inputOjekPrice.value = Number(data.ojekPricePerKm) || '';
-    el.inputTaxiPrice.value = Number(data.taxiPricePerKm) || '';
-    el.inputBecakPrice.value = Number(data.becakPricePerKm) || '';
-    el.inputCommOjek.value = Number(data.commissions.ojek) || 0;
-    el.inputCommTaxi.value = Number(data.commissions.taxi) || 0;
-    el.inputCommFood.value = Number(data.commissions.food) || 0;
-    el.inputCommBecak.value = Number(data.commissions.becak) || 0;
-    el.inputCommTulung.value = Number(data.commissions.tulung) || 0;
-    el.inputDriverBonus.value = Number(data.driverBonus) || '';
-    el.inputUserBonus.value = Number(data.userBonus) || '';
-    el.inputBankName.value = data.bankName || '';
-    el.inputBankAccountName.value = data.bankAccountName || '';
-    el.inputBankAccountNumber.value = data.bankAccountNumber || '';
-    const adminWa = String(data.adminWa || '').replace(/\D/g, '');
-    el.inputAdminWa.value = adminWa.startsWith('62') ? adminWa.slice(2) : adminWa;
-  } catch (err) { console.error('[Settings]', err); }
-}
-
-el.savePrice.addEventListener('click', async () => {
-  if (!db) return;
-  const ojek = Number(el.inputOjekPrice.value);
-  const taxi = Number(el.inputTaxiPrice.value);
-  const becak = Number(el.inputBecakPrice.value);
-  const cOjek = Number(el.inputCommOjek.value);
-  const cTaxi = Number(el.inputCommTaxi.value);
-  const cFood = Number(el.inputCommFood.value);
-  const cBecak = Number(el.inputCommBecak.value);
-  const cTulung = Number(el.inputCommTulung.value);
-  const vals = [ojek, taxi, becak, cOjek, cTaxi, cFood, cBecak, cTulung];
-  if (vals.some(v => !Number.isFinite(v) || v < 0)) return alert('Semua harga & komisi harus angka ≥ 0.');
-
-  const newCommissions = { ojek: cOjek, taxi: cTaxi, food: cFood, becak: cBecak, tulung: cTulung };
-  const oldCommissions = appSettings.commissions || DEFAULT_SETTINGS.commissions;
-  const commissionsChanged = Object.keys(newCommissions).some(k => Number(newCommissions[k]) !== Number(oldCommissions[k] || 0));
-  const newVersion = commissionsChanged ? (Number(appSettings.commissionVersion) || 1) + 1 : (Number(appSettings.commissionVersion) || 1);
-
-  el.savePrice.disabled = true; el.savePrice.textContent = 'Menyimpan…';
-  try {
-    const payload = {
-      ojekPricePerKm: ojek,
-      taxiPricePerKm: taxi,
-      becakPricePerKm: becak,
-      commissions: newCommissions,
-      commissionVersion: newVersion,
-      updatedAt: serverTimestamp()
-    };
-    await setDoc(doc(db, CONFIG.settingsDoc.collection, CONFIG.settingsDoc.doc), payload, { merge: true });
-    appSettings = { ...appSettings, ...payload, commissions: newCommissions, commissionVersion: newVersion };
-    alert(commissionsChanged
-      ? `✓ Harga & komisi disimpan.\n\n⚠️ Komisi berubah → versi baru: v${newVersion}.\nDriver wajib menyetujui komisi baru sebelum bisa menerima order.`
-      : '✓ Harga & tarif disimpan.');
-    loadCommissionDrivers();
-  } catch (err) { alert('Gagal: ' + firebaseError(err)); }
-  finally { el.savePrice.disabled = false; el.savePrice.textContent = 'Simpan Harga & Komisi'; }
-});
-
-el.saveBonus.addEventListener('click', async () => {
-  if (!db) return;
-  const driverBonus = Number(el.inputDriverBonus.value);
-  const userBonus = Number(el.inputUserBonus.value);
-  const bankName = el.inputBankName.value.trim();
-  const bankAccountName = el.inputBankAccountName.value.trim();
-  const bankAccountNumber = el.inputBankAccountNumber.value.trim().replace(/\s+/g, '');
-  let adminWaRaw = String(el.inputAdminWa.value).replace(/\D/g, '');
-  if (adminWaRaw.startsWith('0')) adminWaRaw = '62' + adminWaRaw.slice(1);
-  else if (adminWaRaw.startsWith('8')) adminWaRaw = '62' + adminWaRaw;
-  else if (!adminWaRaw.startsWith('62')) adminWaRaw = '62' + adminWaRaw;
-
-  if (!Number.isFinite(driverBonus) || driverBonus < 0) return alert('Bonus driver tidak valid.');
-  if (!Number.isFinite(userBonus) || userBonus < 0) return alert('Bonus pengguna tidak valid.');
-  if (!/^62\d{8,13}$/.test(adminWaRaw)) return alert('Nomor WhatsApp admin tidak valid (contoh: 81234567890).');
-  if (!bankName) return alert('Nama bank wajib diisi.');
-  if (!bankAccountName) return alert('Nama pemilik rekening wajib diisi.');
-  if (!/^\d{6,20}$/.test(bankAccountNumber)) return alert('Nomor rekening tidak valid (6-20 digit angka).');
-
-  el.saveBonus.disabled = true; el.saveBonus.textContent = 'Menyimpan…';
-  try {
-    await setDoc(doc(db, CONFIG.settingsDoc.collection, CONFIG.settingsDoc.doc), {
-      driverBonus, userBonus, adminWa: adminWaRaw,
-      bankName, bankAccountName, bankAccountNumber,
-      updatedAt: serverTimestamp()
-    }, { merge: true });
-    appSettings = { ...appSettings, driverBonus, userBonus, adminWa: adminWaRaw, bankName, bankAccountName, bankAccountNumber };
-    el.inputAdminWa.value = adminWaRaw.slice(2);
-    alert('✓ Pembayaran, bonus & kontak tersimpan.');
-  } catch (err) { alert('Gagal: ' + firebaseError(err)); }
-  finally { el.saveBonus.disabled = false; el.saveBonus.textContent = 'Simpan Semua'; }
-});
-
-// ===== COMMISSION DRIVER LIST =====
-async function loadCommissionDrivers() {
-  if (!db || !el.commissionDriversList) return;
-  el.commissionDriversList.innerHTML = `<div class="admin-empty"><span class="ico">⏳</span><h3>Memuat…</h3></div>`;
-  try {
-    const snap = await getDocs(query(
-      collection(db, CONFIG.usersCollection),
-      where('role', '==', 'driver'),
-      where('status', '==', 'active')
-    ));
-    const drivers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    if (!drivers.length) {
-      el.commissionDriversList.innerHTML = `<div class="admin-empty"><span class="ico">🛵</span><h3>Belum ada driver aktif</h3></div>`;
-      return;
-    }
-    const currentVersion = Number(appSettings.commissionVersion) || 1;
-    el.commissionDriversList.innerHTML = drivers.map(d => {
-      const accepted = Number(d.acceptedCommissionVersion) || 0;
-      const isApproved = accepted >= currentVersion;
-      const waClean = String(d.wa || '').replace(/\D/g,'');
-      const waHref = waClean.startsWith('0') ? '62' + waClean.slice(1) : waClean;
-      const msg = encodeURIComponent(`Halo ${d.name || 'kak'}, admin INYONG_JEK mengingatkan:\n\nAda pembaruan komisi (versi v${currentVersion}).\n\nSilakan buka aplikasi driver dan setujui komisi baru agar bisa menerima order kembali.\n\nTerima kasih 🙏`);
-      return `
-        <div class="commission-driver-item ${isApproved ? 'approved' : 'pending'}">
-          <div class="cd-avatar">${escapeHtml(String(d.name || '?').charAt(0).toUpperCase())}</div>
-          <div class="cd-info">
-            <strong>${escapeHtml(d.name || '(tanpa nama)')}</strong>
-            <small>${escapeHtml(d.wa || '-')} · acc v${accepted}</small>
-          </div>
-          <span class="cd-status ${isApproved ? 'ok' : 'pending'}">${isApproved ? '✅ Setuju v' + currentVersion : '⚠️ Belum setuju v' + currentVersion}</span>
-          ${!isApproved && waHref ? `<a class="cd-remind" href="https://wa.me/${waHref}?text=${msg}" target="_blank" rel="noopener">📱 Ingatkan</a>` : ''}
-        </div>
-      `;
-    }).join('');
   } catch (err) {
-    el.commissionDriversList.innerHTML = `<div class="admin-empty"><span class="ico">⚠️</span><h3>Gagal memuat</h3><p>${escapeHtml(firebaseError(err))}</p></div>`;
+    console.warn('[GPS]', err);
+    needsCheck.forEach(o => {
+      distanceChecks[o.id] = {
+        ok: false,
+        dist: -1,
+        msg: 'Gagal cek GPS: ' + (err.message || 'lokasi tidak tersedia'),
+        checkedAt: Date.now()
+      };
+    });
+    renderActiveOrders();
+    if (manual) alert('⚠️ Gagal mendapatkan lokasi: ' + (err.message || 'Periksa izin lokasi browser.'));
+  } finally {
+    checkingDistances = false;
+    if (refreshBtn) { refreshBtn.disabled = false; refreshBtn.textContent = '📍 Refresh Lokasi'; }
+  }
+};
+
+// ============================================================
+// RENDER ACTIVE ORDERS
+// ============================================================
+function renderActiveOrders() {
+  const container = document.getElementById('ordersList');
+
+  if (!activeOrders.length) {
+    container.innerHTML = `
+      <div class="empty">
+        <span class="ico">✅</span>
+        <h3>Tidak ada pesanan aktif</h3>
+        <p>Pesanan baru akan otomatis muncul di sini.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = activeOrders.map(renderOrderCard).join('');
+
+  document.querySelectorAll('[data-action="verify"]').forEach(b => {
+    b.addEventListener('click', () => verifyPayment(b.dataset.id, b));
+  });
+  document.querySelectorAll('[data-action="complete"]').forEach(b => {
+    b.addEventListener('click', () => completeOrder(b.dataset.id, b));
+  });
+  document.querySelectorAll('[data-action="check"]').forEach(b => {
+    b.addEventListener('click', () => refreshDistanceChecks(true));
+  });
+}
+
+function renderOrderCard(order) {
+  const icon = { ojek: '🛵', taxi: '🚕', food: '🍜', tulung: '🤝', tambal: '🔧' }[order.serviceId] || '📦';
+  const payMethod = order.paymentMethod;
+  const isTransfer = payMethod === 'transfer';
+  const isCash = payMethod === 'cash' || !payMethod;
+  const isVerified = order.paymentVerified === true;
+
+  let routeHtml = '';
+  if (order.serviceId === 'ojek' || order.serviceId === 'taxi') {
+    routeHtml = `
+      <div class="oc-route">
+        <div class="oc-route-item">
+          <span class="oc-route-dot green"></span>
+          <span><strong>Jemput:</strong> ${escapeHtml(order.pickup || '-')}</span>
+        </div>
+        <div class="oc-route-item">
+          <span class="oc-route-dot red"></span>
+          <span><strong>Tujuan:</strong> ${escapeHtml(order.dest || '-')}</span>
+        </div>
+        ${order.distance ? `<div style="margin-top:5px;font-size:11px;color:var(--muted)">Jarak: ${Number(order.distance).toFixed(1)} km</div>` : ''}
+      </div>`;
+  } else if (order.serviceId === 'tambal') {
+    routeHtml = `
+      <div class="oc-route">
+        <div class="oc-route-item">
+          <span class="oc-route-dot red"></span>
+          <span><strong>Lokasi:</strong> ${escapeHtml(order.address || '-')}</span>
+        </div>
+        <div class="oc-route-item">
+          <span class="oc-route-dot green"></span>
+          <span><strong>Ban:</strong> ${escapeHtml((order.tireType || '-') + ' × ' + (order.tireQty || 1))}</span>
+        </div>
+        ${order.notes ? `<div style="margin-top:5px;font-size:11px;color:var(--muted)">Catatan: ${escapeHtml(order.notes)}</div>` : ''}
+      </div>`;
+  } else if (order.serviceId === 'tulung') {
+    routeHtml = `
+      <div class="oc-route">
+        <div class="oc-route-item">
+          <span class="oc-route-dot green"></span>
+          <span><strong>Alamat:</strong> ${escapeHtml(order.address || '-')}</span>
+        </div>
+        <div class="oc-route-item">
+          <span class="oc-route-dot red"></span>
+          <span><strong>Detail:</strong> ${escapeHtml(order.detail || '-')}</span>
+        </div>
+      </div>`;
+  }
+
+  const userWaClean = String(order.userWa || '').replace(/\D/g, '');
+  const waLink = userWaClean
+    ? `https://wa.me/${userWaClean.startsWith('0') ? '62' + userWaClean.slice(1) : userWaClean}`
+    : '#';
+
+  const userHtml = `
+    <div class="oc-user">
+      <div class="oc-user-info">
+        <strong>👤 ${escapeHtml(order.userName || '-')}</strong>
+        <small>${escapeHtml(order.userWa || '-')}</small>
+      </div>
+      ${userWaClean ? `<a class="oc-user-wa" href="${waLink}" target="_blank" rel="noopener">💬 Chat</a>` : ''}
+    </div>`;
+
+  const total = order.paymentTotal ?? order.totalWithCode ?? order.fare ?? 0;
+  const uniqueCode = order.uniqueCode;
+
+  let paymentHtml = '';
+
+  if (isTransfer) {
+    const bankName = String(appSettings.bankName || '').trim();
+    const accNumber = String(appSettings.bankAccountNumber || '').trim();
+    const accName = String(appSettings.bankAccountName || '').trim();
+
+    const bankBlock = (bankName && accNumber && accName)
+      ? `<div class="oc-bank">
+           <div class="oc-bank-label">Cek mutasi ke:</div>
+           <div class="oc-bank-body">
+             <strong>${escapeHtml(bankName)}</strong>
+             <div class="oc-bank-acc">${escapeHtml(accNumber)}</div>
+             <div class="oc-bank-name">a.n. ${escapeHtml(accName)}</div>
+           </div>
+         </div>`
+      : `<div class="oc-bank-empty">⚠️ Info rekening belum diatur admin</div>`;
+
+    paymentHtml = `
+      <div class="oc-payment transfer">
+        <div class="oc-payment-row">
+          <span>💳 Transfer Bank</span>
+          <strong>${formatRp(total)}</strong>
+        </div>
+        ${uniqueCode ? `
+          <div class="oc-payment-row">
+            <span>Kode Unik</span>
+            <span class="oc-code">${escapeHtml(uniqueCode)}</span>
+          </div>` : ''}
+        ${bankBlock}
+        <div class="oc-payment-row" style="margin-top:8px;padding-top:8px;border-top:1px dashed #e8ad00">
+          <span>Verifikasi</span>
+          ${isVerified
+            ? `<span class="oc-verified">✅ ${order.paymentVerifiedBy ? 'Oleh ' + escapeHtml(order.paymentVerifiedBy) : 'Terverifikasi'}</span>`
+            : `<span style="color:#991b1b;font-weight:700;font-size:11.5px">⚠️ Belum dicek</span>`}
+        </div>
+      </div>`;
+
+  } else if (isCash) {
+    paymentHtml = `
+      <div class="oc-payment cash">
+        <div class="oc-payment-row">
+          <span>💵 Bayar di Tempat</span>
+          <strong>${formatRp(total)}</strong>
+        </div>
+        <div style="margin-top:5px;font-size:11px">Tagih tunai saat serah terima</div>
+      </div>`;
+  } else if (payMethod === 'wa') {
+    paymentHtml = `
+      <div class="oc-payment cash">
+        <div class="oc-payment-row">
+          <span>💬 Koordinasi WA</span>
+          <strong>—</strong>
+        </div>
+        <div style="margin-top:5px;font-size:11px">Harga disepakati via WhatsApp admin</div>
+      </div>`;
+  }
+
+  const target = getOrderTargetCoords(order);
+  const check = distanceChecks[order.id];
+  let locStatusHtml = '';
+
+  if (target) {
+    if (!check) {
+      locStatusHtml = `
+        <div class="oc-loc-status pending">
+          <span style="font-size:15px">🟡</span>
+          <span>Mengecek lokasi Anda…</span>
+        </div>`;
+    } else if (check.ok) {
+      locStatusHtml = `
+        <div class="oc-loc-status ok">
+          <span style="font-size:15px">🟢</span>
+          <span><strong>${check.dist}m</strong> dari tujuan — Anda siap menyelesaikan</span>
+        </div>`;
+    } else {
+      locStatusHtml = `
+        <div class="oc-loc-status warn">
+          <span style="font-size:15px">🔴</span>
+          <span>${check.dist >= 0 ? `<strong>${check.dist}m</strong> dari tujuan — mendekat dulu` : escapeHtml(check.msg)}</span>
+        </div>`;
+    }
+  }
+
+  const completeDisabled = target && (!check || !check.ok);
+  const completeTitle = completeDisabled
+    ? `Harus berada dalam ${COMPLETE_RADIUS_M}m dari tujuan`
+    : 'Tandai pesanan selesai';
+
+  const actions = [];
+  if (isTransfer && !isVerified) {
+    actions.push(`<button class="btn-action btn-verify" data-action="verify" data-id="${escapeHtml(order.id)}">✅ Verifikasi Pembayaran</button>`);
+  }
+  if (target) {
+    actions.push(`<button class="btn-action btn-check" data-action="check" data-id="${escapeHtml(order.id)}">📍 Cek Jarak</button>`);
+  }
+  actions.push(`<button class="btn-action btn-complete" data-action="complete" data-id="${escapeHtml(order.id)}" ${completeDisabled ? 'disabled' : ''} title="${escapeHtml(completeTitle)}">🏁 Selesaikan Pesanan</button>`);
+
+  return `
+    <div class="order-card ${isTransfer ? 'transfer' : ''}">
+      <div class="oc-head">
+        <div class="oc-icon">${icon}</div>
+        <div class="oc-info">
+          <strong>${escapeHtml(order.serviceName || '-')}</strong>
+          <small>${formatDate(order.createdAt)}</small>
+        </div>
+        <span class="oc-status accepted">Aktif</span>
+      </div>
+      ${routeHtml}
+      ${userHtml}
+      ${paymentHtml}
+      ${locStatusHtml}
+      <div class="oc-actions">${actions.join('')}</div>
+    </div>`;
+}
+
+// ============================================================
+// RENDER HISTORY
+// ============================================================
+function renderHistory() {
+  const container = document.getElementById('historyList');
+  if (!historyOrders.length) {
+    container.innerHTML = `
+      <div class="empty">
+        <span class="ico">📭</span>
+        <h3>Belum ada riwayat</h3>
+        <p>Pesanan yang selesai akan muncul di sini.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = historyOrders.map(o => {
+    const icon = { ojek: '🛵', taxi: '🚕', food: '🍜', tulung: '🤝', tambal: '🔧' }[o.serviceId] || '📦';
+    const total = o.paymentTotal ?? o.fare ?? 0;
+    const completedBy = o.completedBy || '-';
+    return `
+      <div class="order-card done">
+        <div class="oc-head">
+          <div class="oc-icon">${icon}</div>
+          <div class="oc-info">
+            <strong>${escapeHtml(o.serviceName || '-')}</strong>
+            <small>${escapeHtml(o.userName || '-')} · ${formatDate(o.createdAt)}</small>
+          </div>
+          <span class="oc-status done">Selesai</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:6px">
+          <span style="color:var(--muted)">${o.paymentMethod === 'transfer' ? 'Transfer' : o.paymentMethod === 'wa' ? 'Via WA' : 'Tunai'}</span>
+          <strong style="color:var(--green-800)">${formatRp(total)}</strong>
+        </div>
+        <div style="font-size:10.5px;color:var(--muted);text-align:right">Diselesaikan oleh: ${escapeHtml(completedBy)}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================================
+// STATS
+// ============================================================
+function updateStats() {
+  document.getElementById('statActive').textContent = activeOrders.length;
+
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const todayOrders = historyOrders.filter(o => {
+    const ts = o.completedAt?.toDate ? o.completedAt.toDate() : (o.completedAt?.seconds ? new Date(o.completedAt.seconds * 1000) : null);
+    return ts && ts >= today;
+  });
+
+  document.getElementById('statToday').textContent = todayOrders.length;
+
+  const earnings = todayOrders.reduce((sum, o) => sum + Number(o.paymentTotal ?? o.fare ?? 0), 0);
+  document.getElementById('statEarnings').textContent = formatRp(earnings);
+}
+
+// ============================================================
+// ACTIONS
+// ============================================================
+window.verifyPayment = async function(orderId, btn) {
+  if (!confirm('Konfirmasi bahwa pembayaran transfer sudah masuk ke rekening?\n\nPastikan 3 digit terakhir nominal cocok dengan kode unik.')) return;
+  btn.disabled = true;
+  const orig = btn.textContent;
+  btn.textContent = 'Memverifikasi…';
+  try {
+    await updateDoc(doc(db, CONFIG.ordersCollection, orderId), {
+      paymentVerified: true,
+      paymentVerifiedAt: serverTimestamp(),
+      paymentVerifiedBy: 'Driver: ' + (driverData?.name || session?.name || 'driver')
+    });
+  } catch (err) {
+    alert('Gagal: ' + (err.message || err));
+    btn.disabled = false;
+    btn.textContent = orig;
+  }
+};
+
+window.completeOrder = async function(orderId, btn) {
+  const order = activeOrders.find(o => o.id === orderId);
+  if (!order) return alert('Pesanan tidak ditemukan.');
+
+  const target = getOrderTargetCoords(order);
+
+  if (target) {
+    const orig = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '📍 Mengecek lokasi…';
+
+    try {
+      const pos = await getCurrentPositionAsync();
+      const dist = haversineM(pos.lat, pos.lng, target[0], target[1]);
+
+      if (dist > COMPLETE_RADIUS_M) {
+        btn.disabled = false;
+        btn.textContent = orig;
+        distanceChecks[order.id] = {
+          ok: false,
+          dist: Math.round(dist),
+          msg: `Anda masih ${Math.round(dist)}m dari tujuan`,
+          checkedAt: Date.now()
+        };
+        renderActiveOrders();
+        return alert(
+          `❌ Tidak bisa menyelesaikan pesanan\n\n` +
+          `Anda masih ${Math.round(dist)}m dari lokasi tujuan.\n` +
+          `Batas toleransi: ${COMPLETE_RADIUS_M}m.\n\n` +
+          `Silakan mendekat ke lokasi tujuan terlebih dahulu, atau mintalah admin/user untuk menyelesaikan jika Anda sudah yakin tiba di lokasi.`
+        );
+      }
+
+      distanceChecks[order.id] = {
+        ok: true,
+        dist: Math.round(dist),
+        msg: `Anda berada ${Math.round(dist)}m dari tujuan ✓`,
+        checkedAt: Date.now()
+      };
+
+      if (!confirm(`Tandai pesanan selesai?\n\n✓ Anda berada ${Math.round(dist)}m dari tujuan.`)) {
+        btn.disabled = false;
+        btn.textContent = orig;
+        return;
+      }
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = orig;
+      return alert(
+        '❌ Gagal mendapatkan lokasi Anda: ' + (err.message || 'izin lokasi diperlukan') +
+        '\n\nAktifkan GPS dan izinkan akses lokasi, lalu coba lagi.'
+      );
+    }
+  } else {
+    if (!confirm('Tandai pesanan selesai?\n\nPastikan sudah serah terima dengan pengguna.')) return;
+  }
+
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Menyimpan…';
+
+  try {
+    const check = distanceChecks[order.id];
+    await updateDoc(doc(db, CONFIG.ordersCollection, orderId), {
+      status: 'done',
+      completedAt: serverTimestamp(),
+      completedBy: 'Driver: ' + (driverData?.name || session?.name || 'driver'),
+      completedViaLocation: !!target,
+      completionDistance: check?.dist ?? 0
+    });
+  } catch (err) {
+    alert('Gagal: ' + (err.message || err));
+    btn.disabled = false;
+    btn.textContent = orig;
+  }
+};
+
+// ============================================================
+// LOCATION MAP
+// ============================================================
+function initLocMap() {
+  if (typeof L === 'undefined') return console.error('[Map] Leaflet gagal dimuat');
+  if (locMap) { locMap.invalidateSize(); return; }
+
+  const el = document.getElementById('locMap');
+  if (!el) return;
+
+  locMap = L.map('locMap').setView([-7.7956, 110.3695], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap', maxZoom: 19
+  }).addTo(locMap);
+
+  setTimeout(() => { if (locMap) locMap.invalidateSize(); }, 100);
+
+  locMap.on('click', (e) => {
+    pickedCoords = [e.latlng.lat, e.latlng.lng];
+    if (locMarker) locMap.removeLayer(locMarker);
+    locMarker = L.marker(pickedCoords, { icon: pinIcon() }).addTo(locMap);
+    updateLocInfo();
+  });
+
+  if (driverData?.lat && driverData?.lng) {
+    pickedCoords = [driverData.lat, driverData.lng];
+    locMarker = L.marker(pickedCoords, { icon: pinIcon() }).addTo(locMap);
+    locMap.setView(pickedCoords, 15);
+    updateLocInfo();
+  } else if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { if (locMap) locMap.setView([pos.coords.latitude, pos.coords.longitude], 15); },
+      () => {}
+    );
   }
 }
+
+function pinIcon() {
+  return L.divIcon({
+    className: '',
+    html: '<div style="background:#0f9d58;width:22px;height:22px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.4)"></div>',
+    iconSize: [22, 22], iconAnchor: [11, 11]
+  });
+}
+
+window.detectMyLocation = function() {
+  if (!navigator.geolocation) return alert('Browser tidak mendukung geolokasi.');
+  if (!locMap) return alert('Peta belum siap.');
+
+  const btn = event?.target;
+  if (btn) { btn.disabled = true; btn.textContent = '📍 Mencari…'; }
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      pickedCoords = [lat, lng];
+      if (locMarker) locMap.removeLayer(locMarker);
+      locMarker = L.marker(pickedCoords, { icon: pinIcon() }).addTo(locMap);
+      locMap.setView(pickedCoords, 16);
+      updateLocInfo();
+      if (btn) { btn.disabled = false; btn.textContent = '📍 Gunakan GPS'; }
+    },
+    (err) => {
+      alert('Gagal dapat lokasi: ' + err.message);
+      if (btn) { btn.disabled = false; btn.textContent = '📍 Gunakan GPS'; }
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
+};
+
+window.clearPickedLocation = function() {
+  if (locMarker) { locMap.removeLayer(locMarker); locMarker = null; }
+  pickedCoords = null;
+  updateLocInfo();
+};
+
+function updateLocInfo() {
+  if (!pickedCoords) {
+    document.getElementById('locLat').textContent = '-';
+    document.getElementById('locLng').textContent = '-';
+    document.getElementById('locGeohash').textContent = '-';
+    return;
+  }
+  document.getElementById('locLat').textContent = pickedCoords[0].toFixed(6);
+  document.getElementById('locLng').textContent = pickedCoords[1].toFixed(6);
+  document.getElementById('locGeohash').textContent = geohashForLocation(pickedCoords);
+}
+
+window.saveLocation = async function() {
+  if (!pickedCoords) return alert('Tandai lokasi Anda dulu di peta atau klik "Gunakan GPS".');
+  const btn = document.getElementById('saveLocBtn');
+  btn.disabled = true;
+  const orig = btn.textContent;
+  btn.textContent = '💾 Menyimpan…';
+
+  try {
+    await updateDoc(doc(db, CONFIG.collection, session.id), {
+      lat: pickedCoords[0],
+      lng: pickedCoords[1],
+      geohash: geohashForLocation(pickedCoords),
+      lastSeen: serverTimestamp()
+    });
+
+    driverData.lat = pickedCoords[0];
+    driverData.lng = pickedCoords[1];
+    driverData.geohash = geohashForLocation(pickedCoords);
+    driverData.lastSeen = { seconds: Math.floor(Date.now() / 1000) };
+
+    updateLocationBar();
+    renderHeader();
+    btn.textContent = '✅ Tersimpan!';
+    setTimeout(() => { btn.disabled = false; btn.textContent = orig; }, 1200);
+  } catch (err) {
+    alert('Gagal menyimpan lokasi: ' + (err.message || err));
+    btn.disabled = false;
+    btn.textContent = orig;
+  }
+};
+
+// ============================================================
+// PROFILE
+// ============================================================
+function renderProfile() {
+  const name = driverData.name || session.name || 'Driver';
+  const initial = name.charAt(0).toUpperCase();
+
+  document.getElementById('inputName').value = driverData.name || '';
+  document.getElementById('inputWa').value = driverData.wa || session.wa || '';
+  document.getElementById('inputVehicle').value = driverData.vehicle || '';
+
+  document.getElementById('profileName').textContent = name;
+  document.getElementById('profileWa').textContent = driverData.wa || session.wa || '-';
+
+  const av = document.getElementById('profileAvatar');
+  av.textContent = initial;
+  if (driverData.photoUrl) {
+    av.style.backgroundImage = `url('${driverData.photoUrl}')`;
+    av.style.color = 'transparent';
+  }
+}
+
+window.uploadPhoto = function() {
+  alert('Fitur upload foto profil akan segera tersedia.\n\nNanti akan menggunakan Cloudinary untuk penyimpanan.');
+};
+
+window.saveProfile = async function() {
+  const name = document.getElementById('inputName').value.trim();
+  const vehicle = document.getElementById('inputVehicle').value.trim();
+
+  if (name.length < 3) return alert('Nama minimal 3 karakter.');
+
+  const btn = document.getElementById('saveProfileBtn');
+  btn.disabled = true;
+  const orig = btn.textContent;
+  btn.textContent = '💾 Menyimpan…';
+
+  try {
+    await updateDoc(doc(db, CONFIG.collection, session.id), {
+      name,
+      vehicle,
+      updatedAt: serverTimestamp()
+    });
+
+    driverData.name = name;
+    driverData.vehicle = vehicle;
+
+    session.name = name;
+    localStorage.setItem(CONFIG.sessionKey, JSON.stringify(session));
+
+    renderHeader();
+    renderProfile();
+    btn.textContent = '✅ Tersimpan!';
+    setTimeout(() => { btn.disabled = false; btn.textContent = orig; }, 1200);
+  } catch (err) {
+    alert('Gagal: ' + (err.message || err));
+    btn.disabled = false;
+    btn.textContent = orig;
+  }
+};
+
+// ============================================================
+// LOGOUT
+// ============================================================
+window.doLogout = function() {
+  if (!confirm('Keluar dari panel driver?')) return;
+  if (ordersUnsub) ordersUnsub();
+  localStorage.removeItem(CONFIG.sessionKey);
+  window.location.href = 'index.html';
+};
 
 // ============================================================
 // UTIL
 // ============================================================
-function escapeHtml(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
-function formatRp(num){ return 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(num || 0)); }
-function formatDate(ts){
+function formatRp(num) {
+  return 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(num || 0));
+}
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+function formatDate(ts) {
   if (!ts) return '-';
   const d = ts.toDate ? ts.toDate() : new Date(ts.seconds ? ts.seconds * 1000 : ts);
   if (isNaN(d.getTime())) return '-';
   const pad = n => String(n).padStart(2, '0');
-  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-function fmtDate(d) {
-  if (!(d instanceof Date) || isNaN(d.getTime())) return '-';
-  const pad = n => String(n).padStart(2, '0');
-  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
+  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} · ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-// ============================================================
-// SESSION BOOT
-// ============================================================
-(function checkSession(){
-  const s = sessionGet();
-  if (!s) return;
-  const role = ROLE_LABEL[s.role] || 'Pengguna';
-  const ident = s.wa || s.email || '';
-  el.sessionText.innerHTML = 'Masih tercatat masuk sebagai <strong>' + escapeHtml(s.name) + '</strong><span>' + role + ' · ' + escapeHtml(ident) + '</span>';
-  el.sessionNote.hidden = false;
+setInterval(() => { if (driverData) updateLocationBar(); }, 60000);
 
-  el.sessionBtn.addEventListener('click', async () => {
-    if (s.role === 'admin') {
-      if (!auth.currentUser) {
-        sessionClear();
-        el.sessionNote.hidden = true;
-        showAlert('info', 'Sesi habis. Silakan login ulang.');
-        return;
-      }
-      showAdminDashboard();
-    } else {
-      window.location.href = CONFIG.routes[s.role] || CONFIG.routes.user;
-    }
-  });
-
-  el.sessionSwitch.addEventListener('click', async () => {
-    try { await signOut(auth); } catch {}
-    sessionClear();
-    el.sessionNote.hidden = true;
-    setMode('user');
-    hideAlert();
-    el.wa.focus({ preventScroll: true });
-  });
-})();
-
-setMode('user');
-if (auth && db) {
-  el.submitBtn.disabled = false; el.submitBtn.textContent = buttonLabel();
-  el.regBtn.disabled = false; el.regBtn.textContent = 'Daftar';
-  el.verBtn.disabled = false; el.verBtn.textContent = 'Verifikasi';
-} else {
-  el.submitBtn.disabled = true; el.submitBtn.textContent = 'Firebase gagal dimuat';
-  el.regBtn.disabled = true; el.regBtn.textContent = 'Firebase gagal dimuat';
-  el.verBtn.disabled = true; el.verBtn.textContent = 'Firebase gagal dimuat';
-  showAlert('err', 'Gagal memuat Firebase.');
-}
-
-window.addEventListener('load', () => {
-  if (window.innerWidth >= 980 && el.wa.offsetParent) el.wa.focus({ preventScroll: true });
-});
+boot();
 </script>
+
 </body>
 </html>
