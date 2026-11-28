@@ -237,6 +237,7 @@
     <button class="tab active" data-tab="orders">📦 Pesanan <span class="tab-badge" id="ordersBadge" hidden>0</span></button>
     <button class="tab" data-tab="location">🗺️ Lokasi</button>
     <button class="tab" data-tab="history">🕓 Riwayat</button>
+    <button class="tab" data-tab="payment">💸 Pembayaran <span class="tab-badge" id="paymentBadge" hidden>0</span></button>
     <button class="tab" data-tab="profile" id="profileTab">👤 Profil <span class="tab-badge" id="servicesWarnBadge" hidden style="background:#fde68a;color:#92400e">!</span></button>
   </nav>
 
@@ -292,7 +293,17 @@
       </div>
     </div>
 
-    <div class="panel" data-panel="history" hidden>
+        <div class="panel" data-panel="history" hidden>
+      <div class="panel-head"><h2>Riwayat Pesanan</h2></div>
+      <div id="historyList"><div class="empty"><span class="ico">📭</span><h3>Belum ada riwayat</h3><p>Pesanan yang selesai akan muncul di sini.</p></div></div>
+    </div>
+
+    <div class="panel" data-panel="payment" hidden>
+      <div class="panel-head"><h2>Konfirmasi Pembayaran</h2></div>
+      <div class="info-box">💸 Tampil di sini adalah pesanan <strong>transfer</strong> yang sudah ditandai <strong>admin sudah membayar</strong> ke Anda. Silakan konfirmasi apakah dana sudah diterima. Jika tidak dikonfirmasi, otomatis dianggap <strong>sudah diterima setelah 7 hari</strong>.</div>
+      <div id="paymentList"><div class="empty"><span class="ico">⏳</span><h3>Memuat…</h3></div></div>
+    </div>
+
       <div class="panel-head"><h2>Riwayat Pesanan</h2></div>
       <div id="historyList"><div class="empty"><span class="ico">📭</span><h3>Belum ada riwayat</h3><p>Pesanan yang selesai akan muncul di sini.</p></div></div>
     </div>
@@ -607,6 +618,7 @@ window.switchTab = function(name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   if (name === 'location') setTimeout(initLocMap, 100);
   if (name === 'profile') renderServices();
+  if (name === 'payment') renderPayments();
 };
 
 // ===== ORDERS =====
@@ -619,7 +631,7 @@ function subscribeOrders() {
     historyOrders = all.filter(o => ['selesai', 'done', 'completed'].includes(String(o.status || '').toLowerCase()));
     const sortFn = (a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
     activeOrders.sort(sortFn); historyOrders.sort(sortFn);
-    renderActiveOrders(); renderHistory(); updateStats(); updateOrdersBadge(activeOrders.length);
+        renderActiveOrders(); renderHistory(); renderPayments(); updateStats(); updateOrdersBadge(activeOrders.length);
   }, (err) => { console.error('[Orders]', err); document.getElementById('ordersList').innerHTML = `<div class="empty"><span class="ico">⚠️</span><h3>Gagal memuat pesanan</h3><p>${escapeHtml(err.message || 'Periksa Firestore Rules & index.')}</p></div>`; });
 }
 window.refreshOrders = function() { const btn = event?.target; if (btn) { btn.disabled = true; btn.textContent = '🔄 Memuat…'; setTimeout(() => { btn.disabled = false; btn.textContent = '🔄 Muat Ulang'; }, 600); } };
@@ -715,6 +727,62 @@ function renderHistory() {
     return `<div class="order-card done"><div class="oc-head"><div class="oc-icon">${icon}</div><div class="oc-info"><strong>${escapeHtml(o.serviceName || '-')}</strong><small>${escapeHtml(o.userName || '-')} · ${formatDate(o.createdAt)}</small></div><span class="oc-status selesai">Selesai</span></div><div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:6px"><span style="color:var(--muted)">${o.paymentMethod === 'transfer' ? 'Transfer' : o.paymentMethod === 'wa' ? 'Via WA' : 'Tunai'}</span><strong style="color:var(--green-800)">${formatRp(total)}</strong></div></div>`;
   }).join('');
 }
+// ===== KONFIRMASI PEMBAYARAN (transfer) =====
+function isOrderConfirmed(o){
+  if (o.driverConfirmReceived === true) return true;
+  if (o.driverEarningPaid === true && o.driverEarningPaidAt) {
+    const ts = o.driverEarningPaidAt?.toDate ? o.driverEarningPaidAt.toDate() : (o.driverEarningPaidAt?.seconds ? new Date(o.driverEarningPaidAt.seconds * 1000) : null);
+    if (ts && (Date.now() - ts.getTime()) > 7 * 24 * 60 * 60 * 1000) return true;
+  }
+  return false;
+}
+function getPendingPayments(){
+  return historyOrders.filter(o => o.paymentMethod === 'transfer' && o.driverEarningPaid === true && !isOrderConfirmed(o));
+}
+function renderPayments(){
+  const box = document.getElementById('paymentList');
+  if (!box) return;
+  const list = getPendingPayments();
+  updatePaymentBadge(list.length);
+  if (!list.length) { box.innerHTML = `<div class="empty"><span class="ico">✅</span><h3>Tidak ada pembayaran perlu konfirmasi</h3><p>Pembayaran dari admin yang menunggu konfirmasi Anda akan muncul di sini.</p></div>`; return; }
+  box.innerHTML = list.map(o => {
+    const total = Number(o.paymentTotal ?? o.fare ?? 0);
+    return `<div class="pay-card">
+      <div class="pay-head">
+        <div class="pay-icon">💸</div>
+        <div class="pay-info"><strong>${escapeHtml(o.serviceName || '-')}</strong><small>${formatDate(o.driverEarningPaidAt || o.completedAt)}</small></div>
+        <div class="pay-total">${formatRp(total)}</div>
+      </div>
+      <p class="pay-q">Admin sudah menandai <strong>membayar ${formatRp(total)}</strong> untuk pesanan ini. Apakah dana sudah Anda terima?</p>
+      <div class="pay-actions">
+        <button class="btn-confirm-yes" data-action="confirm-received" data-id="${escapeHtml(o.id)}">✓ Ya, Sudah Diterima</button>
+        <button class="btn-confirm-no" data-action="reject-received" data-id="${escapeHtml(o.id)}">✗ Belum Diterima</button>
+      </div>
+      <p class="pay-note">Jika tidak dikonfirmasi, otomatis dianggap "sudah diterima" setelah 7 hari.</p>
+    </div>`;
+  }).join('');
+  $$('[data-action="confirm-received"]').forEach(b => b.addEventListener('click', () => confirmReceived(b.dataset.id, b)));
+  $$('[data-action="reject-received"]').forEach(b => b.addEventListener('click', () => rejectReceived(b.dataset.id, b)));
+}
+function updatePaymentBadge(count){
+  const badge = document.getElementById('paymentBadge');
+  if (!badge) return;
+  if (count > 0) { badge.hidden = false; badge.textContent = count; } else badge.hidden = true;
+}
+window.confirmReceived = async function(orderId, btn){
+  if (!confirm('Konfirmasi dana sudah Anda terima?')) return;
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Menyimpan…';
+  try {
+    await updateDoc(doc(db, CONFIG.ordersCollection, orderId), { driverConfirmReceived: true, driverConfirmReceivedAt: serverTimestamp() });
+  } catch (err) { alert('Gagal: ' + (err.message || err)); btn.disabled = false; btn.textContent = orig; }
+};
+window.rejectReceived = async function(orderId, btn){
+  if (!confirm('Anda menyatakan BELUM menerima dana dari admin?\n\nStatus "sudah bayar" admin akan dibatalkan, dan pesanan ini akan muncul kembali sebagai "belum dibayar" di laporan admin.')) return;
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Menyimpan…';
+  try {
+    await updateDoc(doc(db, CONFIG.ordersCollection, orderId), { driverEarningPaid: false, driverConfirmReceived: false });
+  } catch (err) { alert('Gagal: ' + (err.message || err)); btn.disabled = false; btn.textContent = orig; }
+};
 
 function updateStats() {
   document.getElementById('statActive').textContent = activeOrders.length;
@@ -978,6 +1046,26 @@ boot();
     </div>
   </div>
 </div>
+<style>
+  .pay-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+  .pay-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .pay-icon{font-size:26px;line-height:1}
+  .pay-info{flex:1;min-width:0}
+  .pay-info strong{display:block;font-size:14px;font-weight:800}
+  .pay-info small{font-size:11px;color:var(--muted)}
+  .pay-total{font-size:15px;font-weight:800;color:var(--green-800);flex-shrink:0}
+  .pay-q{font-size:12.5px;color:var(--ink-2);line-height:1.5;margin:0 0 12px}
+  .pay-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .pay-actions button{flex:1;min-width:120px;padding:11px 14px;border-radius:10px;font-size:12.5px;font-weight:800;transition:.15s}
+  .btn-confirm-yes{background:var(--green-600);color:#fff}
+  .btn-confirm-yes:hover{background:var(--green-700)}
+  .btn-confirm-no{background:#fef2f2;color:#b91c1c;border:1.5px solid #fecaca}
+  .btn-confirm-no:hover{background:#fee2e2}
+  .pay-actions button:disabled{opacity:.55;cursor:not-allowed}
+  .pay-note{font-size:10.5px;color:var(--muted);margin:10px 0 0}
+</style>
+
+ 
 <!-- ================== FITUR TOP UP (driver.html) ================== -->
 <style>
   .topup-fab{position:fixed;right:16px;bottom:18px;z-index:120;padding:14px 18px;border-radius:99px;background:linear-gradient(135deg,var(--yellow-400),var(--yellow-500));color:#0b3d22;font-weight:800;font-size:14px;box-shadow:0 10px 24px -8px rgba(255,199,44,.9);border:0;cursor:pointer;display:flex;align-items:center;gap:7px}
