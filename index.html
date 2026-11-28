@@ -346,6 +346,10 @@
     window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
   }
 </script>
+<style>
+  .install-btn{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;z-index:999;display:inline-flex;align-items:center;gap:8px;padding:14px 22px;border-radius:99px;background:linear-gradient(135deg,var(--yellow-400),var(--yellow-500));color:#0b3d22;font-weight:800;font-size:14px;box-shadow:0 10px 24px -8px rgba(255,199,44,.9);border:0;cursor:pointer;white-space:nowrap}
+  .install-btn:active{transform:translateX(-50%) scale(.96)}
+</style>
 
 </head>
 <body data-mode="user">
@@ -1611,5 +1615,34 @@ else { el.submitBtn.disabled = true; el.submitBtn.textContent = 'Firebase gagal 
 
 window.addEventListener('load', () => { if (window.innerWidth >= 980 && el.wa.offsetParent) el.wa.focus({ preventScroll: true }); });
 </script>
+
+ <button id="installBtn" class="install-btn" hidden onclick="installApp()">📲 Install Aplikasi</button>
+
+<script>
+  let deferredPrompt = null;
+  const installBtn = document.getElementById('installBtn');
+
+  // kalau sudah ter-install (mode standalone), jangan tampilkan
+  if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+    installBtn.hidden = true;
+  } else {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.hidden = false;
+    });
+  }
+
+  function installApp() {
+    if (!deferredPrompt) { installBtn.hidden = true; return; }
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choice) => {
+      if (choice.outcome === 'accepted') { installBtn.hidden = true; deferredPrompt = null; }
+    });
+  }
+
+  window.addEventListener('appinstalled', () => { installBtn.hidden = true; deferredPrompt = null; });
+</script>
+
 </body>
 </html>
