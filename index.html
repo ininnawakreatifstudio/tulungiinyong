@@ -317,6 +317,29 @@
   @media (min-width:1280px){.brand-hero{min-height:320px;padding:88px 72px 40px}.brand-logo{max-height:72px;max-width:240px}.brand-logo-fallback{width:72px;height:72px;font-size:36px}.brand-title{font-size:26px}.brand-copy{padding:48px 72px 40px}.brand-foot{padding:0 72px 48px}}
 </style>
 <base target="_blank">
+
+ <style>
+  .fin-toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .fin-toolbar input{flex:1;min-width:180px;padding:10px 13px;border:1.5px solid var(--line);border-radius:11px;font-size:13px;font-weight:600;color:var(--ink);background:#fff;outline:none}
+  .fin-toolbar input:focus{border-color:var(--green-600);box-shadow:0 0 0 4px rgba(15,157,88,.13)}
+  .fin-toolbar select{padding:10px 12px;border:1.5px solid var(--line);border-radius:11px;font-size:13px;font-weight:700;color:var(--ink);background:#fff;outline:none;cursor:pointer}
+
+  .fin-driver-row{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;overflow:hidden;transition:border-color .15s}
+  .fin-driver-row.open{border-color:var(--green-500)}
+  .fin-driver-row-head{width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;background:#fff;text-align:left;transition:.15s}
+  .fin-driver-row-head:hover{background:#f8fafc}
+  .fdr-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--green-700),var(--green-500));color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px;flex-shrink:0}
+  .fdr-main{flex:1;min-width:0}
+  .fdr-main strong{display:block;font-size:13.5px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fdr-main small{display:block;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fdr-badge{font-size:11px;font-weight:800;padding:4px 9px;border-radius:99px;flex-shrink:0}
+  .fdr-badge.ow{background:#fef2f2;color:#b91c1c}
+  .fdr-badge.ok{background:var(--green-50);color:var(--green-800)}
+  .fdr-arrow{color:var(--muted);font-size:12px;flex-shrink:0;transition:transform .18s}
+  .fin-driver-row.open .fdr-arrow{transform:rotate(180deg)}
+  .fin-driver-detail{padding:2px 14px 14px;border-top:1px dashed var(--line);margin-top:2px}
+</style>
+
 </head>
 <body data-mode="user">
 
@@ -536,8 +559,16 @@
         <div class="fin-stat info"><div class="fin-stat-ico">🎁</div><div class="fin-stat-lbl">Hak Driver (Transfer)</div><div class="fin-stat-val" id="finEarningOwed">Rp 0</div><div class="fin-stat-sub">Belum dibayar admin</div></div>
       </div>
 
-
-      <div class="panel-head" style="margin-top:24px"><h3 style="margin:0;font-size:16px">Rincian Per Driver</h3></div>
+           <div class="panel-head" style="margin-top:24px"><h3 style="margin:0;font-size:16px">Rincian Per Driver</h3></div>
+      <div class="fin-toolbar">
+        <input type="text" id="finSearchInput" placeholder="🔍 Cari nama / WA driver…" oninput="onFinSearch(this.value)" />
+        <select id="finSortSelect" onchange="onFinSort(this.value)">
+          <option value="owed">Sort: Transfer belum dibayar</option>
+          <option value="name">Sort: Nama A-Z</option>
+          <option value="balance">Sort: Saldo tertinggi</option>
+          <option value="trips">Sort: Trip terbanyak</option>
+        </select>
+      </div>
       <div id="finDriverList"><div class="admin-empty"><span class="ico">⏳</span><h3>Memuat…</h3></div></div>
 
       <div class="panel-head" style="margin-top:24px"><h3 style="margin:0;font-size:16px">Rincian Periode</h3></div>
@@ -715,6 +746,8 @@ let busyDriverIds = new Set();
 let appSettings = { ...DEFAULT_SETTINGS };
 
 let finPeriod = 'week', finFrom = null, finTo = null, finOrders = [], finDriverMap = {};
+let finDriverListAll = [], finSearchText = '', finSortKey = 'owed';
+
 
 const EYE_ON = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>`;
 const EYE_OFF = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
@@ -1296,40 +1329,79 @@ function renderFinance(){
   document.getElementById('finTotalCommission').textContent = formatRp(totalCommission);
   document.getElementById('finEarningOwed').textContent = formatRp(earningOwed);
 
-  const drivers = Object.values(finDriverMap)
-    .filter(d => d.active || d.trips > 0)
-    .sort((a, b) => b.transferOwed - a.transferOwed || b.trips - a.trips);
+  finDriverListAll = Object.values(finDriverMap).filter(d => d.active || d.trips > 0);
 
-  if (!drivers.length) { document.getElementById('finDriverList').innerHTML = `<div class="admin-empty"><span class="ico">📊</span><h3>Belum ada driver</h3><p>Tidak ada data driver.</p></div>`; document.getElementById('finPeriodList').innerHTML = ''; return; }
+  if (!finDriverListAll.length) {
+    document.getElementById('finDriverList').innerHTML = `<div class="admin-empty"><span class="ico">📊</span><h3>Belum ada driver</h3><p>Tidak ada data driver.</p></div>`;
+    document.getElementById('finPeriodList').innerHTML = '';
+    return;
+  }
 
-  document.getElementById('finDriverList').innerHTML = drivers.map(renderFinDriverCard).join('');
+  renderFinDriverList();
   document.getElementById('finPeriodList').innerHTML = renderFinPeriodBreakdown();
-  $$('[data-fin-action]').forEach(btn => btn.addEventListener('click', () => handleFinAction(btn.dataset.finAction, btn.dataset.driverId, btn)));
 }
+
+function getSortedDrivers(){
+  const q = finSearchText.trim().toLowerCase();
+  let list = finDriverListAll;
+  if (q) list = list.filter(d => (d.driverName || '').toLowerCase().includes(q) || (d.driverWa || '').toLowerCase().includes(q));
+  const arr = list.slice();
+  if (finSortKey === 'name') arr.sort((a, b) => (a.driverName || '').localeCompare(b.driverName || ''));
+  else if (finSortKey === 'balance') arr.sort((a, b) => (b.balance || 0) - (a.balance || 0));
+  else if (finSortKey === 'trips') arr.sort((a, b) => b.trips - a.trips);
+  else arr.sort((a, b) => (b.transferOwed - a.transferOwed) || (b.trips - a.trips)); // default: transfer belum dibayar
+  return arr;
+}
+
+function renderFinDriverList(){
+  const list = getSortedDrivers();
+  const box = document.getElementById('finDriverList');
+  if (!list.length) { box.innerHTML = `<div class="admin-empty"><span class="ico">🔍</span><h3>Tidak ditemukan</h3><p>Coba kata kunci lain.</p></div>`; return; }
+  box.innerHTML = list.map(renderFinDriverCard).join('');
+  $$('[data-fin-action]').forEach(btn => btn.addEventListener('click', () => handleFinAction(btn.dataset.finAction, btn.dataset.driverId, btn)));
+  $$('[data-action="toggle-driver"]').forEach(btn => btn.addEventListener('click', () => toggleFinDriver(btn.dataset.id)));
+}
+
+window.toggleFinDriver = function(driverId){
+  const detail = document.querySelector(`[data-detail="${driverId}"]`);
+  const row = document.getElementById('fin-row-' + driverId);
+  if (!detail) return;
+  const willShow = detail.hidden;
+  detail.hidden = !detail.hidden;
+  if (row) row.classList.toggle('open', willShow);
+};
+
+window.onFinSearch = function(v){ finSearchText = v; renderFinDriverList(); };
+window.onFinSort = function(v){ finSortKey = v; renderFinDriverList(); };
 
 function renderFinDriverCard(d){
   const hasOwed = d.transferOwed > 0;
   const serviceBadges = d.services.map(s => serviceLabel(s)).join(' · ');
   const balanceColor = d.balance > 0 ? '#16a34a' : (d.balance < 0 ? '#dc2626' : '#64748b');
-  return `<div class="fin-driver-card">
-      <div class="fin-driver-head">
-        <div class="fin-driver-avatar">${escapeHtml(d.driverName.charAt(0).toUpperCase())}</div>
-        <div class="fin-driver-info"><strong>${escapeHtml(d.driverName)}</strong><small>${d.trips} trip · ${escapeHtml(serviceBadges || '-')}${d.active ? '' : ' · nonaktif'}</small></div>
-        <div class="fin-driver-nett ${hasOwed ? 'negative' : 'positive'}"><small>${hasOwed ? 'Admin bayar driver' : 'Lunas'}</small><strong>${hasOwed ? formatRp(d.transferOwed) : '✓'}</strong></div>
-      </div>
-      <div class="fin-driver-details">
+  return `<div class="fin-driver-row" id="fin-row-${escapeHtml(d.driverId)}">
+      <button class="fin-driver-row-head" type="button" data-action="toggle-driver" data-id="${escapeHtml(d.driverId)}">
+        <span class="fdr-avatar">${escapeHtml(d.driverName.charAt(0).toUpperCase())}</span>
+        <span class="fdr-main">
+          <strong>${escapeHtml(d.driverName)}</strong>
+          <small>${escapeHtml(d.driverWa || '-')} · ${d.trips} trip · Saldo ${formatRp(d.balance)}</small>
+        </span>
+        <span class="fdr-badge ${hasOwed ? 'ow' : 'ok'}">${hasOwed ? formatRp(d.transferOwed) : '✓'}</span>
+        <span class="fdr-arrow">▾</span>
+      </button>
+      <div class="fin-driver-detail" data-detail="${escapeHtml(d.driverId)}" hidden>
         <div class="fin-row"><span>💰 Sisa Saldo (top up)</span><strong style="color:${balanceColor}">${formatRp(d.balance)}</strong></div>
         <div class="fin-row"><span>📦 Total Fare</span><strong>${formatRp(d.totalFare)}</strong></div>
         <div class="fin-row"><span>💵 Cash diterima driver</span><strong>${formatRp(d.cashTotal)}</strong></div>
         <div class="fin-row"><span>🏦 Transfer (admin belum bayar)</span><strong style="color:${d.transferOwed > 0 ? '#dc2626' : '#16a34a'}">${formatRp(d.transferOwed)}</strong></div>
         <div class="fin-row"><span>✅ Transfer sudah dibayar</span><strong style="color:#16a34a">${formatRp(d.transferPaid)}</strong></div>
         <div class="fin-row"><span>🧾 Total Komisi (dari top up)</span><strong>${formatRp(d.commission)}</strong></div>
+        <div class="fin-row"><span>🧩 Layanan</span><strong style="font-weight:600">${escapeHtml(serviceBadges || '-')}</strong></div>
+        <div class="fin-driver-actions">
+          ${hasOwed ? `<button class="btn-sm btn-fin-earn" data-fin-action="settle-earning" data-driver-id="${escapeHtml(d.driverId)}">🎁 Bayar Hak Driver</button>` : (d.trips > 0 ? `<span class="fin-paid-badge">✅ Semua Lunas</span>` : `<span class="fin-paid-badge">Belum ada trip di periode ini</span>`)}
+        </div>
       </div>
-      <div class="fin-driver-actions">
-        ${hasOwed ? `<button class="btn-sm btn-fin-earn" data-fin-action="settle-earning" data-driver-id="${escapeHtml(d.driverId)}">🎁 Bayar Hak Driver</button>` : (d.trips > 0 ? `<span class="fin-paid-badge">✅ Semua Lunas</span>` : '')}
-      </div></div>`;
+    </div>`;
 }
-
 function renderFinPeriodBreakdown(){
   const groups = {};
   finOrders.forEach(o => {
@@ -1496,6 +1568,7 @@ function fmtDate(d){
   const pad = n => String(n).padStart(2, '0');
   return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
 }
+
 // ===== SESSION BOOT =====
 (function checkSession(){
   const s = sessionGet();
