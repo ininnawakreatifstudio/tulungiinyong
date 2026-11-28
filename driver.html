@@ -761,8 +761,8 @@ function renderPayments(){
       <p class="pay-note">Jika tidak dikonfirmasi, otomatis dianggap "sudah diterima" setelah 7 hari.</p>
     </div>`;
   }).join('');
-  $$('[data-action="confirm-received"]').forEach(b => b.addEventListener('click', () => confirmReceived(b.dataset.id, b)));
-  $$('[data-action="reject-received"]').forEach(b => b.addEventListener('click', () => rejectReceived(b.dataset.id, b)));
+  document.querySelectorAll('[data-action="confirm-received"]').forEach(b => b.addEventListener('click', () => confirmReceived(b.dataset.id, b)));
+  document.querySelectorAll('[data-action="reject-received"]').forEach(b => b.addEventListener('click', () => rejectReceived(b.dataset.id, b)));
 }
 function updatePaymentBadge(count){
   const badge = document.getElementById('paymentBadge');
