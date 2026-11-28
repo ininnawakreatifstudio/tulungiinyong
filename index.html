@@ -988,14 +988,21 @@ async function preloadDrivers(){
     const snap = await getDocs(query(collection(db, CONFIG.usersCollection), where('role', '==', 'driver'), where('status', '==', 'active')));
     driverCache = snap.docs.map(d => {
       const data = d.data();
-      return { id: d.id, name: data.name || '(tanpa nama)', wa: data.wa || '', geohash: data.geohash || '', photoUrl: data.photoUrl || '', vehicle: data.vehicle || '', services: Array.isArray(data.services) ? data.services : null };
+            return { id: d.id, name: data.name || '(tanpa nama)', wa: data.wa || '', geohash: data.geohash || '', photoUrl: data.photoUrl || '', vehicle: data.vehicle || '', balance: Number(data.balance) || 0, services: Array.isArray(data.services) ? data.services : null };
     });
   } catch (err) { console.warn('[Drivers]', err); }
 }
 function driversForService(serviceId) {
   const normalized = normalizeServiceId(serviceId);
-  return driverCache.filter(d => { if (busyDriverIds.has(d.id)) return false; if (!Array.isArray(d.services)) return true; return d.services.map(normalizeServiceId).includes(normalized); });
+  const commission = Number(appSettings.commissions?.[normalized] ?? 0);
+  return driverCache.filter(d => {
+    if (busyDriverIds.has(d.id)) return false;
+    if (commission > 0 && (Number(d.balance) || 0) < commission) return false; // saldo kurang dari komisi
+    if (!Array.isArray(d.services)) return true;
+    return d.services.map(normalizeServiceId).includes(normalized);
+  });
 }
+
 function serviceLabel(serviceId){ return SERVICE_LABELS[serviceId] || SERVICE_LABELS[normalizeServiceId(serviceId)] || serviceId || '-'; }
 
 // ===== PESANAN =====
