@@ -1008,7 +1008,8 @@ function initLiveTracking(order) {
   tracker.unsub = onSnapshot(doc(db, 'users', driverId), (snap) => {
     if (!snap.exists()) return;
     const data = snap.data();
-    const loc = coordsToLatLng(data.location || data.currentLocation || data.lastLocation || data.driverLocation);
+    const loc = coordsToLatLng(data.location || data.currentLocation || data.lastLocation || data.driverLocation) || coordsToLatLng(data);
+
     if (!loc) return;
     if (!driverMarker) {
       driverMarker = L.marker(loc, { icon: driverMarkerIcon() }).addTo(map).bindPopup('Driver');
