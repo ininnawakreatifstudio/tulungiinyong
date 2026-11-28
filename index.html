@@ -339,6 +339,13 @@
   .fin-driver-row.open .fdr-arrow{transform:rotate(180deg)}
   .fin-driver-detail{padding:2px 14px 14px;border-top:1px dashed var(--line);margin-top:2px}
 </style>
+<link rel="manifest" href="./manifest.json" />
+<link rel="apple-touch-icon" href="./icon-192.png" />
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+  }
+</script>
 
 </head>
 <body data-mode="user">
