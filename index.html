@@ -1496,7 +1496,6 @@ function fmtDate(d){
   const pad = n => String(n).padStart(2, '0');
   return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
 }
-
 // ===== SESSION BOOT =====
 (function checkSession(){
   const s = sessionGet();
