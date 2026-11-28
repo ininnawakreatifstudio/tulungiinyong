@@ -206,15 +206,6 @@
   .loc-btn:hover{border-color:var(--green-500)}
   .map-tools{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px}
 
-  .coming-soon{
-    text-align:center; padding:44px 20px; border-radius:16px;
-    background:linear-gradient(135deg, var(--yellow-50), #fff);
-    border:2px dashed #ffe08a; margin-bottom:20px;
-  }
-  .coming-soon .cs-icon{font-size:56px; margin-bottom:12px; display:block}
-  .coming-soon h3{margin:0 0 8px; color:#8a6d00; font-size:20px}
-  .coming-soon p{margin:0; color:#a37f00; font-size:13px; line-height:1.6}
-
   /* ---------- PAYMENT ---------- */
   .payment-option{display:flex; align-items:center; gap:10px; padding:14px; border:1.5px solid var(--line); border-radius:12px; margin-bottom:8px; cursor:pointer; transition:.2s}
   .payment-option:has(input:checked){border-color:var(--green-600); background:var(--green-50)}
@@ -314,6 +305,9 @@
   .oc-driver-info small{font-size:11px; color:var(--muted)}
   .oc-driver.empty .oc-driver-info strong{color:#8a6d00}
 
+  .oc-chat-btn{padding:7px 12px; border-radius:8px; background:var(--green-600); color:#fff; font-size:11.5px; font-weight:800; display:inline-flex; align-items:center; gap:5px; flex-shrink:0; transition:.16s}
+  .oc-chat-btn:hover{background:var(--green-700)}
+
   .oc-route{
     background:#f8fafc; border-radius:10px; padding:10px 12px; margin-bottom:12px;
     font-size:12px; color:var(--ink-2, #334155);
@@ -375,6 +369,29 @@
     padding:10px 12px; border-radius:10px; background:var(--green-50);
     border:1px solid #a7e3c4; font-size:11.5px; color:var(--green-800); line-height:1.45;
   }
+
+  /* ---------- CHAT ---------- */
+  .chat-overlay{position:fixed;inset:0;z-index:160;background:rgba(15,23,42,.55);display:flex;align-items:flex-end;justify-content:center;padding:16px}
+  .chat-modal{width:100%;max-width:440px;background:#fff;border-radius:20px;height:82vh;max-height:640px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 50px -12px rgba(0,0,0,.35);animation:fadeUp .25s ease}
+  .chat-head{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line);background:#fff}
+  .chat-head-info{flex:1;min-width:0}
+  .chat-head-info strong{display:block;font-size:14.5px;font-weight:800}
+  .chat-head-info small{display:block;font-size:11px;color:var(--muted)}
+  .chat-close{width:30px;height:30px;border-radius:9px;background:#f1f5f9;font-size:14px;font-weight:800;color:var(--muted);flex-shrink:0}
+  .chat-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#f6f9f6}
+  .chat-msg{display:flex;flex-direction:column;max-width:85%}
+  .chat-msg.me{align-self:flex-end;align-items:flex-end}
+  .chat-msg.them{align-self:flex-start;align-items:flex-start}
+  .chat-bubble{padding:10px 13px;border-radius:14px;font-size:13.5px;line-height:1.45;word-break:break-word;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .chat-msg.me .chat-bubble{background:var(--green-600);color:#fff;border-bottom-right-radius:4px}
+  .chat-msg.them .chat-bubble{background:#fff;border:1px solid var(--line);color:var(--ink);border-bottom-left-radius:4px}
+  .chat-time{font-size:10px;color:var(--muted);margin-top:4px;padding:0 4px}
+  .chat-empty{text-align:center;color:var(--muted);font-size:12.5px;margin:auto;padding:20px}
+  .chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line);background:#fff}
+  .chat-input-row input{flex:1;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font-size:14px;outline:none;background:#fbfcfd}
+  .chat-input-row input:focus{border-color:var(--green-600);box-shadow:0 0 0 4px rgba(15,157,88,.13)}
+  .chat-send{padding:0 16px;border-radius:12px;background:var(--green-600);color:#fff;font-size:14px;font-weight:800;flex-shrink:0}
+  .chat-send:hover{background:var(--green-700)}
 
   .loading-card{
     background:rgba(255,255,255,.55) !important;
@@ -467,11 +484,11 @@
         <span class="service-desc">Nyaman & luas</span>
         <span class="service-availability loading" data-avail="taxi">Memuat…</span>
       </button>
-      <button class="service-card" data-service="food" onclick="openBooking('food', 'Food Online', '🍜', 0)">
-        <span class="badge-soon">Segera</span>
+      <button class="service-card" data-service="food" onclick="openBooking('food', 'Food Online', '🍜', 5000)">
         <span class="service-icon">🍜</span>
         <span class="service-name">Food Online</span>
-        <span class="service-desc">Segera hadir</span>
+        <span class="service-desc">Antar pesanan makanan</span>
+        <span class="service-availability loading" data-avail="food">Memuat…</span>
       </button>
       <button class="service-card" data-service="tulung" onclick="openBooking('tulung', 'Tulung Apa Bae', '🤝', 0)">
         <span class="service-icon">🤝</span>
@@ -509,7 +526,7 @@
 
         <div id="mapSection" hidden>
           <div class="field">
-            <label>Lokasi Jemput</label>
+            <label id="pickupLabel">Lokasi Jemput</label>
             <div class="input-with-btn">
               <input type="text" id="pickupAddress" placeholder="Klik peta / ketik alamat" />
               <button type="button" class="loc-btn-map" onclick="detectLocation('pickup')" title="Gunakan lokasi saat ini" aria-label="Lokasi saya">
@@ -521,21 +538,19 @@
             </div>
           </div>
           <div class="field">
-            <label>Lokasi Tujuan</label>
+            <label id="destLabel">Lokasi Tujuan</label>
             <input type="text" id="destAddress" placeholder="Klik peta / ketik alamat" />
           </div>
           <div class="map-tools">
             <button type="button" class="loc-btn" onclick="resetPoints()">🔄 Reset Titik</button>
           </div>
           <div id="map"></div>
-          <p class="map-hint">Klik peta: pertama = titik jemput (hijau), kedua = titik tujuan (merah).</p>
+          <p class="map-hint">Klik peta: pertama = titik jemput/ambil (hijau), kedua = titik tujuan/antar (merah).</p>
         </div>
 
         <div id="foodSection" hidden>
-          <div class="coming-soon">
-            <span class="cs-icon">🍜</span>
-            <h3>Food Online Segera Hadir</h3>
-            <p>Kami sedang menyiapkan layanan pesan makanan<br>terbaik untuk Anda. Nantikan ya! 🎉</p>
+          <div class="info-box">
+            🍜 <strong>Food Online</strong> — tentukan <strong>lokasi ambil makanan</strong> (resto/toko) dan <strong>lokasi antar</strong>. Pembayaran <strong>tunai di tempat</strong> saat makanan diantar. Harga makanan di luar ongkos antar.
           </div>
         </div>
 
@@ -570,7 +585,7 @@
               <div class="po-sub">Bayar tunai saat driver tiba</div>
             </div>
           </label>
-          <label class="payment-option">
+          <label class="payment-option" id="transferOption">
             <input type="radio" name="paymentMethod" value="transfer" onchange="updatePaymentUI()" />
             <div>
               <div class="po-text">🏦 Transfer Bank</div>
@@ -629,13 +644,27 @@
   </a>
 </nav>
 
+<div class="chat-overlay" id="chatOverlay" hidden onclick="if(event.target===this)closeChat()">
+  <div class="chat-modal">
+    <div class="chat-head">
+      <div class="chat-head-info"><strong id="chatTitle">💬 Chat</strong><small id="chatSub">-</small></div>
+      <button class="chat-close" onclick="closeChat()">✕</button>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-row">
+      <input type="text" id="chatInput" placeholder="Tulis pesan…" onkeydown="if(event.key==='Enter')sendChat()" />
+      <button class="chat-send" onclick="sendChat()">Kirim</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getFirestore, doc, getDoc, getDocs, updateDoc, collection, addDoc, serverTimestamp,
-  query, where, onSnapshot
+  query, where, onSnapshot, orderBy, limit
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -680,6 +709,7 @@ let appSettings = {
   ojekPricePerKm: 2500,
   taxiPricePerKm: 4000,
   becakPricePerKm: 2000,
+  foodPricePerKm: 2500,
   driverBonus: 5000,
   userBonus: 2000,
   adminWa: '6281234567890',
@@ -703,6 +733,7 @@ let totalActiveDrivers = 0;
 
 const ACTIVE_STATUSES = ['pending', 'accepted', 'menjemput', 'pengantaran'];
 let liveTrackers = {};
+let chatOrderId = null, chatUnsub = null;
 
 const rawSession = localStorage.getItem('tulungiyong.session');
 if (!rawSession) {
@@ -873,6 +904,7 @@ function subscribeOrders() {
       .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
     container.innerHTML = orders.map(renderOrderCard).join('');
     orders.forEach(o => initLiveTracking(o));
+    container.querySelectorAll('[data-action="chat"]').forEach(b => b.addEventListener('click', () => openChat(b.dataset.id, b.dataset.name)));
   }, (err) => {
     teardownLiveTracking();
     console.error('[Orders]', err);
@@ -943,7 +975,7 @@ function initLiveTracking(order) {
   const driverId = driverIdOf(order);
   const status = String(order.status || '').toLowerCase();
   if (!driverId || !ACTIVE_STATUSES.includes(status)) return;
-  const isRide = order.serviceId === 'ojek' || order.serviceId === 'taxi' || order.serviceId === 'becak';
+  const isRide = order.serviceId === 'ojek' || order.serviceId === 'taxi' || order.serviceId === 'becak' || order.serviceId === 'food';
   if (!isRide) return;
 
   const el = document.getElementById('live-map-' + order.id);
@@ -1007,11 +1039,13 @@ function renderOrderCard(order) {
   const avatarStyle = photoUrl ? `background-image:url('${escapeHtml(photoUrl)}');color:transparent;` : '';
 
   let routeHtml = '';
-  if (order.serviceId === 'ojek' || order.serviceId === 'taxi' || order.serviceId === 'becak') {
+  if (order.serviceId === 'ojek' || order.serviceId === 'taxi' || order.serviceId === 'becak' || order.serviceId === 'food') {
+    const jemputLabel = order.serviceId === 'food' ? 'Ambil' : 'Jemput';
+    const tujuanLabel = order.serviceId === 'food' ? 'Antar' : 'Tujuan';
     routeHtml = `
       <div class="oc-route">
-        <div class="oc-route-item"><span class="oc-route-dot green"></span><span><strong>Jemput:</strong> ${escapeHtml(order.pickup || '-')}</span></div>
-        <div class="oc-route-item"><span class="oc-route-dot red"></span><span><strong>Tujuan:</strong> ${escapeHtml(order.dest || '-')}</span></div>
+        <div class="oc-route-item"><span class="oc-route-dot green"></span><span><strong>${jemputLabel}:</strong> ${escapeHtml(order.pickup || '-')}</span></div>
+        <div class="oc-route-item"><span class="oc-route-dot red"></span><span><strong>${tujuanLabel}:</strong> ${escapeHtml(order.dest || '-')}</span></div>
       </div>`;
   } else if (order.serviceId === 'tulung') {
     routeHtml = `
@@ -1043,7 +1077,7 @@ function renderOrderCard(order) {
   }
 
   const driverId = driverIdOf(order);
-  const isRide = order.serviceId === 'ojek' || order.serviceId === 'taxi' || order.serviceId === 'becak';
+  const isRide = order.serviceId === 'ojek' || order.serviceId === 'taxi' || order.serviceId === 'becak' || order.serviceId === 'food';
   let mapHtml = '';
   if (active && isRide && driverId) {
     mapHtml = `
@@ -1054,6 +1088,10 @@ function renderOrderCard(order) {
   const canComplete = (status === 'accepted' || status === 'pengantaran');
   const completeBtn = canComplete
     ? `<button class="oc-user-complete" onclick="userCompleteOrder('${escapeHtml(order.id)}', this)">✓ Tandai Pesanan Selesai</button>`
+    : '';
+
+  const chatBtn = (hasDriver && active)
+    ? `<button class="oc-chat-btn" data-action="chat" data-id="${escapeHtml(order.id)}" data-name="${escapeHtml(order.driverName || 'Driver')}">💬 Chat</button>`
     : '';
 
   return `
@@ -1074,6 +1112,7 @@ function renderOrderCard(order) {
             <strong>${escapeHtml(order.driverName)}</strong>
             <small>${escapeHtml(order.driverVehicle || 'Mitra INYONG_JEK')}</small>
           </div>
+          ${chatBtn}
         </div>
       ` : `
         <div class="oc-driver empty">
@@ -1167,6 +1206,14 @@ window.openBooking = function(id, name, icon, baseFare) {
   document.getElementById('perKmRow').hidden = true;
   document.getElementById('distRow').hidden = true;
 
+  // reset label & opsi pembayaran ke default
+  document.getElementById('pickupLabel').textContent = 'Lokasi Jemput';
+  document.getElementById('destLabel').textContent = 'Lokasi Tujuan';
+  document.getElementById('pickupAddress').placeholder = 'Klik peta / ketik alamat';
+  document.getElementById('destAddress').placeholder = 'Klik peta / ketik alamat';
+  const transferOpt = document.getElementById('transferOption');
+  if (transferOpt) transferOpt.hidden = false;
+
   document.getElementById('bookingForm').reset();
   pickupCoords = null;
   destCoords = null;
@@ -1188,9 +1235,20 @@ window.openBooking = function(id, name, icon, baseFare) {
 
   } else if (id === 'food') {
     document.getElementById('foodSection').hidden = false;
-    document.getElementById('fareBox').hidden = true;
-    document.getElementById('paymentMethodSection').hidden = true;
-    document.getElementById('orderBtn').hidden = true;
+    document.getElementById('mapSection').hidden = false;
+    document.getElementById('perKmRow').hidden = false;
+    document.getElementById('distRow').hidden = false;
+    document.getElementById('perKmLabel').textContent = formatRp(appSettings.foodPricePerKm || 2500);
+    document.getElementById('pickupLabel').textContent = 'Lokasi Ambil Makanan';
+    document.getElementById('destLabel').textContent = 'Lokasi Antar Makanan';
+    document.getElementById('pickupAddress').placeholder = 'Resto / toko penjual';
+    document.getElementById('destAddress').placeholder = 'Alamat pengantaran';
+    document.getElementById('pickupAddress').required = true;
+    document.getElementById('destAddress').required = true;
+    if (transferOpt) transferOpt.hidden = true;
+    const cashRadio = document.querySelector('input[name="paymentMethod"][value="cash"]');
+    if (cashRadio) cashRadio.checked = true;
+    setTimeout(initMap, 250);
 
   } else if (id === 'tulung') {
     document.getElementById('tulungSection').hidden = false;
@@ -1332,6 +1390,7 @@ async function calculateRoute() {
 
     const pricePerKm = currentService.id === 'ojek' ? appSettings.ojekPricePerKm
       : currentService.id === 'taxi' ? appSettings.taxiPricePerKm
+      : currentService.id === 'food' ? (appSettings.foodPricePerKm || 2500)
       : appSettings.becakPricePerKm;
     const total = currentService.baseFare + (distanceKm * pricePerKm);
 
@@ -1344,8 +1403,6 @@ async function calculateRoute() {
     alert('Gagal menghitung rute. Periksa koneksi internet.');
   }
 }
-
-let foodCart = [];
 
 function renderBankInfo() {
   const card = document.getElementById('bankInfoCard');
@@ -1451,7 +1508,8 @@ window.submitOrder = async function(e) {
   btn.textContent = 'Memproses...';
 
   try {
-    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'cash';
+    const isFood = currentService.id === 'food';
+    const paymentMethod = isFood ? 'cash' : (document.querySelector('input[name="paymentMethod"]:checked')?.value || 'cash');
     const orderData = {
       userId: session.uid || session.id,
       userName: session.name,
@@ -1463,8 +1521,9 @@ window.submitOrder = async function(e) {
       paymentMethod
     };
 
-    if (currentService.id === 'ojek' || currentService.id === 'taxi' || currentService.id === 'becak') {
-      if (!pickupCoords || !destCoords) throw new Error('Tentukan titik jemput dan tujuan di peta.');
+    const isRide = currentService.id === 'ojek' || currentService.id === 'taxi' || currentService.id === 'becak' || currentService.id === 'food';
+    if (isRide) {
+      if (!pickupCoords || !destCoords) throw new Error('Tentukan titik jemput/ambil dan titik tujuan/antar di peta.');
       orderData.pickup = document.getElementById('pickupAddress').value;
       orderData.dest = document.getElementById('destAddress').value;
       orderData.pickupCoords = pickupCoords;
@@ -1474,6 +1533,7 @@ window.submitOrder = async function(e) {
       orderData.fare = currentService.calculatedFare || 0;
       orderData.pricePerKm = currentService.id === 'ojek' ? appSettings.ojekPricePerKm
         : currentService.id === 'taxi' ? appSettings.taxiPricePerKm
+        : currentService.id === 'food' ? (appSettings.foodPricePerKm || 2500)
         : appSettings.becakPricePerKm;
     }
 
@@ -1540,6 +1600,50 @@ window.chatAdminWA = async function() {
   }
 };
 
+// ===== CHAT (user <-> driver) =====
+function chatMessagesRef(orderId) { return collection(db, 'orders', orderId, 'messages'); }
+window.openChat = function(orderId, driverName) {
+  chatOrderId = orderId;
+  document.getElementById('chatTitle').textContent = `💬 ${driverName || 'Driver'}`;
+  document.getElementById('chatSub').textContent = 'Chat pesanan realtime';
+  document.getElementById('chatOverlay').hidden = false;
+  document.getElementById('chatInput').focus();
+  subscribeChat(orderId);
+};
+window.closeChat = function() {
+  document.getElementById('chatOverlay').hidden = true;
+  if (chatUnsub) { chatUnsub(); chatUnsub = null; }
+  chatOrderId = null;
+};
+function subscribeChat(orderId) {
+  if (chatUnsub) chatUnsub();
+  const q = query(chatMessagesRef(orderId), orderBy('createdAt', 'asc'), limit(200));
+  chatUnsub = onSnapshot(q, (snap) => {
+    const box = document.getElementById('chatMessages');
+    const msgs = snap.docs.map(d => d.data());
+    if (!msgs.length) { box.innerHTML = `<div class="chat-empty">Belum ada pesan. Mulai chat dengan driver.</div>`; return; }
+    box.innerHTML = msgs.map(m => {
+      const mine = m.senderRole === 'user';
+      return `<div class="chat-msg ${mine ? 'me' : 'them'}"><div class="chat-bubble">${escapeHtml(m.text || '')}</div><div class="chat-time">${mine ? 'Anda' : escapeHtml(m.sender || 'Driver')} · ${formatDate(m.createdAt)}</div></div>`;
+    }).join('');
+    box.scrollTop = box.scrollHeight;
+  }, (err) => { console.warn('[Chat]', err); });
+}
+window.sendChat = async function() {
+  const input = document.getElementById('chatInput');
+  const text = (input.value || '').trim();
+  if (!text || !chatOrderId) return;
+  input.value = '';
+  try {
+    await addDoc(chatMessagesRef(chatOrderId), {
+      sender: session?.name || 'Pengguna',
+      senderRole: 'user',
+      text: text,
+      createdAt: serverTimestamp()
+    });
+  } catch (err) { alert('Gagal kirim pesan: ' + (err.message || err)); }
+};
+
 function formatRp(num) {
   return 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(num || 0));
 }
@@ -1551,6 +1655,7 @@ window.logout = function() {
   if (confirm('Keluar dari akun?')) {
     if (ordersUnsubscribe) ordersUnsubscribe();
     teardownLiveTracking();
+    if (chatUnsub) { chatUnsub(); chatUnsub = null; }
     localStorage.removeItem('tulungiyong.session');
     window.location.href = 'index.html';
   }
