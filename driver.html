@@ -266,7 +266,7 @@
         <div class="stat"><span class="stat-val" id="statActive">0</span><span class="stat-label">Aktif</span></div>
         <div class="stat"><span class="stat-val" id="statToday">0</span><span class="stat-label">Trip Hari Ini</span></div>
         <div class="stat"><span class="stat-val" id="statEarnings">Rp 0</span><span class="stat-label">Pendapatan</span></div>
-        <div class="stat"><span class="stat-val" id="statRating">-</span><span class="stat-label">Rating</span></div>
+        <div class="stat"><span class="stat-val" id="statBalance">Rp 0</span><span class="stat-label">Saldo</span></div>
       </div>
 
       <div class="panel-head">
@@ -347,7 +347,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getFirestore, doc, getDoc, updateDoc, collection, query, where, onSnapshot, serverTimestamp
+  getFirestore, doc, getDoc, updateDoc, collection, query, where, onSnapshot, orderBy, addDoc, limit, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import {
   getAuth, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider
@@ -626,10 +626,9 @@ window.refreshOrders = function() { const btn = event?.target; if (btn) { btn.di
 function updateOrdersBadge(count) { const badge = document.getElementById('ordersBadge'); if (count > 0) { badge.hidden = false; badge.textContent = count; } else badge.hidden = true; }
 
 function getOrderTargetCoords(order) {
-  if (order.serviceId === 'ojek' || order.serviceId === 'taxi' || order.serviceId === 'becak') return order.destCoords;
+  if (order.serviceId === 'ojek' || order.serviceId === 'taxi' || order.serviceId === 'becak' || order.serviceId === 'food') return order.destCoords;
   return null;
 }
-
 function renderActiveOrders() {
   const container = document.getElementById('ordersList');
   if (!activeOrders.length) { container.innerHTML = `<div class="empty"><span class="ico">✅</span><h3>Tidak ada pesanan aktif</h3><p>Pesanan baru akan otomatis muncul di sini.</p></div>`; return; }
@@ -637,6 +636,7 @@ function renderActiveOrders() {
   document.querySelectorAll('[data-action="verify"]').forEach(b => b.addEventListener('click', () => verifyPayment(b.dataset.id, b)));
   document.querySelectorAll('[data-action="pickup"]').forEach(b => b.addEventListener('click', () => confirmPickup(b.dataset.id, b)));
   document.querySelectorAll('[data-action="complete"]').forEach(b => b.addEventListener('click', () => completeOrder(b.dataset.id, b)));
+  document.querySelectorAll('[data-action="chat"]').forEach(b => b.addEventListener('click', () => openChat(b.dataset.id)));
 }
 
 function renderOrderCard(order) {
@@ -648,11 +648,14 @@ function renderOrderCard(order) {
   const isCash = payMethod === 'cash' || !payMethod;
   const isVerified = order.paymentVerified === true;
 
-  let routeHtml = '';
-  if (order.serviceId === 'ojek' || order.serviceId === 'taxi' || order.serviceId === 'becak') {
+   let routeHtml = '';
+  const isRide = order.serviceId === 'ojek' || order.serviceId === 'taxi' || order.serviceId === 'becak' || order.serviceId === 'food';
+  if (isRide) {
+    const jemputLabel = order.serviceId === 'food' ? 'Ambil Makanan' : 'Jemput';
+    const tujuanLabel = order.serviceId === 'food' ? 'Antar' : 'Tujuan';
     routeHtml = `<div class="oc-route">
-        <div class="oc-route-item"><span class="oc-route-dot green"></span><span><strong>Jemput:</strong> ${escapeHtml(order.pickup || '-')}</span></div>
-        <div class="oc-route-item"><span class="oc-route-dot red"></span><span><strong>Tujuan:</strong> ${escapeHtml(order.dest || '-')}</span></div>
+        <div class="oc-route-item"><span class="oc-route-dot green"></span><span><strong>${jemputLabel}:</strong> ${escapeHtml(order.pickup || '-')}</span></div>
+        <div class="oc-route-item"><span class="oc-route-dot red"></span><span><strong>${tujuanLabel}:</strong> ${escapeHtml(order.dest || '-')}</span></div>
         ${order.distance ? `<div style="margin-top:5px;font-size:11px;color:var(--muted)">Jarak: ${Number(order.distance).toFixed(1)} km</div>` : ''}</div>`;
   } else if (order.serviceId === 'tulung') {
     routeHtml = `<div class="oc-route">
@@ -661,11 +664,9 @@ function renderOrderCard(order) {
   } else {
     routeHtml = `<div class="oc-route"><div class="oc-route-item"><span class="oc-route-dot green"></span><span><strong>Alamat:</strong> ${escapeHtml(order.deliveryAddress || order.address || '-')}</span></div></div>`;
   }
-
   const userWaClean = String(order.userWa || '').replace(/\D/g, '');
   const waLink = userWaClean ? `https://wa.me/${userWaClean.startsWith('0') ? '62' + userWaClean.slice(1) : userWaClean}` : '#';
-  const userHtml = `<div class="oc-user"><div class="oc-user-info"><strong>👤 ${escapeHtml(order.userName || '-')}</strong><small>${escapeHtml(order.userWa || '-')}</small></div>${userWaClean ? `<a class="oc-user-wa" href="${waLink}" target="_blank" rel="noopener">💬 Chat</a>` : ''}</div>`;
-
+  const userHtml = `<div class="oc-user"><div class="oc-user-info"><strong>👤 ${escapeHtml(order.userName || '-')}</strong><small>${escapeHtml(order.userWa || '-')}</small></div><div class="oc-user-actions"><button class="oc-chat-btn" data-action="chat" data-id="${escapeHtml(order.id)}">💬 Chat</button>${userWaClean ? `<a class="oc-user-wa" href="${waLink}" target="_blank" rel="noopener">WA</a>` : ''}</div></div>`;
   const total = order.paymentTotal ?? order.totalWithCode ?? order.fare ?? 0;
   const uniqueCode = order.uniqueCode;
   let paymentHtml = '';
@@ -717,6 +718,7 @@ function renderHistory() {
 
 function updateStats() {
   document.getElementById('statActive').textContent = activeOrders.length;
+  document.getElementById('statBalance').textContent = formatRp(Number(driverData?.balance) || 0);
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const todayOrders = historyOrders.filter(o => { const ts = o.completedAt?.toDate ? o.completedAt.toDate() : (o.completedAt?.seconds ? new Date(o.completedAt.seconds * 1000) : null); return ts && ts >= today; });
   document.getElementById('statToday').textContent = todayOrders.length;
@@ -742,7 +744,7 @@ async function doCompleteOrder(orderId, viaLocation, dist) {
   if (!order) return;
   const fare = Number(order.paymentTotal ?? order.fare ?? 0);
   const commission = Number(appSettings.commissions?.[order.serviceId] ?? 0);
-  const driverEarning = Math.max(0, fare - commission);
+    const driverEarning = fare; // komisi sudah dipotong dari top up, bukan dari pendapatan trip
   await updateDoc(doc(db, CONFIG.ordersCollection, orderId), {
     status: 'selesai', completedAt: serverTimestamp(),
     completedBy: 'Driver: ' + (driverData?.name || session?.name || 'driver'),
@@ -756,7 +758,9 @@ async function doCompleteOrder(orderId, viaLocation, dist) {
     const newBal = Math.max(0, bal - commission);
     await updateDoc(doc(db, CONFIG.collection, session.uid), { balance: newBal });
     driverData.balance = newBal;
+    updateStats();
   } catch (e) { console.warn('[balance]', e); }
+
 }
 
 window.completeOrder = async function(orderId, btn) {
@@ -877,7 +881,54 @@ window.doLogout = async function() {
 // ===== UTIL =====
 function formatRp(num) { return 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(num || 0)); }
 function escapeHtml(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
-function formatDate(ts) {
+// ===== CHAT (user <-> driver) =====
+let chatOrderId = null, chatUnsub = null;
+function chatMessagesRef(orderId) { return collection(db, CONFIG.ordersCollection, orderId, 'messages'); }
+window.openChat = function(orderId) {
+  const order = activeOrders.find(o => o.id === orderId);
+  if (!order) return alert('Pesanan tidak ditemukan.');
+  chatOrderId = orderId;
+  document.getElementById('chatTitle').textContent = `💬 ${order.userName || 'Pengguna'}`;
+  document.getElementById('chatSub').textContent = `${order.serviceName || ''} · ${String(order.id).slice(0, 6)}…`;
+  document.getElementById('chatOverlay').hidden = false;
+  document.getElementById('chatInput').focus();
+  subscribeChat(orderId);
+};
+window.closeChat = function() {
+  document.getElementById('chatOverlay').hidden = true;
+  if (chatUnsub) { chatUnsub(); chatUnsub = null; }
+  chatOrderId = null;
+};
+function subscribeChat(orderId) {
+  if (chatUnsub) chatUnsub();
+  const q = query(chatMessagesRef(orderId), orderBy('createdAt', 'asc'), limit(200));
+  chatUnsub = onSnapshot(q, (snap) => {
+    const box = document.getElementById('chatMessages');
+    const msgs = snap.docs.map(d => d.data());
+    if (!msgs.length) { box.innerHTML = `<div class="chat-empty">Belum ada pesan. Mulai chat dengan pengguna.</div>`; return; }
+    box.innerHTML = msgs.map(m => {
+      const mine = m.senderRole === 'driver';
+      return `<div class="chat-msg ${mine ? 'me' : 'them'}"><div class="chat-bubble">${escapeHtml(m.text || '')}</div><div class="chat-time">${mine ? 'Anda' : escapeHtml(m.sender || 'Pengguna')} · ${formatDate(m.createdAt)}</div></div>`;
+    }).join('');
+    box.scrollTop = box.scrollHeight;
+  }, (err) => { console.warn('[Chat]', err); });
+}
+window.sendChat = async function() {
+  const input = document.getElementById('chatInput');
+  const text = (input.value || '').trim();
+  if (!text || !chatOrderId) return;
+  input.value = '';
+  try {
+    await addDoc(chatMessagesRef(chatOrderId), {
+      sender: driverData?.name || session?.name || 'Driver',
+      senderRole: 'driver',
+      text: text,
+      createdAt: serverTimestamp()
+    });
+  } catch (err) { alert('Gagal kirim pesan: ' + (err.message || err)); }
+};
+ 
+ function formatDate(ts) {
   if (!ts) return '-';
   const d = ts.toDate ? ts.toDate() : new Date(ts.seconds ? ts.seconds * 1000 : ts);
   if (isNaN(d.getTime())) return '-';
@@ -887,7 +938,46 @@ function formatDate(ts) {
 
 boot();
 </script>
+<style>
+  .oc-user-actions{display:flex;gap:6px;align-items:center;flex-shrink:0}
+  .oc-chat-btn{padding:7px 12px;border-radius:8px;background:var(--green-600);color:#fff;font-size:11.5px;font-weight:800;display:inline-flex;align-items:center;gap:5px;flex-shrink:0;transition:.16s}
+  .oc-chat-btn:hover{background:var(--green-700)}
+  .chat-overlay{position:fixed;inset:0;z-index:160;background:rgba(15,23,42,.55);display:flex;align-items:flex-end;justify-content:center;padding:16px}
+  .chat-modal{width:100%;max-width:440px;background:#fff;border-radius:20px;height:82vh;max-height:640px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 50px -12px rgba(0,0,0,.35);animation:tuUp .25s ease}
+  .chat-head{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line);background:#fff}
+  .chat-head-info{flex:1;min-width:0}
+  .chat-head-info strong{display:block;font-size:14.5px;font-weight:800}
+  .chat-head-info small{display:block;font-size:11px;color:var(--muted)}
+  .chat-close{width:30px;height:30px;border-radius:9px;background:#f1f5f9;font-size:14px;font-weight:800;color:var(--muted);flex-shrink:0}
+  .chat-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#f6f9f6}
+  .chat-msg{display:flex;flex-direction:column;max-width:85%}
+  .chat-msg.me{align-self:flex-end;align-items:flex-end}
+  .chat-msg.them{align-self:flex-start;align-items:flex-start}
+  .chat-bubble{padding:10px 13px;border-radius:14px;font-size:13.5px;line-height:1.45;word-break:break-word;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .chat-msg.me .chat-bubble{background:var(--green-600);color:#fff;border-bottom-right-radius:4px}
+  .chat-msg.them .chat-bubble{background:#fff;border:1px solid var(--line);color:var(--ink);border-bottom-left-radius:4px}
+  .chat-time{font-size:10px;color:var(--muted);margin-top:4px;padding:0 4px}
+  .chat-empty{text-align:center;color:var(--muted);font-size:12.5px;margin:auto;padding:20px}
+  .chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line);background:#fff}
+  .chat-input-row input{flex:1;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font-size:14px;outline:none;background:#fbfcfd}
+  .chat-input-row input:focus{border-color:var(--green-600);box-shadow:0 0 0 4px rgba(15,157,88,.13)}
+  .chat-send{padding:0 16px;border-radius:12px;background:var(--green-600);color:#fff;font-size:14px;font-weight:800;flex-shrink:0}
+  .chat-send:hover{background:var(--green-700)}
+</style>
 
+<div class="chat-overlay" id="chatOverlay" hidden onclick="if(event.target===this)closeChat()">
+  <div class="chat-modal">
+    <div class="chat-head">
+      <div class="chat-head-info"><strong id="chatTitle">💬 Chat</strong><small id="chatSub">-</small></div>
+      <button class="chat-close" onclick="closeChat()">✕</button>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-row">
+      <input type="text" id="chatInput" placeholder="Tulis pesan…" onkeydown="if(event.key==='Enter')sendChat()" />
+      <button class="chat-send" onclick="sendChat()">Kirim</button>
+    </div>
+  </div>
+</div>
 <!-- ================== FITUR TOP UP (driver.html) ================== -->
 <style>
   .topup-fab{position:fixed;right:16px;bottom:18px;z-index:120;padding:14px 18px;border-radius:99px;background:linear-gradient(135deg,var(--yellow-400),var(--yellow-500));color:#0b3d22;font-weight:800;font-size:14px;box-shadow:0 10px 24px -8px rgba(255,199,44,.9);border:0;cursor:pointer;display:flex;align-items:center;gap:7px}
