@@ -1265,7 +1265,15 @@ function getPeriodRange(){
   return { from, to };
 }
 function getOrderTimestamp(o){ if (o.completedAt?.toDate) return o.completedAt.toDate(); if (o.completedAt?.seconds) return new Date(o.completedAt.seconds * 1000); return null; }
-
+function isOrderConfirmed(o){
+  if (o.driverConfirmReceived === true) return true;
+  if (o.driverEarningPaid === true && o.driverEarningPaidAt) {
+    const ts = o.driverEarningPaidAt?.toDate ? o.driverEarningPaidAt.toDate() : (o.driverEarningPaidAt?.seconds ? new Date(o.driverEarningPaidAt.seconds * 1000) : null);
+    if (ts && (Date.now() - ts.getTime()) > 7 * 24 * 60 * 60 * 1000) return true;
+  }
+  return false;
+}
+ 
 async function loadFinance(){
   if (!db) return;
   const { from, to } = getPeriodRange();
@@ -1295,13 +1303,13 @@ function computeFinance(drivers){
     finDriverMap[dr.id] = {
       driverId: dr.id, driverName: dr.name || '(tanpa nama)', driverWa: dr.wa || '',
       balance: Number(dr.balance) || 0, active: dr.status === 'active',
-      trips: 0, totalFare: 0, cashTotal: 0, transferOwed: 0, transferPaid: 0, commission: 0,
+      trips: 0, totalFare: 0, cashTotal: 0, transferOwed: 0, transferPaid: 0, transferConfirmed: 0, transferPendingConfirm: 0, commission: 0,
       earningOrderIds: [], services: new Set()
     };
   });
   finOrders.forEach(o => {
     if (!o.driverId) return;
-    if (!finDriverMap[o.driverId]) finDriverMap[o.driverId] = { driverId: o.driverId, driverName: o.driverName || '(tanpa nama)', driverWa: o.driverWa || '', balance: 0, active: true, trips: 0, totalFare: 0, cashTotal: 0, transferOwed: 0, transferPaid: 0, commission: 0, earningOrderIds: [], services: new Set() };
+    if (!finDriverMap[o.driverId]) finDriverMap[o.driverId] = { driverId: o.driverId, driverName: o.driverName || '(tanpa nama)', driverWa: o.driverWa || '', balance: 0, active: true, trips: 0, totalFare: 0, cashTotal: 0, transferOwed: 0, transferPaid: 0, transferConfirmed: 0, transferPendingConfirm: 0, commission: 0, earningOrderIds: [], services: new Set() };
     const d = finDriverMap[o.driverId];
     const fare = Number(o.paymentTotal ?? o.fare ?? 0);
     const commission = Number(o.commission ?? appSettings.commissions?.[o.serviceId] ?? 0);
@@ -1310,8 +1318,11 @@ function computeFinance(drivers){
     d.commission += commission;
     if (o.serviceId) d.services.add(o.serviceId);
     if (o.paymentMethod === 'transfer') {
-      if (o.driverEarningPaid === true) d.transferPaid += fare;
-      else { d.transferOwed += fare; d.earningOrderIds.push(o.id); }
+      if (o.driverEarningPaid === true) {
+        d.transferPaid += fare;
+        if (isOrderConfirmed(o)) d.transferConfirmed += fare;
+        else d.transferPendingConfirm += fare;
+      } else { d.transferOwed += fare; d.earningOrderIds.push(o.id); }
     } else if (o.paymentMethod === 'cash') {
       d.cashTotal += fare;
     }
@@ -1392,8 +1403,11 @@ function renderFinDriverCard(d){
         <div class="fin-row"><span>💰 Sisa Saldo (top up)</span><strong style="color:${balanceColor}">${formatRp(d.balance)}</strong></div>
         <div class="fin-row"><span>📦 Total Fare</span><strong>${formatRp(d.totalFare)}</strong></div>
         <div class="fin-row"><span>💵 Cash diterima driver</span><strong>${formatRp(d.cashTotal)}</strong></div>
-        <div class="fin-row"><span>🏦 Transfer (admin belum bayar)</span><strong style="color:${d.transferOwed > 0 ? '#dc2626' : '#16a34a'}">${formatRp(d.transferOwed)}</strong></div>
-        <div class="fin-row"><span>✅ Transfer sudah dibayar</span><strong style="color:#16a34a">${formatRp(d.transferPaid)}</strong></div>
+        <div class="fin-row"><span>🏦 Transfer belum dibayar admin</span><strong style="color:${d.transferOwed > 0 ? '#dc2626' : '#16a34a'}">${formatRp(d.transferOwed)}</strong></div>
+        <div class="fin-row"><span>💸 Transfer dibayar admin</span><strong>${formatRp(d.transferPaid)}</strong></div>
+        <div class="fin-row"><span>✅ Dikonfirmasi driver (termasuk auto 7 hari)</span><strong style="color:#16a34a">${formatRp(d.transferConfirmed)}</strong></div>
+        <div class="fin-row"><span>⏳ Menunggu konfirmasi driver</span><strong style="color:${d.transferPendingConfirm > 0 ? '#b45309' : '#16a34a'}">${formatRp(d.transferPendingConfirm)}</strong></div>
+
         <div class="fin-row"><span>🧾 Total Komisi (dari top up)</span><strong>${formatRp(d.commission)}</strong></div>
         <div class="fin-row"><span>🧩 Layanan</span><strong style="font-weight:600">${escapeHtml(serviceBadges || '-')}</strong></div>
         <div class="fin-driver-actions">
